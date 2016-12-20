@@ -2,6 +2,7 @@ package br.com.rede.ke.backoffice.domain.service;
 
 import br.com.rede.ke.backoffice.domain.entity.User;
 import br.com.rede.ke.backoffice.domain.repository.UserRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
@@ -23,12 +24,22 @@ public class AuthenticationServiceTest {
     private UserRepository userRepository;
 
     @Test
-    public void testAutenticate() {
-        Mockito.when(userRepository.findByNameAndPassword(anyString(), anyString()))
-            .thenReturn(Optional.of(new User()));
+    public void testAutenticateSuccess() {
+        Mockito.when(userRepository.findByNameAndPassword("root", "pass"))
+                .thenReturn(Optional.of(new User()));
 
         boolean isAuthenticated = service.authenticate(new User("root", "pass"));
         assertThat(isAuthenticated, equalTo(true));
     }
+
+    @Test
+    public void testAutenticateFail() {
+        Mockito.when(userRepository.findByNameAndPassword(anyString(), anyString()))
+                .thenReturn(Optional.empty());
+
+        boolean isAuthenticated = service.authenticate(new User("user", "password"));
+        assertThat(isAuthenticated, equalTo(false));
+    }
+
 
 }
