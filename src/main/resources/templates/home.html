@@ -6,5 +6,20 @@
     </head>
     <body>
         <h1>Welcome</h1>
+        <h2>Products</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="pv: ${pvs}">
+                    <td th:text="${pv.id}"></td>
+                    <td th:text="${pv.code}"></td>
+                </tr>
+            </tbody>
+        </table>
     </body>
 </html>
