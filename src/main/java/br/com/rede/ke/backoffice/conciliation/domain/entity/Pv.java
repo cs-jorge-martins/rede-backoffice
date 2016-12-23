@@ -1,4 +1,4 @@
-package br.com.rede.ke.backoffice.conciliador.domain.entity;
+package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 

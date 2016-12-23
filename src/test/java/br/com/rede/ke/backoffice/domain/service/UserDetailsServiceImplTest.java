@@ -3,7 +3,6 @@ package br.com.rede.ke.backoffice.domain.service;
 import br.com.rede.ke.backoffice.domain.entity.User;
 import br.com.rede.ke.backoffice.domain.repository.UserRepository;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -27,22 +26,22 @@ public class UserDetailsServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
-    private static final String VALID_USER_NAME = "root";
+    private static final String VALID_USERNAME = "root";
 
     @Before
     public void setup() {
         when(userRepository.findByName(anyString())).thenReturn(Optional.empty());
-        when(userRepository.findByName(VALID_USER_NAME)).thenReturn(Optional.of(new User(VALID_USER_NAME, anyString())));
+        when(userRepository.findByName(VALID_USERNAME)).thenReturn(Optional.of(new User(VALID_USERNAME, anyString())));
     }
 
     @Test
-    public void testLoadUserByNameGivenValidName() {
-        UserDetails userDetails = userDetailsService.loadUserByUsername("root");
-        assertThat(userDetails.getUsername(), equalTo("root"));
+    public void testLoadUserByUsernameGivenValidUsername() {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(VALID_USERNAME);
+        assertThat(userDetails.getUsername(), equalTo(VALID_USERNAME));
     }
 
     @Test(expected = UsernameNotFoundException.class)
-    public void testLoadUserByNameGivenInvalidName() {
-        userDetailsService.loadUserByUsername("invalid_user");
+    public void testLoadUserByUsernameGivenInvalidUsername() {
+        userDetailsService.loadUserByUsername("invalid_username");
     }
 }
