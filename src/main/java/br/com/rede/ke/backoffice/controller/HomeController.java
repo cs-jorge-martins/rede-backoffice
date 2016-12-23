@@ -1,7 +1,7 @@
 package br.com.rede.ke.backoffice.controller;
 
 
-import br.com.rede.ke.backoffice.domain.repository.PvRepository;
+import br.com.rede.ke.backoffice.conciliador.domain.repository.PvRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,5 +21,4 @@ public class HomeController {
         model.addAttribute("pvs", pvRepository.findAll());
         return "home";
     }
-
 }

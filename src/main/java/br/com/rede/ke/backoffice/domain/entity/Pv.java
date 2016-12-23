@@ -1,13 +1,16 @@
-package br.com.rede.ke.backoffice.domain.entity;
+package br.com.rede.ke.backoffice.conciliador.domain.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 
-@Entity(name = "PV")
+import javax.persistence.*;
+import java.util.Set;
+
+@Entity
+@Table(name = "PV")
 public class Pv {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
 
@@ -19,6 +22,13 @@ public class Pv {
 
     @Column(name = "ACQUIRER_ID")
     private Long acquirerId;
+
+    @ManyToMany
+    @JoinTable(
+        name = "USER_PV",
+        joinColumns = @JoinColumn(name = "PV_ID", referencedColumnName = "ID"),
+        inverseJoinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"))
+    private Set<User> users;
 
     public Long getId() {
         return id;
@@ -50,5 +60,13 @@ public class Pv {
 
     public void setAcquirerId(Long acquirerId) {
         this.acquirerId = acquirerId;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 }

@@ -7,7 +7,7 @@
     <body>
         <h1>Welcome</h1>
         <h2>Products</h2>
-        <table>
+        <table border="1">
             <thead>
                 <tr>
                     <th>Id</th>
@@ -18,6 +18,13 @@
                 <tr th:each="pv: ${pvs}">
                     <td th:text="${pv.id}"></td>
                     <td th:text="${pv.code}"></td>
+                    <td>
+                        <table border="1">
+                            <tr th:each="user: ${pv.users}">
+                                <td th:text="${user.email}"></td>
+                            </tr>
+                        </table>
+                    </td>
                 </tr>
             </tbody>
         </table>

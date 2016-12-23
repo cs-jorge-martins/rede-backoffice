@@ -1,7 +1,9 @@
-package br.com.rede.ke.backoffice.domain.repository;
+package br.com.rede.ke.backoffice.conciliador.domain.repository;
 
-import br.com.rede.ke.backoffice.domain.entity.Pv;
-import org.springframework.data.repository.CrudRepository;
+import br.com.rede.ke.backoffice.conciliador.domain.entity.Pv;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface PvRepository extends CrudRepository<Pv, Long> {
+@Repository
+public interface PvRepository extends JpaRepository<Pv, Long> {
 }
