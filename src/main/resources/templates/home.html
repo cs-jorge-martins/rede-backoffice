@@ -6,6 +6,16 @@
     </head>
     <body>
         <h1>Welcome</h1>
+        <form method="get" th:action="@{/}">
+            <input name="page" placeholder="page" th:value="${pvs.number}" th:declare="0"/>
+            <input name="size" placeholder="size" th:value="${pvs.size}" th:declare="2"/>
+            <input name="code" placeholder="pv code" th:value="${code}" th:default="''"/>
+            <select name="acquirer">
+                <option value="REDE" th:selected="${acquirer.toString() == 'REDE'}">REDE</option>
+                <option value="CIELO" th:selected="${acquirer.toString() == 'CIELO'}">CIELO</option>
+            </select>
+            <input type="submit" value="send"/>
+        </form>
         <h2>Products</h2>
         <table border="1">
             <thead>
