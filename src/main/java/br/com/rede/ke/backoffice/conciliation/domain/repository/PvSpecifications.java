@@ -4,6 +4,8 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import org.springframework.data.jpa.domain.Specification;
 
+import javax.persistence.criteria.JoinType;
+
 public final class PvSpecifications {
 
     public static final Specification<Pv> pvCodeEqualTo(String code) {
@@ -14,6 +16,12 @@ public final class PvSpecifications {
         return (root, query, cb) -> {
             int acquirerId = acquirer.ordinal();
             return cb.equal(root.get("acquirerId"), acquirerId);
+        };
+    }
+
+    public static final Specification<Pv> pvUsersEmailContains(String email) {
+        return (root, query, cb) -> {
+            return cb.like(root.join("users", JoinType.LEFT).get("email"), email + "%");
         };
     }
 }

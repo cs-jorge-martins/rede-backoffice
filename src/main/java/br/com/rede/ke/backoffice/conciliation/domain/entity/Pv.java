@@ -1,7 +1,5 @@
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
-import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
-
 import javax.persistence.*;
 import java.util.Set;
 
@@ -21,7 +19,7 @@ public class Pv {
     private Long headquarterId;
 
     @Column(name = "ACQUIRER_ID")
-    private Long acquirerId;
+    private Integer acquirerId;
 
     @ManyToMany
     @JoinTable(
@@ -54,19 +52,23 @@ public class Pv {
         this.headquarterId = headquarterId;
     }
 
-    public Long getAcquirerId() {
-        return acquirerId;
-    }
-
-    public void setAcquirerId(Long acquirerId) {
-        this.acquirerId = acquirerId;
-    }
-
     public Set<User> getUsers() {
         return users;
     }
 
+    public Integer getAcquirerId() {
+        return acquirerId;
+    }
+
+    public void setAcquirerId(Integer acquirerId) {
+        this.acquirerId = acquirerId;
+    }
+
     public void setUsers(Set<User> users) {
         this.users = users;
+    }
+
+    public Acquirer getAcquirer() {
+        return Acquirer.fromId(getAcquirerId());
     }
 }

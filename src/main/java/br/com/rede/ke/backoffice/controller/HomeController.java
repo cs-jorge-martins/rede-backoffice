@@ -1,7 +1,9 @@
 package br.com.rede.ke.backoffice.controller;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.service.PvService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
@@ -9,27 +11,26 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvSpecifications.*;
-import static org.springframework.data.jpa.domain.Specifications.where;
-
-
 @Controller
 public class HomeController {
 
-    private PvRepository pvRepository;
+    private PvService pvService;
 
-    public HomeController(PvRepository pvRepository) {
-        this.pvRepository = pvRepository;
+    public HomeController(PvService pvService) {
+        this.pvService = pvService;
     }
 
     @GetMapping("/")
     public String index(Model model,
-                        @PageableDefault Pageable pageable,
-                        @RequestParam(required = false) String code,
-                        @RequestParam(required = false, defaultValue = "REDE") Acquirer acquirer) {
+                        @PageableDefault(size = 20) Pageable pageable,
+                        @RequestParam(required = false, defaultValue = "") String code,
+                        @RequestParam(required = false, defaultValue = "NULL") Acquirer acquirer,
+                        @RequestParam(required = false) String email) {
         model.addAttribute("code", code);
         model.addAttribute("acquirer", acquirer);
-        model.addAttribute("pvs", pvRepository.findAll(where(pvCodeEqualTo(code)).and(pvAcquirerEqualTo(acquirer)), pageable));
+        model.addAttribute("email", email);
+        Page<Pv> pvs = pvService.findAllByAcquirerAndCodeAndUserEmail(acquirer, code, email, pageable);
+        model.addAttribute("pvs", pvs);
         return "home";
     }
 }

@@ -12,7 +12,9 @@
         <form method="get" th:action="@{/}">
             <input name="size" placeholder="size" th:value="${pvs.size}" th:declare="2"/>
             <input name="code" placeholder="pv code" th:value="${code}" th:default="''"/>
+            <input name="email" placeholder="email" th:value="${email}" th:default="''"/>
             <select name="acquirer">
+                <option value="NULL" th:selected="${acquirer.toString() == 'NULL'}">Select...</option>
                 <option value="REDE" th:selected="${acquirer.toString() == 'REDE'}">REDE</option>
                 <option value="CIELO" th:selected="${acquirer.toString() == 'CIELO'}">CIELO</option>
             </select>
@@ -44,12 +46,15 @@
             <thead>
             <tr>
                 <th>Id</th>
+                <th>Acquirer</th>
                 <th>Code</th>
+                <th>Emails</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="pv: ${pvs}">
                 <td th:text="${pv.id}"></td>
+                <td th:text="${pv.acquirer}"></td>
                 <td th:text="${pv.code}"></td>
                 <td>
                     <table>
