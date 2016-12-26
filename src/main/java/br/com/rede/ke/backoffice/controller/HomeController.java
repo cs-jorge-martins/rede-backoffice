@@ -2,8 +2,6 @@ package br.com.rede.ke.backoffice.controller;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
-import org.hibernate.validator.internal.util.CollectionHelper;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
