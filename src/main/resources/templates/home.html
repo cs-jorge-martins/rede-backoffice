@@ -3,40 +3,67 @@
     <head>
         <meta charset="UTF-8" />
         <title>Home page</title>
+        <link rel="stylesheet" href="http://fonts.googleapis.com/icon?family=Material+Icons" />
+        <link rel="stylesheet" href="/webjars/materializecss/0.97.7/css/materialize.min.css" />
     </head>
     <body>
+    <div class="container">
         <h1>Welcome</h1>
         <form method="get" th:action="@{/}">
-            <input name="page" placeholder="page" th:value="${pvs.number}" th:declare="0"/>
             <input name="size" placeholder="size" th:value="${pvs.size}" th:declare="2"/>
             <input name="code" placeholder="pv code" th:value="${code}" th:default="''"/>
             <select name="acquirer">
                 <option value="REDE" th:selected="${acquirer.toString() == 'REDE'}">REDE</option>
                 <option value="CIELO" th:selected="${acquirer.toString() == 'CIELO'}">CIELO</option>
             </select>
-            <input type="submit" value="send"/>
+            <button class="btn waves-effect waves-light" type="submit">FILTER
+                <i class="material-icons right">search</i>
+            </button>
         </form>
         <h2>Products</h2>
-        <table border="1">
+        <ul class="pagination" th:unless="${pvs.totalPages == 0}">
+            <li th:class="${pvs.number eq 0} ? 'disabled' : 'waves-effect'">
+                <a th:if="${not pvs.isFirst()}" th:href="@{${'/'}(page=${pvs.number-1},size=${pvs.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_left</a>
+                <a th:if="${pvs.isFirst()}" href="javascript:void(0);" class="material-icons">chevron_left</a>
+            </li>
+            <li th:each="pageNo : ${#numbers.sequence(0, pvs.totalPages - 1)}" th:class="${pvs.number eq pageNo} ? 'active' : ''">
+                <a th:if="${pvs.number  eq pageNo}" href="javascript:void(0);">
+                    <span th:text="${pageNo}"></span>
+                </a>
+                <a th:if="${not (pvs.number eq pageNo)}" th:href="@{${'/'}(page=${pageNo},size=${pvs.size}, code=${code}, acquirer=${acquirer})}">
+                    <span th:text="${pageNo}"></span>
+                </a>
+            </li>
+            <li th:class="${pvs.number + 1 ge pvs.totalPages} ? 'disabled' : 'waves-effect'">
+                <a th:if="${not pvs.isLast()}" th:href="@{${'/'}(page=${pvs.number+1},size=${pvs.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_right</a>
+                <a th:if="${pvs.isLast()}" href="javascript:void(0);" class="material-icons">chevron_right</a>
+            </li>
+        </ul>
+        <p th:unless="${pvs.totalPages > 0}">No result.</p>
+        <table class="striped" th:unless="${pvs.totalPages == 0}">
             <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Code</th>
-                </tr>
+            <tr>
+                <th>Id</th>
+                <th>Code</th>
+            </tr>
             </thead>
             <tbody>
-                <tr th:each="pv: ${pvs}">
-                    <td th:text="${pv.id}"></td>
-                    <td th:text="${pv.code}"></td>
-                    <td>
-                        <table border="1">
-                            <tr th:each="user: ${pv.users}">
-                                <td th:text="${user.email}"></td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
+            <tr th:each="pv: ${pvs}">
+                <td th:text="${pv.id}"></td>
+                <td th:text="${pv.code}"></td>
+                <td>
+                    <table>
+                        <tr th:each="user: ${pv.users}">
+                            <td th:text="${user.email}"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
             </tbody>
         </table>
+    </div>
+    <script type="application/javascript" src="/webjars/jquery/3.1.1-1/jquery.min.js"></script>
+    <script type="application/javascript" src="/webjars/materializecss/0.97.7/js/materialize.min.js"></script>
+    <script type="application/javascript">$('select').material_select()</script>
     </body>
 </html>
