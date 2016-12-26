@@ -3,18 +3,54 @@
     <head>
         <meta charset="UTF-8" />
         <title>Login Form</title>
+        <link rel="stylesheet" href="http://fonts.googleapis.com/icon?family=Material+Icons" />
+        <link rel="stylesheet" href="/webjars/materializecss/0.97.7/css/materialize.min.css" />
     </head>
     <body>
-        <span class="error-message" th:text="${errorMessage}" th:unless="${errorMessage == null}"></span>
+    <div class="container">
+        <div class="row">
+            <div class="col s10 offset-s1 m11 l6 z-depth-1 white">
+                <div class="center-align">
+                    <br/><br />
+                    <i class="large material-icons">lock_open</i>
+                    <br/><br/>
+                    <div class="divider"></div>
+                    <h3>Conciliation</h3>
+                    <h4>Backoffice</h4>
+                    <p>System to manage control rede</p>
+                </div>
+            </div>
 
-        <form method="POST" th:action="@{/auth/login}">
-            <fieldset>
-                <legend>Login</legend>
-                <input type="text" placeholder="username" th:name="username"/>
-                <input type="password" placeholder="password" th:name="password"/>
-                <br />
-                <input type="submit" value="LogIn" />
-            </fieldset>
-        </form>
+            <div class="col s10 offset-s1 m11 l6 teal lighten-5">
+                <div class="center-align">
+                    <h3>Sign In</h3>
+                    <p>Sign in to access your account</p>
+                    <span class="red lighten-5 error-message" th:text="${errorMessage}" th:unless="${errorMessage == null}"></span>
+                </div>
+
+                <form class="col s12" th:action="@{/auth/login}" method="post">
+                    <div class="row">
+
+
+                        <div class="input-field col s10 offset-s1">
+                            <input type="text" th:name="username" id="username"/>
+                            <label for="username">Your username</label>
+                        </div>
+
+                        <div class="input-field col s10 offset-s1">
+                            <input type="password" th:name="password" id="password"/>
+                            <label for="password">Your Password</label>
+                        </div>
+
+                        <div class="center-align">
+                            <button class="waves-effect waves-light btn">SIGN IN</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="application/javascript" src="/webjars/jquery/3.1.1-1/jquery.min.js"></script>
+    <script type="application/javascript" src="/webjars/materializecss/0.97.7/js/materialize.min.js"></script>
     </body>
 </html>
