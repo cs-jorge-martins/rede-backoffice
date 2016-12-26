@@ -9,19 +9,38 @@
     <body>
     <div class="container">
         <h1>Welcome</h1>
-        <form method="get" th:action="@{/}">
-            <input name="size" placeholder="size" th:value="${pvs.size}" th:declare="2"/>
-            <input name="code" placeholder="pv code" th:value="${code}" th:default="''"/>
-            <input name="email" placeholder="email" th:value="${email}" th:default="''"/>
-            <select name="acquirer">
-                <option value="NULL" th:selected="${acquirer.toString() == 'NULL'}">Select...</option>
-                <option value="REDE" th:selected="${acquirer.toString() == 'REDE'}">REDE</option>
-                <option value="CIELO" th:selected="${acquirer.toString() == 'CIELO'}">CIELO</option>
-            </select>
+        <form method="get" th:action="@{/}">			     
+        	<div class="row">
+	       		<div class="input-field col s5">
+		         	<input id="page-size" name="size" th:value="${pvs.size}" type="text"/>
+		         	<label for="page-size">Page size</label>
+	       		</div>
+	       		<div class="input-field col s7">
+	       			<input id="pv-code" name="code" th:value="${code}" type="text"/>
+		         	<label for="pv-code">PV Code</label>
+	       		</div>
+	       	</div>
+	       	
+	       	<div class="row">
+	       		<div class="input-field col s6">
+		         	<input id="email" name="email" type="email" th:value="${email}"/>
+		         	<label for="email">E-mail</label>
+	       		</div>
+	       		<div class="input-field col s6">
+	       			<select id="acquirer" name="acquirer">
+		                <option value="NULL" th:selected="${acquirer.toString() == 'NULL'}">Select...</option>
+		                <option value="REDE" th:selected="${acquirer.toString() == 'REDE'}">REDE</option>
+		                <option value="CIELO" th:selected="${acquirer.toString() == 'CIELO'}">CIELO</option>
+		            </select>
+		         	<label for="acquirer">Adquirente</label>
+	       		</div>
+	       	</div>
+
             <button class="btn waves-effect waves-light" type="submit">FILTER
                 <i class="material-icons right">search</i>
             </button>
         </form>
+
         <h2>Products</h2>
         <ul class="pagination" th:unless="${pvs.totalPages == 0}">
             <li th:class="${pvs.number eq 0} ? 'disabled' : 'waves-effect'">
