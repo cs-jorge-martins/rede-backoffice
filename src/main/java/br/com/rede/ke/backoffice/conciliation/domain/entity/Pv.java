@@ -15,8 +15,9 @@ public class Pv {
     @Column(name = "CODE")
     private String code;
 
-    @Column(name = "HEADQUARTER_ID")
-    private Long headquarterId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("HEADQUARTER_ID")
+    private Pv headquarter;
 
     @Column(name = "ACQUIRER_ID")
     private Integer acquirerId;
@@ -44,14 +45,6 @@ public class Pv {
         this.code = code;
     }
 
-    public Long getHeadquarterId() {
-        return headquarterId;
-    }
-
-    public void setHeadquarterId(Long headquarterId) {
-        this.headquarterId = headquarterId;
-    }
-
     public Set<User> getUsers() {
         return users;
     }
@@ -70,5 +63,9 @@ public class Pv {
 
     public Acquirer getAcquirer() {
         return Acquirer.fromId(getAcquirerId());
+    }
+
+    public boolean isHeadquarter() {
+        return this.headquarter == null;
     }
 }

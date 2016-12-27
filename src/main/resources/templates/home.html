@@ -49,6 +49,7 @@
 		                <th>E-mail</th>
 		                <th>Acquirer</th>
 		                <th>Code</th>
+			            <th></th>
 		            </tr>
 		            </thead>
 		            <tbody>
@@ -56,6 +57,7 @@
 		                <td th:text="${permission.user.email}"></td>
 		                <td th:text="${permission.pv.acquirer}"></td>
 		                <td th:text="${permission.pv.code}"></td>
+			            <td><div th:if="${permission.pv.isHeadquarter()}" class="chip">Matriz</div></td>
 		            </tr>
 		            </tbody>
 		        </table>
