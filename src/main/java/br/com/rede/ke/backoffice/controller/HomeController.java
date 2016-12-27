@@ -5,6 +5,7 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +23,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String index(Model model,
-                        @PageableDefault(size = 20) Pageable pageable,
+                        @PageableDefault(size = 20, sort = {"user.email", "pv.acquirerId", "pv.code" }, direction = Sort.Direction.ASC) Pageable pageable,
                         @RequestParam(required = false, defaultValue = "") String code,
                         @RequestParam(required = false, defaultValue = "NULL") Acquirer acquirer,
                         @RequestParam(required = false) String email) {
