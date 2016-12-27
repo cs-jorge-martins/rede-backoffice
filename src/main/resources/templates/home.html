@@ -8,80 +8,63 @@
     </head>
     <body>
     <div class="container">
-        <h1>Welcome</h1>
+        <h1>Permissões de PV</h1>
         <form method="get" th:action="@{/}">			     
         	<div class="row">
-	       		<div class="input-field col s5">
-		         	<input id="page-size" name="size" th:value="${pvs.size}" type="text"/>
-		         	<label for="page-size">Page size</label>
-	       		</div>
-	       		<div class="input-field col s7">
+	       		<div class="input-field col s3">
 	       			<input id="pv-code" name="code" th:value="${code}" type="text"/>
 		         	<label for="pv-code">PV Code</label>
 	       		</div>
+                <div class="input-field col s5">
+                    <input id="email" name="email" type="email" th:value="${email}"/>
+                    <label for="email">E-mail</label>
+                </div>
+                <div class="input-field col s2">
+                    <select id="acquirer" name="acquirer">
+                        <option value="NULL" th:selected="${acquirer.toString() == 'NULL'}">Select...</option>
+                        <option value="CIELO" th:selected="${acquirer.toString() == 'CIELO'}">CIELO</option>
+                    </select>
+                    <label for="acquirer">Adquirente</label>
+                </div>
+                <div class="input-field col s2">
+                    <button class="btn waves-effect waves-light" type="submit">FILTER
+                        <i class="material-icons right">search</i>
+                    </button>
+                </div>
 	       	</div>
-	       	
-	       	<div class="row">
-	       		<div class="input-field col s6">
-		         	<input id="email" name="email" type="email" th:value="${email}"/>
-		         	<label for="email">E-mail</label>
-	       		</div>
-	       		<div class="input-field col s6">
-	       			<select id="acquirer" name="acquirer">
-		                <option value="NULL" th:selected="${acquirer.toString() == 'NULL'}">Select...</option>
-		                <option value="REDE" th:selected="${acquirer.toString() == 'REDE'}">REDE</option>
-		                <option value="CIELO" th:selected="${acquirer.toString() == 'CIELO'}">CIELO</option>
-		            </select>
-		         	<label for="acquirer">Adquirente</label>
-	       		</div>
-	       	</div>
-
-            <button class="btn waves-effect waves-light" type="submit">FILTER
-                <i class="material-icons right">search</i>
-            </button>
         </form>
 
-        <h2>Products</h2>
-        <ul class="pagination" th:unless="${pvs.totalPages == 0}">
-            <li th:class="${pvs.number eq 0} ? 'disabled' : 'waves-effect'">
-                <a th:if="${not pvs.isFirst()}" th:href="@{${'/'}(page=${pvs.number-1},size=${pvs.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_left</a>
-                <a th:if="${pvs.isFirst()}" href="javascript:void(0);" class="material-icons">chevron_left</a>
+        <ul class="pagination" th:unless="${pvPermissions.totalPages == 0}">
+            <li th:class="${pvPermissions.number eq 0} ? 'disabled' : 'waves-effect'">
+                <a th:if="${not pvPermissions.isFirst()}" th:href="@{${'/'}(page=${pvPermissions.number-1},size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_left</a>
+                <a th:if="${pvPermissions.isFirst()}" href="javascript:void(0);" class="material-icons">chevron_left</a>
             </li>
-            <li th:each="pageNo : ${#numbers.sequence(0, pvs.totalPages - 1)}" th:class="${pvs.number eq pageNo} ? 'active' : ''">
-                <a th:if="${pvs.number  eq pageNo}" href="javascript:void(0);">
+            <li th:each="pageNo : ${#numbers.sequence(0, pvPermissions.totalPages - 1)}" th:class="${pvPermissions.number eq pageNo} ? 'active' : ''">
+                <a th:if="${pvPermissions.number  eq pageNo}" href="javascript:void(0);">
                     <span th:text="${pageNo}"></span>
                 </a>
-                <a th:if="${not (pvs.number eq pageNo)}" th:href="@{${'/'}(page=${pageNo},size=${pvs.size}, code=${code}, acquirer=${acquirer})}">
+                <a th:if="${not (pvPermissions.number eq pageNo)}" th:href="@{${'/'}(page=${pageNo},size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}">
                     <span th:text="${pageNo}"></span>
                 </a>
             </li>
-            <li th:class="${pvs.number + 1 ge pvs.totalPages} ? 'disabled' : 'waves-effect'">
-                <a th:if="${not pvs.isLast()}" th:href="@{${'/'}(page=${pvs.number+1},size=${pvs.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_right</a>
-                <a th:if="${pvs.isLast()}" href="javascript:void(0);" class="material-icons">chevron_right</a>
+            <li th:class="${pvPermissions.number + 1 ge pvPermissions.totalPages} ? 'disabled' : 'waves-effect'">
+                <a th:if="${not pvPermissions.isLast()}" th:href="@{${'/'}(page=${pvPermissions.number+1},size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_right</a>
+                <a th:if="${pvPermissions.isLast()}" href="javascript:void(0);" class="material-icons">chevron_right</a>
             </li>
         </ul>
-        <p th:unless="${pvs.totalPages > 0}">No result.</p>
-        <table class="striped" th:unless="${pvs.totalPages == 0}">
+        <p th:unless="${pvPermissions.totalPages > 0}">No result.</p>
+        <table class="striped" th:unless="${pvPermissions.totalPages == 0}">
             <thead>
             <tr>
-                <th>Id</th>
                 <th>Acquirer</th>
                 <th>Code</th>
-                <th>Emails</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="pv: ${pvs}">
-                <td th:text="${pv.id}"></td>
-                <td th:text="${pv.acquirer}"></td>
-                <td th:text="${pv.code}"></td>
-                <td>
-                    <table>
-                        <tr th:each="user: ${pv.users}">
-                            <td th:text="${user.email}"></td>
-                        </tr>
-                    </table>
-                </td>
+            <tr th:each="permission: ${pvPermissions}">
+                <td th:text="${permission.pv.acquirer}"></td>
+                <td th:text="${permission.pv.code}"></td>
+                <td th:text="${permission.user.email}"></td>
             </tr>
             </tbody>
         </table>
