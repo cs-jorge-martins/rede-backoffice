@@ -19,7 +19,7 @@
 		        <form method="get" th:action="@{/}">			     
 		       		<div class="input-field row">
 		       			<input id="pv-code" name="code" th:value="${code}" type="text"/>
-			         	<label for="pv-code">PV Code</label>
+			         	<label for="pv-code">Código do Pv</label>
 		       		</div>
 	                <div class="input-field row">
 	                    <input id="email" name="email" type="email" th:value="${email}"/>
@@ -27,13 +27,17 @@
 	                </div>
 	                <div class="input-field row">
 	                    <select id="acquirer" name="acquirer">
-	                        <option value="NULL" th:selected="${acquirer.toString() == 'NULL'}">Select...</option>
-	                        <option value="CIELO" th:selected="${acquirer.toString() == 'CIELO'}">CIELO</option>
+	                        <option 
+	                        	th:selected="${acquirer == acquirerItem}" 
+	                        	th:each="acquirerItem: ${acquirers}" 
+	                        	th:text="#{'option.acquirer.' + ${acquirerItem}}"
+	                        	th:value="${acquirerItem}">
+				            </option>
 	                    </select>
 	                    <label for="acquirer">Adquirente</label>
 	                </div>
 	                <div class="input-field row">
-	                    <button class="btn waves-effect waves-light" type="submit">FILTER
+	                    <button class="btn waves-effect waves-light" type="submit">FILTRAR
 	                        <i class="material-icons right">search</i>
 	                    </button>
 	                </div>
@@ -47,8 +51,8 @@
 		            <thead>
 		            <tr>
 		                <th>E-mail</th>
-		                <th>Acquirer</th>
-		                <th>Code</th>
+		                <th>Adquirente</th>
+		                <th>Código do Pv</th>
 			            <th></th>
 		            </tr>
 		            </thead>

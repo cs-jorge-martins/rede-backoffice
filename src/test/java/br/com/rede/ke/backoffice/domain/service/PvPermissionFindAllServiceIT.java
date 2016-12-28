@@ -28,28 +28,39 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 
 /**
- * The Class AcquirerServiceTest.
+ * The Class PvPermissionFindAllServiceIT.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class PvPermissionFindAllServiceIT {
     
+    /** The pv permission service. */
     @Autowired
     private PvPermissionService pvPermissionService;
     
+    /** The pageable. */
     private Pageable pageable;
     
+    /**
+     * Setup tests.
+     */
     @Before
     public void setUp() {
         this.pageable = new PageRequest(0 , 20);
     }
 
+    /**
+     * Test find all by acquirer.
+     */
     @Test
     public void testFindAllByAcquirer() {
         Page<PvPermission> searchResults = pvPermissionService.findAllByAcquirerAndCodeAndEmail(Acquirer.CIELO, null, null, pageable);
         assertThat(searchResults.getNumberOfElements(), equalTo(3));
     }
     
+    /**
+     * Test find all by acquirer filters REDE.
+     */
     @Test
     public void testFindAllByAcquirerFiltersREDE() {
         String code = "42345678";
@@ -57,6 +68,9 @@ public class PvPermissionFindAllServiceIT {
         assertThat(searchResults.getNumberOfElements(), equalTo(0));
     }
     
+    /**
+     * Test find all by acquirer and code and email.
+     */
     @Test
     public void testFindAllByAcquirerAndCodeAndEmail() {
         String code = "92315670";
