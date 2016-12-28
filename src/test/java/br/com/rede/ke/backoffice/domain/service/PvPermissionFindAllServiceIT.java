@@ -1,11 +1,11 @@
 /*
  * Copyright 2016 Rede S.A.
  *************************************************************
- * Nome     : AcquirerServiceTest.java
- * Descrição: AcquirerServiceTest.
- * Autor    : Bruno Silva <bruno.fsilva@userede.com.br>
- * Data     : 09/11/2016
- * Empresa  : Rede
+ * Nome     : PvPermissionFindAllServiceIT.java
+ * Descrição: PvPermissionFindAllServiceIT.
+ * Autor    : Karlisson Bezerra <kbezerra@thoughtworks.com>
+ * Data     : 28/12/2016
+ * Empresa  : Thoughtworks
  */
 package br.com.rede.ke.backoffice.domain.service;
 
