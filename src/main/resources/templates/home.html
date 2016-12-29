@@ -7,60 +7,84 @@
         <link rel="stylesheet" href="/webjars/materializecss/0.97.7/css/materialize.min.css" />
     </head>
     <body>
+    <nav role="navigation">
+		<div class="nav-wrapper container">
+		  <a href="#" class="brand-logo">Backoffice Control Rede</a>
+		</div>
+  	</nav>
+  	
     <div class="container">
-        <h1>Welcome</h1>
-        <form method="get" th:action="@{/}">
-            <input name="size" placeholder="size" th:value="${pvs.size}" th:declare="2"/>
-            <input name="code" placeholder="pv code" th:value="${code}" th:default="''"/>
-            <select name="acquirer">
-                <option value="REDE" th:selected="${acquirer.toString() == 'REDE'}">REDE</option>
-                <option value="CIELO" th:selected="${acquirer.toString() == 'CIELO'}">CIELO</option>
-            </select>
-            <button class="btn waves-effect waves-light" type="submit">FILTER
-                <i class="material-icons right">search</i>
-            </button>
-        </form>
-        <h2>Products</h2>
-        <ul class="pagination" th:unless="${pvs.totalPages == 0}">
-            <li th:class="${pvs.number eq 0} ? 'disabled' : 'waves-effect'">
-                <a th:if="${not pvs.isFirst()}" th:href="@{${'/'}(page=${pvs.number-1},size=${pvs.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_left</a>
-                <a th:if="${pvs.isFirst()}" href="javascript:void(0);" class="material-icons">chevron_left</a>
-            </li>
-            <li th:each="pageNo : ${#numbers.sequence(0, pvs.totalPages - 1)}" th:class="${pvs.number eq pageNo} ? 'active' : ''">
-                <a th:if="${pvs.number  eq pageNo}" href="javascript:void(0);">
-                    <span th:text="${pageNo}"></span>
-                </a>
-                <a th:if="${not (pvs.number eq pageNo)}" th:href="@{${'/'}(page=${pageNo},size=${pvs.size}, code=${code}, acquirer=${acquirer})}">
-                    <span th:text="${pageNo}"></span>
-                </a>
-            </li>
-            <li th:class="${pvs.number + 1 ge pvs.totalPages} ? 'disabled' : 'waves-effect'">
-                <a th:if="${not pvs.isLast()}" th:href="@{${'/'}(page=${pvs.number+1},size=${pvs.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_right</a>
-                <a th:if="${pvs.isLast()}" href="javascript:void(0);" class="material-icons">chevron_right</a>
-            </li>
-        </ul>
-        <p th:unless="${pvs.totalPages > 0}">No result.</p>
-        <table class="striped" th:unless="${pvs.totalPages == 0}">
-            <thead>
-            <tr>
-                <th>Id</th>
-                <th>Code</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="pv: ${pvs}">
-                <td th:text="${pv.id}"></td>
-                <td th:text="${pv.code}"></td>
-                <td>
-                    <table>
-                        <tr th:each="user: ${pv.users}">
-                            <td th:text="${user.email}"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    	<div class="row">
+	       	<div class="col s3">
+		        <form method="get" th:action="@{/}">			     
+		       		<div class="input-field row">
+		       			<input id="pv-code" name="code" th:value="${code}" type="text"/>
+			         	<label for="pv-code">Código do Pv</label>
+		       		</div>
+	                <div class="input-field row">
+	                    <input id="email" name="email" type="email" th:value="${email}"/>
+	                    <label for="email">E-mail</label>
+	                </div>
+	                <div class="input-field row">
+	                    <select id="acquirer" name="acquirer">
+	                        <option 
+	                        	th:selected="${acquirer == acquirerItem}" 
+	                        	th:each="acquirerItem: ${acquirers}" 
+	                        	th:text="#{'option.acquirer.' + ${acquirerItem}}"
+	                        	th:value="${acquirerItem}">
+				            </option>
+	                    </select>
+	                    <label for="acquirer">Adquirente</label>
+	                </div>
+	                <div class="input-field row">
+	                    <button class="btn waves-effect waves-light" type="submit">FILTRAR
+	                        <i class="material-icons right">search</i>
+	                    </button>
+	                </div>
+		       	</form>
+	       	</div>
+       	
+	    	<div class="col s9">
+	
+		        <p th:unless="${pvPermissions.totalPages > 0}">Nenhum resultado encontrado.</p>
+		        <table class="striped" th:unless="${pvPermissions.totalPages == 0}">
+		            <thead>
+		            <tr>
+		                <th>E-mail</th>
+		                <th>Adquirente</th>
+		                <th>Código do Pv</th>
+			            <th></th>
+		            </tr>
+		            </thead>
+		            <tbody>
+		            <tr th:each="permission: ${pvPermissions}">
+		                <td th:text="${permission.user.email}"></td>
+		                <td th:text="${permission.pv.acquirer}"></td>
+		                <td th:text="${permission.pv.code}"></td>
+			            <td><div th:if="${permission.pv.isHeadquarter()}" class="chip">Matriz</div></td>
+		            </tr>
+		            </tbody>
+		        </table>
+		        <ul class="pagination" th:unless="${pvPermissions.totalPages == 0}">
+		            <li th:class="${pvPermissions.number eq 0} ? 'disabled' : 'waves-effect'">
+		                <a th:if="${not pvPermissions.isFirst()}" th:href="@{${'/'}(page=${pvPermissions.number-1},size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_left</a>
+		                <a th:if="${pvPermissions.isFirst()}" href="javascript:void(0);" class="material-icons">chevron_left</a>
+		            </li>
+		            <li th:each="pageNo : ${#numbers.sequence(0, pvPermissions.totalPages - 1)}" th:class="${pvPermissions.number eq pageNo} ? 'active' : ''">
+		                <a th:if="${pvPermissions.number eq pageNo}" href="javascript:void(0);">
+		                    <span th:text="${pageNo}"></span>
+		                </a>
+		                <a th:if="${not (pvPermissions.number eq pageNo)}" th:href="@{${'/'}(page=${pageNo},size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}">
+		                    <span th:text="${pageNo}"></span>
+		                </a>
+		            </li>
+		            <li th:class="${pvPermissions.number + 1 ge pvPermissions.totalPages} ? 'disabled' : 'waves-effect'">
+		                <a th:if="${not pvPermissions.isLast()}" th:href="@{${'/'}(page=${pvPermissions.number+1},size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_right</a>
+		                <a th:if="${pvPermissions.isLast()}" href="javascript:void(0);" class="material-icons">chevron_right</a>
+		            </li>
+	       		</ul>
+	        </div>
+        </div>
     </div>
     <script type="application/javascript" src="/webjars/jquery/3.1.1-1/jquery.min.js"></script>
     <script type="application/javascript" src="/webjars/materializecss/0.97.7/js/materialize.min.js"></script>

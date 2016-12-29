@@ -1,9 +1,18 @@
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
-import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
-
-import javax.persistence.*;
 import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "PV")
@@ -17,11 +26,12 @@ public class Pv {
     @Column(name = "CODE")
     private String code;
 
-    @Column(name = "HEADQUARTER_ID")
-    private Long headquarterId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "HEADQUARTER_ID")
+    private Pv headquarter;
 
     @Column(name = "ACQUIRER_ID")
-    private Long acquirerId;
+    private Integer acquirerId;
 
     @ManyToMany
     @JoinTable(
@@ -46,27 +56,27 @@ public class Pv {
         this.code = code;
     }
 
-    public Long getHeadquarterId() {
-        return headquarterId;
-    }
-
-    public void setHeadquarterId(Long headquarterId) {
-        this.headquarterId = headquarterId;
-    }
-
-    public Long getAcquirerId() {
-        return acquirerId;
-    }
-
-    public void setAcquirerId(Long acquirerId) {
-        this.acquirerId = acquirerId;
-    }
-
     public Set<User> getUsers() {
         return users;
     }
 
+    public Integer getAcquirerId() {
+        return acquirerId;
+    }
+
+    public void setAcquirerId(Integer acquirerId) {
+        this.acquirerId = acquirerId;
+    }
+
     public void setUsers(Set<User> users) {
         this.users = users;
+    }
+
+    public Acquirer getAcquirer() {
+        return Acquirer.fromId(getAcquirerId());
+    }
+
+    public boolean isHeadquarter() {
+        return this.headquarter == null;
     }
 }
