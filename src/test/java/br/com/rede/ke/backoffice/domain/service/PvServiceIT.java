@@ -20,10 +20,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.rede.ke.backoffice.Application;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvService;
 
 /**
@@ -37,30 +39,35 @@ public class PvServiceIT {
     @Autowired
     private PvService pvService;
     
-    @Test
-    public void testValidMasterPv(){
-        Pv pv = new Pv();
-        pv.setCode("12345678");
-        
-        List<Pv> pvs = pvService.findHeadquarterPv(pv);
-        
-        assertThat(pvs.size(), equalTo(1));
-        
-    }
+    @Autowired
+    private PvRepository pvRepository;
     
     @Test
+    @Transactional
     public void testPvBatchValidation(){
         String pvs = "1000201314\n101476A6629\n1000201330\n1005B867493\n";
         List<Pv> pvList = pvService.readPvsFromString(pvs);
         
         PvBatch batch = pvService.processPvBatch(pvList);
-        
         List<String> pvCodes = batch.getSucessfulPvs().stream().map(Pv::getCode).collect(Collectors.toList());
-        
-        List<Pv> sucessfulPvs = pvService.findByPvCodes(pvCodes);
+        List<Pv> sucessfulPvs = pvRepository.findByCodeIn(pvCodes);
         
         assertThat(sucessfulPvs.size(), equalTo(2));
         assertThat(batch.getFailedPvs().size(), equalTo(2));
+    }
+    
+    @Test
+    @Transactional
+    public void testPvBatchWithNonHeadquarterPv(){
+        String pvs = "1000201314\n22345678\n";
+        List<Pv> pvList = pvService.readPvsFromString(pvs);
+        
+        PvBatch batch = pvService.processPvBatch(pvList);
+        List<String> pvCodes = batch.getSucessfulPvs().stream().map(Pv::getCode).collect(Collectors.toList());
+        List<Pv> sucessfulPvs = pvRepository.findByCodeIn(pvCodes);
+        
+        assertThat(sucessfulPvs.size(), equalTo(1));
+        assertThat(batch.getFailedPvs().size(), equalTo(1));
     }
 
 }

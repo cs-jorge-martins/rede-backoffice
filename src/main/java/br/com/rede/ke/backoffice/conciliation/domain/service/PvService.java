@@ -17,7 +17,7 @@ public class PvService {
         this.pvRepository = pvRepository;
     }
     
-    public boolean isValidPv(Pv pv) {
+    public boolean isValidPvFormat(Pv pv) {
         return pv.getCode().matches("[0-9]{1,20}");
     }
     
@@ -25,11 +25,19 @@ public class PvService {
         PvBatch pvBatch = new PvBatch();
         
         for(Pv pv: pvs){
-            if(isValidPv(pv)){
+            if(! isValidPvFormat(pv)){
+                pvBatch.addFailedPv(pv);
+                continue;
+            }
+            
+            Pv foundPv = pvRepository.findByCode(pv.getCode());
+            if(foundPv == null){
                 pvRepository.save(pv);
                 pvBatch.addSuccessfulPv(pv);
             } else {
-                pvBatch.addFailedPv(pv);
+                if(! foundPv.isHeadquarter()){
+                    pvBatch.addFailedPv(pv);
+                }
             }
         }
         
@@ -45,13 +53,5 @@ public class PvService {
             pvs.add(pv);
         }
         return pvs;
-    }
-
-    public List<Pv> findByPvCodes(List<String> sucessfulPvCodes) {
-        return pvRepository.findByCodeIn(sucessfulPvCodes);
-    }
-
-    public List<Pv> findHeadquarterPv(Pv pv) {
-        return pvRepository.findByCodeAndHeadquarterIsNull(pv.getCode());
     }
 }

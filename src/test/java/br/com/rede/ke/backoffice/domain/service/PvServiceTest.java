@@ -29,7 +29,7 @@ public class PvServiceTest {
         Pv pv = new Pv();
         pv.setCode("1000201314");
         
-        assertThat(pvService.isValidPv(pv), equalTo(true));
+        assertThat(pvService.isValidPvFormat(pv), equalTo(true));
     }
     
     @Test
@@ -37,7 +37,7 @@ public class PvServiceTest {
         Pv pv = new Pv();
         pv.setCode("100020131419817181781781718");
         
-        assertThat(pvService.isValidPv(pv), equalTo(false));
+        assertThat(pvService.isValidPvFormat(pv), equalTo(false));
     }
     
     @Test
@@ -45,7 +45,7 @@ public class PvServiceTest {
         Pv pv = new Pv();
         pv.setCode("ABC5367");
         
-        assertThat(pvService.isValidPv(pv), equalTo(false));
+        assertThat(pvService.isValidPvFormat(pv), equalTo(false));
     }
     
     @Test

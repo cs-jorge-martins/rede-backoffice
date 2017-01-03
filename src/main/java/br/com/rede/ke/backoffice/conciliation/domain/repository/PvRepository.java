@@ -12,6 +12,6 @@ public interface PvRepository extends JpaRepository<Pv, Long>{
 
     List<Pv> findByCodeIn(List<String> sucessfulPvCodes);
     
-    List<Pv> findByCodeAndHeadquarterIsNull(String code);
+    Pv findByCode(String code);
 
 }
