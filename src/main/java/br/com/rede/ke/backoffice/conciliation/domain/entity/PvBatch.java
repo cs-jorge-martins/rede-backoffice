@@ -1,5 +1,6 @@
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,6 +13,11 @@ public class PvBatch {
     
     /** The failed pvs. */
     private List<Pv> failedPvs;
+    
+    public PvBatch(){
+        this.sucessfulPvs = new ArrayList<>();
+        this.failedPvs = new ArrayList<>();
+    }
     
     /**
      * Gets the sucessful pvs.

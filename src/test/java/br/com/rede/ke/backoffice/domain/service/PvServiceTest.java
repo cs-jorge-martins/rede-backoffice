@@ -3,6 +3,8 @@ package br.com.rede.ke.backoffice.domain.service;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -47,10 +49,10 @@ public class PvServiceTest {
     }
     
     @Test
-    public void testInvalidPvBatch(){
-        Pv pv = new Pv();
-        pv.setCode("ABC5367");
+    public void testReadPvsfromString(){
+        String pvs = "1000201314\n1014766629\n1000201330\n1005867493\n";
+        List<Pv> pvList = pvService.readPvsFromString(pvs);
         
-        assertThat(pvService.isValidPv(pv), equalTo(false));
+        assertThat(pvList.size(), equalTo(4));
     }
 }
