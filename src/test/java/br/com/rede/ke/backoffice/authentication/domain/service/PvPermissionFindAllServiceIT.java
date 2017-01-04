@@ -33,20 +33,20 @@ import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class PvPermissionFindAllServiceIT {
-    
+
     /** The pv permission service. */
     @Autowired
     private PvPermissionService pvPermissionService;
-    
+
     /** The pageable. */
     private Pageable pageable;
-    
+
     /**
      * Setup tests.
      */
     @Before
     public void setUp() {
-        this.pageable = new PageRequest(0 , 20);
+        this.pageable = new PageRequest(0, 20);
     }
 
     /**
@@ -54,20 +54,22 @@ public class PvPermissionFindAllServiceIT {
      */
     @Test
     public void testFindAllByAcquirer() {
-        Page<PvPermission> searchResults = pvPermissionService.findAllByAcquirerAndCodeAndEmail(Acquirer.CIELO, null, null, pageable);
+        Page<PvPermission> searchResults = pvPermissionService.findAllByAcquirerAndCodeAndEmail(Acquirer.CIELO, null,
+            null, pageable);
         assertThat(searchResults.getNumberOfElements(), equalTo(3));
     }
-    
+
     /**
      * Test find all by acquirer filters REDE.
      */
     @Test
     public void testFindAllByAcquirerFiltersREDE() {
         String code = "42345678";
-        Page<PvPermission> searchResults = pvPermissionService.findAllByAcquirerAndCodeAndEmail(Acquirer.REDE, code, null, pageable);
+        Page<PvPermission> searchResults = pvPermissionService.findAllByAcquirerAndCodeAndEmail(Acquirer.REDE, code,
+            null, pageable);
         assertThat(searchResults.getNumberOfElements(), equalTo(0));
     }
-    
+
     /**
      * Test find all by acquirer and code and email.
      */
@@ -75,7 +77,8 @@ public class PvPermissionFindAllServiceIT {
     public void testFindAllByAcquirerAndCodeAndEmail() {
         String code = "92315670";
         String email = "bar@foo.com";
-        Page<PvPermission> searchResults = pvPermissionService.findAllByAcquirerAndCodeAndEmail(Acquirer.CIELO, code, email, pageable);
+        Page<PvPermission> searchResults = pvPermissionService.findAllByAcquirerAndCodeAndEmail(Acquirer.CIELO, code,
+            email, pageable);
         assertThat(searchResults.getNumberOfElements(), equalTo(1));
     }
 
