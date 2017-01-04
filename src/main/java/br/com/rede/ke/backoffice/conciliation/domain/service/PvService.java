@@ -1,9 +1,7 @@
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
@@ -13,7 +11,6 @@ import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 @Service
 public class PvService {
     
-    @Autowired
     private PvRepository pvRepository;
     
     public PvService(PvRepository pvRepository){
@@ -45,16 +42,5 @@ public class PvService {
         }
         
         return pvBatch;
-    }
-
-    public List<Pv> readPvsFromString(String pvList) {
-        List<Pv> pvs = new ArrayList<>();
-        String[] pvCodes = pvList.split("\n");
-        for(String pvCode: pvCodes){
-            Pv pv = new Pv();
-            pv.setCode(pvCode);
-            pvs.add(pv);
-        }
-        return pvs;
     }
 }

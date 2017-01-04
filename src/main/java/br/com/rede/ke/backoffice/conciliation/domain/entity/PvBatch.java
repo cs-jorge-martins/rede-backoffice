@@ -10,33 +10,33 @@ import com.google.common.collect.ImmutableList;
  */
 public class PvBatch {
     
-    /** The sucessful pvs. */
-    private List<Pv> sucessfulPvs;
+    /** The successful pvs. */
+    private List<Pv> successfulPvs;
     
     /** The failed pvs. */
     private List<Pv> failedPvs;
     
     public PvBatch(){
-        this.sucessfulPvs = new ArrayList<>();
+        this.successfulPvs = new ArrayList<>();
         this.failedPvs = new ArrayList<>();
     }
     
     /**
-     * Gets the sucessful pvs.
+     * Gets the successful pvs.
      *
-     * @return the sucessful pvs
+     * @return the successful pvs
      */
-    public List<Pv> getSucessfulPvs() {
-        return ImmutableList.copyOf(sucessfulPvs);
+    public List<Pv> getSuccessfulPvs() {
+        return ImmutableList.copyOf(successfulPvs);
     }
     
     /**
-     * Adds the sucessful pv.
+     * Adds the successful pv.
      *
      * @param pv the pv
      */
     public void addSuccessfulPv(Pv pv) {
-        this.sucessfulPvs.add(pv);
+        this.successfulPvs.add(pv);
     }
     
     /**

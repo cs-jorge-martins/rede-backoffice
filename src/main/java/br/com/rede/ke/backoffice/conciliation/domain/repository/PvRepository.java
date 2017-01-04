@@ -10,8 +10,8 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 @Repository
 public interface PvRepository extends JpaRepository<Pv, Long>{
 
-    List<Pv> findByCodeIn(List<String> sucessfulPvCodes);
+    List<Pv> findByCodeIn(List<String> pvCodes);
     
-    Pv findByCode(String code);
+    Pv findByCode(String pvCode);
 
 }

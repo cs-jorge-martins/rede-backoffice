@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvService;
 
@@ -51,7 +52,7 @@ public class PvServiceTest {
     @Test
     public void testReadPvsfromString(){
         String pvs = "1000201314\n1014766629\n1000201330\n1005867493\n";
-        List<Pv> pvList = pvService.readPvsFromString(pvs);
+        List<Pv> pvList = PvFactory.fromString(pvs);
         
         assertThat(pvList.size(), equalTo(4));
     }
