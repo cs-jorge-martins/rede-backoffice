@@ -3,6 +3,8 @@ package br.com.rede.ke.backoffice.conciliation.domain.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * The Class PvBatch.
  */
@@ -25,7 +27,7 @@ public class PvBatch {
      * @return the sucessful pvs
      */
     public List<Pv> getSucessfulPvs() {
-        return sucessfulPvs;
+        return ImmutableList.copyOf(sucessfulPvs);
     }
     
     /**
@@ -43,7 +45,7 @@ public class PvBatch {
      * @return the failed pvs
      */
     public List<Pv> getFailedPvs() {
-        return failedPvs;
+        return ImmutableList.copyOf(failedPvs);
     }
     
     /**
