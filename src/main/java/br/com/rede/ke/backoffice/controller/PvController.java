@@ -9,7 +9,6 @@ public class PvController {
     
     @GetMapping("/pv")
     public String index(Model model){
-        model.addAttribute("nome", "joao");
         return "pv";
     }
     
