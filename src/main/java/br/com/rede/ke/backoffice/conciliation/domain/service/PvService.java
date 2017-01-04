@@ -21,7 +21,7 @@ public class PvService {
         return pv.getCode().matches("[0-9]{1,20}");
     }
     
-    public PvBatch processPvBatch(List<Pv> pvs){
+    public PvBatch processPvList(List<Pv> pvs){
         PvBatch pvBatch = new PvBatch();
         
         for(Pv pv: pvs){

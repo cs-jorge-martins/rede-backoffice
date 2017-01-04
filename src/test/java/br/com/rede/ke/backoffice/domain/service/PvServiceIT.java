@@ -49,7 +49,7 @@ public class PvServiceIT {
         String pvs = "1000201314\n101476A6629\n1000201330\n1005B867493\n";
         List<Pv> pvList = PvFactory.fromString(pvs);
         
-        PvBatch batch = pvService.processPvBatch(pvList);
+        PvBatch batch = pvService.processPvList(pvList);
         List<String> pvCodes = batch.getSuccessfulPvs().stream().map(Pv::getCode).collect(Collectors.toList());
         List<Pv> sucessfulPvs = pvRepository.findByCodeIn(pvCodes);
         
@@ -63,7 +63,7 @@ public class PvServiceIT {
         String pvs = "1000201314\n22345678\n";
         List<Pv> pvList = PvFactory.fromString(pvs);
         
-        PvBatch batch = pvService.processPvBatch(pvList);
+        PvBatch batch = pvService.processPvList(pvList);
         List<String> pvCodes = batch.getSuccessfulPvs().stream().map(Pv::getCode).collect(Collectors.toList());
         List<Pv> sucessfulPvs = pvRepository.findByCodeIn(pvCodes);
         
