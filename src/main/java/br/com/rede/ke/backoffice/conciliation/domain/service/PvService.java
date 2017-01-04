@@ -3,6 +3,7 @@ package br.com.rede.ke.backoffice.conciliation.domain.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
@@ -11,6 +12,8 @@ import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 
 @Service
 public class PvService {
+    
+    @Autowired
     private PvRepository pvRepository;
     
     public PvService(PvRepository pvRepository){
