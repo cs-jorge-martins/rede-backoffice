@@ -6,11 +6,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-import br.com.rede.ke.backoffice.domain.entity.User;
+import br.com.rede.ke.backoffice.authentication.domain.entity.AdminUser;
 
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(User.class)
+@EnableConfigurationProperties(AdminUser.class)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override

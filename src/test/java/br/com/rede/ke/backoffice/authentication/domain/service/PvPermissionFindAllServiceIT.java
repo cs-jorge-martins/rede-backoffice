@@ -7,7 +7,7 @@
  * Data     : 28/12/2016
  * Empresa  : Thoughtworks
  */
-package br.com.rede.ke.backoffice.domain.service;
+package br.com.rede.ke.backoffice.authentication.domain.service;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;

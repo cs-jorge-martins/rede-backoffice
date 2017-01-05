@@ -1,7 +1,5 @@
-package br.com.rede.ke.backoffice.domain.service;
+package br.com.rede.ke.backoffice.authentication.domain.service;
 
-import br.com.rede.ke.backoffice.domain.entity.User;
-import br.com.rede.ke.backoffice.domain.repository.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +8,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import br.com.rede.ke.backoffice.authentication.domain.entity.AdminUser;
+import br.com.rede.ke.backoffice.authentication.domain.repository.AdminUserRepository;
+import br.com.rede.ke.backoffice.authentication.domain.service.UserDetailsServiceImpl;
 
 import java.util.Optional;
 
@@ -26,12 +28,12 @@ public class UserDetailsServiceImplTest {
     private UserDetailsServiceImpl userDetailsService;
 
     @Mock
-    private UserRepository userRepository;
+    private AdminUserRepository userRepository;
 
     @Before
     public void setup() {
         when(userRepository.findByName(anyString())).thenReturn(Optional.empty());
-        when(userRepository.findByName(VALID_USERNAME)).thenReturn(Optional.of(createUser()));
+        when(userRepository.findByName(VALID_USERNAME)).thenReturn(Optional.of(createAdminUser()));
     }
 
     @Test
@@ -45,8 +47,8 @@ public class UserDetailsServiceImplTest {
         userDetailsService.loadUserByUsername("invalid_username");
     }
 
-    private User createUser() {
-        User user = new User();
+    private AdminUser createAdminUser() {
+        AdminUser user = new AdminUser();
         user.setName(VALID_USERNAME);
         user.setPassword("password");
         return user;
