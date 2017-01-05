@@ -20,18 +20,18 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class UserDetailsServiceImplTest {
 
+    private static final String VALID_USERNAME = "root";
+
     @InjectMocks
     private UserDetailsServiceImpl userDetailsService;
 
     @Mock
     private UserRepository userRepository;
 
-    private static final String VALID_USERNAME = "root";
-
     @Before
     public void setup() {
         when(userRepository.findByName(anyString())).thenReturn(Optional.empty());
-        when(userRepository.findByName(VALID_USERNAME)).thenReturn(Optional.of(new User(VALID_USERNAME, anyString())));
+        when(userRepository.findByName(VALID_USERNAME)).thenReturn(Optional.of(createUser()));
     }
 
     @Test
@@ -43,5 +43,12 @@ public class UserDetailsServiceImplTest {
     @Test(expected = UsernameNotFoundException.class)
     public void testLoadUserByUsernameGivenInvalidUsername() {
         userDetailsService.loadUserByUsername("invalid_username");
+    }
+
+    private User createUser() {
+        User user = new User();
+        user.setName(VALID_USERNAME);
+        user.setPassword("password");
+        return user;
     }
 }

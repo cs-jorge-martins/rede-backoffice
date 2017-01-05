@@ -2,7 +2,6 @@ package br.com.rede.ke.backoffice.domain.service;
 
 import br.com.rede.ke.backoffice.domain.entity.User;
 import br.com.rede.ke.backoffice.domain.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
