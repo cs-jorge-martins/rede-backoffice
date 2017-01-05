@@ -11,33 +11,34 @@ import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 @Service
 public class PvService {
     
-    private PvRepository pvRepository;
+    private PvRepository repository;
     
     public PvService(PvRepository pvRepository){
-        this.pvRepository = pvRepository;
+        this.repository = pvRepository;
+    }
+    
+    public Pv save(Pv pv){
+        return repository.save(pv);
     }
     
     public boolean isValidPvFormat(Pv pv) {
         return pv.getCode().matches("[0-9]{1,20}");
     }
     
-    public PvBatch processPvList(List<Pv> pvs){
+    public PvBatch generatePvBatch(List<Pv> pvs){
         PvBatch pvBatch = new PvBatch();
         
         for(Pv pv: pvs){
             if(! isValidPvFormat(pv)){
-                pvBatch.addFailedPv(pv);
+                pvBatch.addInvalidPv(pv);
                 continue;
             }
             
-            Pv foundPv = pvRepository.findByCode(pv.getCode());
+            Pv foundPv = repository.findByCode(pv.getCode());
             if(foundPv == null){
-                pvRepository.save(pv);
-                pvBatch.addSuccessfulPv(pv);
-            } else {
-                if(! foundPv.isHeadquarter()){
-                    pvBatch.addFailedPv(pv);
-                }
+                pvBatch.addValidPv(pv);
+            } else if(! foundPv.isHeadquarter()){
+                pvBatch.addInvalidPv(pv);
             }
         }
         

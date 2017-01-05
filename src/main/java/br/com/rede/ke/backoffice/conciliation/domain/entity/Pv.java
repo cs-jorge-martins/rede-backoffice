@@ -63,6 +63,11 @@ public class Pv {
     public Pv(String code){
         this.code = code;
     }
+    
+    public Pv(String code, Acquirer acquirer){
+        this.code = code;
+        this.acquirerId = acquirer.ordinal();
+    }
 
     /**
      * Gets the id.

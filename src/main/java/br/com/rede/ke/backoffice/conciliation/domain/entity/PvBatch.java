@@ -11,14 +11,14 @@ import com.google.common.collect.ImmutableList;
 public class PvBatch {
     
     /** The successful pvs. */
-    private List<Pv> successfulPvs;
+    private List<Pv> validPvs;
     
     /** The failed pvs. */
-    private List<Pv> failedPvs;
+    private List<Pv> invalidPvs;
     
     public PvBatch(){
-        this.successfulPvs = new ArrayList<>();
-        this.failedPvs = new ArrayList<>();
+        this.validPvs = new ArrayList<>();
+        this.invalidPvs = new ArrayList<>();
     }
     
     /**
@@ -26,8 +26,8 @@ public class PvBatch {
      *
      * @return the successful pvs
      */
-    public List<Pv> getSuccessfulPvs() {
-        return ImmutableList.copyOf(successfulPvs);
+    public List<Pv> getValidPvs() {
+        return ImmutableList.copyOf(validPvs);
     }
     
     /**
@@ -35,8 +35,8 @@ public class PvBatch {
      *
      * @param pv the pv
      */
-    public void addSuccessfulPv(Pv pv) {
-        this.successfulPvs.add(pv);
+    public void addValidPv(Pv pv) {
+        this.validPvs.add(pv);
     }
     
     /**
@@ -44,8 +44,8 @@ public class PvBatch {
      *
      * @return the failed pvs
      */
-    public List<Pv> getFailedPvs() {
-        return ImmutableList.copyOf(failedPvs);
+    public List<Pv> getInvalidPvs() {
+        return ImmutableList.copyOf(invalidPvs);
     }
     
     /**
@@ -53,7 +53,7 @@ public class PvBatch {
      *
      * @param pv the pv
      */
-    public void addFailedPv(Pv pv) {
-        this.failedPvs.add(pv);
+    public void addInvalidPv(Pv pv) {
+        this.invalidPvs.add(pv);
     }
 }
