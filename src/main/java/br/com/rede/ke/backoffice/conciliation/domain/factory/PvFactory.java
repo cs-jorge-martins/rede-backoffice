@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 
 /**
@@ -33,9 +34,9 @@ public final class PvFactory {
      * @param pvList the pv list
      * @return the list
      */
-    public static List<Pv> fromString(String pvList) {
+    public static List<Pv> fromCodesAndAcquirer(String pvList, Acquirer acquirer) {
         return Arrays.asList(pvList.split("\n")).stream()
-               .map(code -> new Pv(code))
+               .map(code -> new Pv(code, acquirer))
                .collect(Collectors.toList());
     }
 }

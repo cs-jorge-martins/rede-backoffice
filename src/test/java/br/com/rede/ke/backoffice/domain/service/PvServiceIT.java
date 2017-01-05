@@ -22,6 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.rede.ke.backoffice.Application;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
 import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
@@ -42,7 +43,7 @@ public class PvServiceIT {
     @Transactional
     public void testPvBatchValidation(){
         String pvs = "1000201314\n101476A6629\n1000201330\n1005B867493\n22345678\n";
-        List<Pv> pvList = PvFactory.fromString(pvs);
+        List<Pv> pvList = PvFactory.fromCodesAndAcquirer(pvs, Acquirer.CIELO);
         
         PvBatch pvBatch = pvService.generatePvBatch(pvList);
         
