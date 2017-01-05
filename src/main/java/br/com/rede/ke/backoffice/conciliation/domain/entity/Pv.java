@@ -9,19 +9,10 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
+import java.util.Objects;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * The Class Pv.
@@ -48,6 +39,10 @@ public class Pv {
     /** The acquirer id. */
     @Column(name = "ACQUIRER_ID")
     private Integer acquirerId;
+
+    /** the branches set */
+    @OneToMany(mappedBy = "headquarter")
+    private Set<Pv> branches;
 
     /** The users. */
     @ManyToMany
@@ -161,5 +156,44 @@ public class Pv {
      */
     public boolean isHeadquarter() {
         return this.headquarter == null;
+    }
+
+    public void setHeadquarter(Pv headquarter) {
+        this.headquarter = headquarter;
+    }
+
+    public Pv getHeadquarter() {
+        return headquarter;
+    }
+
+    public void setBranches(Set<Pv> branches) {
+        this.branches = branches;
+    }
+
+    public Set<Pv> getBranches() {
+        return branches;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!Objects.equals(getClass(), o.getClass())) {
+            return false;
+        }
+
+        Pv pv = (Pv) o;
+        return Objects.equals(id, pv.id)
+            && Objects.equals(code, pv.code)
+            && Objects.equals(headquarter, pv.headquarter)
+            && Objects.equals(branches, pv.branches)
+            && Objects.equals(acquirerId, pv.acquirerId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, code, headquarter, branches, acquirerId);
     }
 }

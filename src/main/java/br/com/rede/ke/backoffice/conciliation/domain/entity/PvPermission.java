@@ -97,4 +97,8 @@ public class PvPermission {
     public void setPv(Pv pv) {
         this.pv = pv;
     }
+
+    public boolean permitAccess(Pv checkPv) {
+        return checkPv.equals(getPv()) || getPv().getBranches().stream().anyMatch(pv -> pv.equals(checkPv));
+    }
 }

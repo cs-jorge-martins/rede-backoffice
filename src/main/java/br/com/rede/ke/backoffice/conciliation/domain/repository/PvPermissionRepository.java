@@ -33,6 +33,5 @@ public interface PvPermissionRepository extends JpaRepository<PvPermission, PvPe
      * @return the page
      */
     Page<PvPermission> findAll(Specification<PvPermission> specification, Pageable pageable);
-
     List<PvPermission> findByUser(User user);
 }
