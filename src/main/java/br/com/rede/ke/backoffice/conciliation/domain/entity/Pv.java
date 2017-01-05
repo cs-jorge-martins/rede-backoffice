@@ -180,7 +180,7 @@ public class Pv {
             return true;
         }
 
-        if (!Objects.equals(getClass(), o.getClass())) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 

@@ -1,14 +1,23 @@
 /*
  * Copyright 2017 Rede S.A.
  *************************************************************
+<<<<<<< HEAD
  * Nome     : PvPermission.java
  * Descrição: PvPermission.java.
  * Autor    : Johnny Richard <jrichard@thoughtworks.com>
  * Data     : 04/01/2017
+=======
+ * Nome     : UserServiceTest.java
+ * Descrição: UserServiceTest.java.
+ * Autor    : Johnny Richard <jrichard@thoughtworks.com>
+ * Data     : 03/01/2017
+>>>>>>> [GpJ1APqK] Implementar e fazer testes de acesso de pv matriz filial
  * Empresa  : ThoughtWorks
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
+import java.util.Optional;
+import java.util.Set;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -98,7 +107,24 @@ public class PvPermission {
         this.pv = pv;
     }
 
-    public boolean permitAccess(Pv checkPv) {
-        return checkPv.equals(getPv()) || getPv().getBranches().stream().anyMatch(pv -> pv.equals(checkPv));
+    /**
+     * Permit access.
+     * @param pv Pv to check access.
+     * @return if given pv is permitted.
+     */
+    public boolean permitAccess(Pv pv) {
+        if(getPv() == null || pv == null) {
+            return false;
+        }
+
+        if(pv.equals(getPv())) {
+            return true;
+        }
+
+        return Optional.ofNullable(getPv())
+            .map(Pv::getBranches)
+            .map(Set::stream)
+            .map(pvStream -> pvStream.anyMatch(pvBranch -> pvBranch.equals(pv)))
+            .orElse(false);
     }
 }

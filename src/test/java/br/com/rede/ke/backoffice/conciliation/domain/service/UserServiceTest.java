@@ -9,22 +9,27 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
+import java.util.Collections;
+
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
-
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * The UserServiceTest.
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
@@ -34,77 +39,49 @@ public class UserServiceTest {
     @Mock
     private PvPermissionRepository pvPermissionRepository;
 
+    private User user;
+    private Pv pv;
+
+    @Before
+    public void setUp() {
+        user = new User();
+        pv = new Pv();
+    }
+
+    /**
+     * Has access when user has no permission.
+     */
     @Test
-    public void testHasPermissionToHeadquarterPv() {
-        User user = new User();
-        user.setId(1L);
-        user.setEmail("email");
+    public void hasAccessWhenUserHasNoPermission() {
+        when(pvPermissionRepository.findByUser(user)).thenReturn(Collections.emptySet());
 
-        Pv pv = new Pv();
-        pv.setId(1L);
-        pv.setCode("code");
+        boolean hasAccess = userService.hasAccess(user, pv);
+        assertThat(hasAccess, equalTo(false));
+    }
 
-        PvPermission pvPermission = new PvPermission();
-        pvPermission.setUser(user);
-        pvPermission.setPv(pv);
-
+    /**
+     * Has access when user has permission that not allow pv access.
+     */
+    @Test
+    public void hasAccessWhenUserHasPermissionThatNotAllowPvAccess() {
+        PvPermission pvPermission = mock(PvPermission.class);
+        when(pvPermission.permitAccess(pv)).thenReturn(false);
         when(pvPermissionRepository.findByUser(user)).thenReturn(Collections.singleton(pvPermission));
 
         boolean hasAccess = userService.hasAccess(user, pv);
-        assertThat(hasAccess, equalTo(true));
+        assertThat(hasAccess, equalTo(false));
     }
 
+    /**
+     * Has access when user has permission that allow pv access.
+     */
     @Test
-    public void testHasPermissionToBranchPv() {
-        User user = new User();
-        user.setId(1L);
-        user.setEmail("email");
-
-        Pv headquarterPv = new Pv();
-        headquarterPv.setId(1L);
-        headquarterPv.setCode("code0");
-
-        Pv branchPv = new Pv();
-        branchPv.setId(2L);
-        branchPv.setCode("code1");
-
-        branchPv.setHeadquarter(headquarterPv);
-        headquarterPv.setBranches(Collections.singleton(branchPv));
-
-        PvPermission pvPermission = new PvPermission();
-        pvPermission.setUser(user);
-        pvPermission.setPv(branchPv);
-
+    public void hasAccessWhenUserHasPermissionThatAllowPvAccess() {
+        PvPermission pvPermission = mock(PvPermission.class);
+        when(pvPermission.permitAccess(pv)).thenReturn(true);
         when(pvPermissionRepository.findByUser(user)).thenReturn(Collections.singleton(pvPermission));
 
-        boolean hasAccess = userService.hasAccess(user, branchPv);
-        assertThat(hasAccess, equalTo(true));
-    }
-
-    @Test
-    public void testHasAccessToBranchPv() {
-        User user = new User();
-        user.setId(1L);
-        user.setEmail("email");
-
-        Pv headquarterPv = new Pv();
-        headquarterPv.setId(2L);
-        headquarterPv.setCode("12345");
-
-        Pv branchPv = new Pv();
-        branchPv.setId(3L);
-        branchPv.setCode("56728");
-        branchPv.setHeadquarter(headquarterPv);
-
-        headquarterPv.setBranches(Collections.singleton(branchPv));
-
-        PvPermission pvPermission = new PvPermission();
-        pvPermission.setUser(user);
-        pvPermission.setPv(headquarterPv);
-
-        when(pvPermissionRepository.findByUser(user)).thenReturn(Collections.singleton(pvPermission));
-
-        boolean hasAccess = userService.hasAccess(user, branchPv);
+        boolean hasAccess = userService.hasAccess(user, pv);
         assertThat(hasAccess, equalTo(true));
     }
 }
