@@ -30,6 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -66,6 +67,7 @@ public class PvPermissionServiceIT {
      * Test find all by acquirer.
      */
     @Test
+    @Transactional
     public void testFindAllByAcquirer() {
         Page<PvPermission> searchResults = pvPermissionService.findAllByAcquirerAndCodeAndEmail(Acquirer.CIELO, null,
             null, pageable);
@@ -76,6 +78,7 @@ public class PvPermissionServiceIT {
      * Test find all by acquirer filters REDE.
      */
     @Test
+    @Transactional
     public void testFindAllByAcquirerFiltersREDE() {
         String code = "42345678";
         Page<PvPermission> searchResults = pvPermissionService.findAllByAcquirerAndCodeAndEmail(Acquirer.REDE, code,
@@ -87,6 +90,7 @@ public class PvPermissionServiceIT {
      * Test find all by acquirer and code and email.
      */
     @Test
+    @Transactional
     public void testFindAllByAcquirerAndCodeAndEmail() {
         String code = "92315670";
         String email = "bar@foo.com";
@@ -96,6 +100,7 @@ public class PvPermissionServiceIT {
     }
 
     @Test
+    @Transactional
     public void testSavePvPermissionsForUser(){
         String pvs = "1000201314\n101476A6629\n1000201330\n1005B867493\n22345678\n";
         List<Pv> pvList = PvFactory.fromCodesAndAcquirer(pvs, Acquirer.CIELO);
