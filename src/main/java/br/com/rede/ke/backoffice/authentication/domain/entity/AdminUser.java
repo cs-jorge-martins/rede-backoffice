@@ -1,18 +1,12 @@
-package br.com.rede.ke.backoffice.domain.entity;
+package br.com.rede.ke.backoffice.authentication.domain.entity;
 
-public class User {
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties("security.user")
+public class AdminUser {
 
     private String name;
     private String password;
-
-    public User() {
-        super();
-    }
-
-    public User(String name, String password) {
-        this.name = name;
-        this.password = password;
-    }
 
     public String getName() {
         return name;
