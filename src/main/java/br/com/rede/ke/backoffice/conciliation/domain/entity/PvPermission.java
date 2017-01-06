@@ -36,6 +36,14 @@ public class PvPermission {
     @MapsId("pvId")
     private Pv pv;
 
+    public PvPermission() {}
+
+    public PvPermission(PvPermissionId id, User user, Pv pv) {
+        this.id = id;
+        this.user = user;
+        this.pv = pv;
+    }
+
     /**
      * Gets the id.
      *

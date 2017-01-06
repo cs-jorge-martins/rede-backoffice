@@ -25,6 +25,7 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 
@@ -74,9 +75,8 @@ public class PvPermissionService {
     public void savePvPermissionsForUser(PvBatch pvBatch, User user){
         for(Pv pv: pvBatch.getValidPvs()){
             Pv savedPv = pvService.save(pv);
-            PvPermission pvPermission = new PvPermission();
-            pvPermission.setPv(savedPv);
-            pvPermission.setUser(user);
+            PvPermissionId pvPermissionId = new PvPermissionId(user.getId(), savedPv.getId());
+            PvPermission pvPermission = new PvPermission(pvPermissionId, user, savedPv);
             repository.save(pvPermission);
         }
     }
