@@ -1,13 +1,13 @@
 /*
  * Copyright 2016 Rede S.A.
  *************************************************************
- * Nome     : PvPermissionFindAllServiceIT.java
- * Descrição: PvPermissionFindAllServiceIT.
+ * Nome     : PvPermissionServiceIT.java
+ * Descrição: PvPermissionServiceIT.
  * Autor    : Karlisson Bezerra <kbezerra@thoughtworks.com>
  * Data     : 28/12/2016
  * Empresa  : Thoughtworks
  */
-package br.com.rede.ke.backoffice.authentication.domain.service;
+package br.com.rede.ke.backoffice.domain.service;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -28,12 +28,12 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 
 /**
- * The Class PvPermissionFindAllServiceIT.
+ * The Class PvPermissionServiceIT.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
-public class PvPermissionFindAllServiceIT {
-
+public class PvPermissionServiceIT {
+    
     /** The pv permission service. */
     @Autowired
     private PvPermissionService pvPermissionService;
