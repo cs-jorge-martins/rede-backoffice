@@ -9,9 +9,18 @@
  */
 package br.com.rede.ke.backoffice.domain.service;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import java.util.List;
 
+import br.com.rede.ke.backoffice.Application;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
+import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
+import br.com.rede.ke.backoffice.conciliation.domain.service.PvService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,10 +31,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import br.com.rede.ke.backoffice.Application;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
-import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 /**
  * The Class PvPermissionServiceIT.
@@ -33,10 +40,16 @@ import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class PvPermissionServiceIT {
-    
+
     /** The pv permission service. */
     @Autowired
     private PvPermissionService pvPermissionService;
+
+    @Autowired
+    private PvService pvService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     /** The pageable. */
     private Pageable pageable;
@@ -80,6 +93,16 @@ public class PvPermissionServiceIT {
         Page<PvPermission> searchResults = pvPermissionService.findAllByAcquirerAndCodeAndEmail(Acquirer.CIELO, code,
             email, pageable);
         assertThat(searchResults.getNumberOfElements(), equalTo(1));
+    }
+
+    @Test
+    public void testSavePvPermissionsForUser(){
+        String pvs = "1000201314\n101476A6629\n1000201330\n1005B867493\n22345678\n";
+        List<Pv> pvList = PvFactory.fromCodesAndAcquirer(pvs, Acquirer.CIELO);
+        PvBatch pvBatch = pvService.generatePvBatch(pvList);
+        User user = userRepository.findByEmail("foo@bar.com");
+
+        pvPermissionService.savePvPermissionsForUser(pvBatch, user);
     }
 
 }

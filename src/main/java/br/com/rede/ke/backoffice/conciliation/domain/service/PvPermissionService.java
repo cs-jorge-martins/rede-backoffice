@@ -9,23 +9,24 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specifications;
-import org.springframework.stereotype.Service;
-
 import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvAcquirerEqualTo;
 import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvCodeContains;
 import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.userEmailContains;
 import static org.springframework.data.jpa.domain.Specifications.not;
 import static org.springframework.data.jpa.domain.Specifications.where;
 import static org.springframework.util.StringUtils.isEmpty;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specifications;
+import org.springframework.stereotype.Service;
+
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 
 /**
  * The Class PvPermissionService.
@@ -69,12 +70,13 @@ public class PvPermissionService {
 
         return repository.findAll(spec, pageable);
     }
-
-    public void savePvPermissions(User user, PvBatch pvBatch){
+    
+    public void savePvPermissionsForUser(PvBatch pvBatch, User user){
         for(Pv pv: pvBatch.getValidPvs()){
             Pv savedPv = pvService.save(pv);
             PvPermission pvPermission = new PvPermission();
             pvPermission.setPv(savedPv);
+            pvPermission.setUser(user);
             repository.save(pvPermission);
         }
     }
