@@ -70,10 +70,10 @@
             th:each="pageNo : ${#numbers.sequence(0, pvPermissions.totalPages - 1)}"
             th:class="${pvPermissions.number eq pageNo} ? 'active' : ''">
             <a th:if="${pvPermissions.number eq pageNo}"
-            href="javascript:void(0);"> <span th:text="${pageNo}"></span>
+            href="javascript:void(0);"> <span th:text="${pageNo+1}"></span>
           </a> <a th:if="${not (pvPermissions.number eq pageNo)}"
             th:href="@{${'/'}(page=${pageNo},size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}">
-              <span th:text="${pageNo}"></span>
+              <span th:text="${pageNo+1}"></span>
           </a>
           </li>
           <li
