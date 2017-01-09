@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head th:replace="fragments/head::common_head('Home')"></head>
+<head th:replace="fragments/head::common_head('principal')"></head>
 <body>
   <div th:replace="fragments/header"></div>
   <div class="container">
@@ -9,7 +9,7 @@
         <form method="get" th:action="@{/}">
           <div class="input-field row">
             <input id="pv-code" name="code" th:value="${code}" type="text" />
-            <label for="pv-code">Código do PV</label>
+            <label for="pv-code">código do pv</label>
           </div>
           <div class="input-field row">
             <input id="email" name="email" type="email" th:value="${email}" />
@@ -30,7 +30,7 @@
         </form>
       </div>
       <div class="col s9">
-        <p th:unless="${pvPermissions.totalPages > 0}">Nenhum resultado encontrado.</p>
+        <p th:unless="${pvPermissions.totalPages > 0}">nenhum resultado encontrado</p>
         <table class="striped" th:unless="${pvPermissions.totalPages == 0}">
           <thead>
             <tr>
@@ -43,9 +43,9 @@
           <tbody>
             <tr th:each="permission : ${pvPermissions}">
               <td th:text="${permission.user.email}"></td>
-              <td th:text="${permission.pv.acquirer}"></td>
+              <td th:text="#{'option.acquirer.' + ${permission.pv.acquirer}}"></td>
               <td th:text="${permission.pv.code}"></td>
-              <td><div th:if="${permission.pv.isHeadquarter()}" class="chip">Matriz</div></td>
+              <td><div th:if="${permission.pv.isHeadquarter()}" class="chip">matriz</div></td>
             </tr>
           </tbody>
         </table>
