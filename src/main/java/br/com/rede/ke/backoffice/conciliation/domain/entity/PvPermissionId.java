@@ -9,9 +9,10 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import java.io.Serializable;
 
 /**
  * The Class PvPermissionId.
@@ -26,6 +27,13 @@ public class PvPermissionId implements Serializable {
     /** The pv id. */
     @Column(name = "PV_ID")
     private Long pvId;
+    
+    public PvPermissionId(){}
+    
+    public PvPermissionId(Long userId, Long pvId){
+        this.userId = userId;
+        this.pvId = pvId;
+    }
 
     /**
      * Gets the user id.

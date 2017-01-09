@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Cadastro de PV's</title>
+        <link rel="stylesheet" href="http://fonts.googleapis.com/icon?family=Material+Icons" />
+        <link rel="stylesheet" href="/webjars/materializecss/0.97.7/css/materialize.min.css" />
+    </head>
+    <body>
+    <nav role="navigation">
+		<div class="nav-wrapper container">
+		  <a href="#" class="brand-logo">Backoffice Control Rede</a>
+		</div>
+  	</nav>
+  	
+    <div class="container">
+    	<div class="row">
+	       	<div class="col s3">
+		        <form method="get" th:action="@{/pv}">			     
+	                <div class="file-field input-field">
+				      <div class="btn">
+				        <span>Upload
+				        <i class="small material-icons">input</i>
+				        </span>
+				        <input type="file">
+				      </div>
+				      <div class="file-path-wrapper">
+				        <input class="file-path validate" type="text">
+				      </div>
+				    </div>
+		       	</form>
+	       	</div>
+       	
+	    	<div class="col s9">
+	        </div>
+        </div>
+    </div>
+    <script type="application/javascript" src="/webjars/jquery/3.1.1-1/jquery.min.js"></script>
+    <script type="application/javascript" src="/webjars/materializecss/0.97.7/js/materialize.min.js"></script>
+    <script type="application/javascript">$('select').material_select()</script>
+    </body>
+</html>

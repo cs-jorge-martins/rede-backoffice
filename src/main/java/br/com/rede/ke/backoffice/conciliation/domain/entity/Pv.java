@@ -56,6 +56,18 @@ public class Pv {
         joinColumns = @JoinColumn(name = "PV_ID", referencedColumnName = "ID"),
         inverseJoinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"))
     private Set<User> users;
+    
+    public Pv(){
+    }
+    
+    public Pv(String code){
+        this.code = code;
+    }
+    
+    public Pv(String code, Acquirer acquirer){
+        this.code = code;
+        this.acquirerId = acquirer.ordinal();
+    }
 
     /**
      * Gets the id.

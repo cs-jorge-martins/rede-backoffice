@@ -22,7 +22,11 @@ import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 
 /**
@@ -33,14 +37,11 @@ public class PvPermissionService {
 
     /** The repository. */
     private PvPermissionRepository repository;
+    private PvService pvService;
 
-    /**
-     * Instantiates a new pv permission service.
-     *
-     * @param repository the repository
-     */
-    public PvPermissionService(PvPermissionRepository repository) {
+    public PvPermissionService(PvPermissionRepository repository, PvService pvService) {
         this.repository = repository;
+        this.pvService = pvService;
     }
 
     /**
@@ -69,5 +70,14 @@ public class PvPermissionService {
         }
 
         return repository.findAll(spec, pageable);
+    }
+    
+    public void savePvPermissionsForUser(PvBatch pvBatch, User user){
+        for(Pv pv: pvBatch.getValidPvs()){
+            Pv savedPv = pvService.save(pv);
+            PvPermissionId pvPermissionId = new PvPermissionId(user.getId(), savedPv.getId());
+            PvPermission pvPermission = new PvPermission(pvPermissionId, user, savedPv);
+            repository.save(pvPermission);
+        }
     }
 }
