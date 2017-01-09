@@ -29,6 +29,9 @@ public class User {
     @Column(name = "ID")
     private Long id;
 
+    @Column(name = "PRIMARY_USER_ID")
+    private User primaryUser;
+
     /** The email. */
     @Column(name = "EMAIL")
     private String email;
@@ -52,6 +55,14 @@ public class User {
         this.id = id;
     }
 
+    public void setPrimaryUser(User primaryUser) {
+        this.primaryUser = primaryUser;
+    }
+
+    public User getPrimaryUser() {
+        return primaryUser;
+    }
+
     /**
      * Gets the email.
      *
@@ -69,5 +80,16 @@ public class User {
      */
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isPrimary() {
+        return primaryUser == null;
+    }
+
+    public boolean isPrimaryOf(User secondary) {
+        if (secondary == null) {
+            return false;
+        }
+        return this.equals(secondary.getPrimaryUser());
     }
 }

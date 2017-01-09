@@ -16,6 +16,7 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.persistence.EmbeddedId;
@@ -126,5 +127,25 @@ public class PvPermission {
             .map(Set::stream)
             .map(pvStream -> pvStream.anyMatch(pvBranch -> pvBranch.equals(pv)))
             .orElse(false);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PvPermission that = (PvPermission) o;
+        return Objects.equals(id, that.id) &&
+            Objects.equals(user, that.user) &&
+            Objects.equals(pv, that.pv);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, pv);
     }
 }
