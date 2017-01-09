@@ -18,6 +18,7 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvService;
@@ -42,7 +43,10 @@ import static org.junit.Assert.assertThat;
 @SpringBootTest(classes = Application.class)
 public class PvPermissionServiceIT {
 
-    /** The pv permission service. */
+    // TODO(gconca) passar o objeto que representa o Arquivo ao invés de strings com /n aqui.
+    /**
+     * The pv permission service.
+     */
     @Autowired
     private PvPermissionService pvPermissionService;
 
@@ -52,8 +56,13 @@ public class PvPermissionServiceIT {
     @Autowired
     private UserRepository userRepository;
 
-    /** The pageable. */
+    /**
+     * The pageable.
+     */
     private Pageable pageable;
+
+    @Autowired
+    private PvPermissionRepository pvPermissionRepository;
 
     /**
      * Setup tests.
@@ -101,13 +110,20 @@ public class PvPermissionServiceIT {
 
     @Test
     @Transactional
-    public void testSavePvPermissionsForUser(){
+    public void testSavePvPermissionsForUser() {
         String pvs = "1000201314\n101476A6629\n1000201330\n1005B867493\n22345678\n";
         List<Pv> pvList = PvFactory.fromCodesAndAcquirer(pvs, Acquirer.CIELO);
         PvBatch pvBatch = pvService.generatePvBatch(pvList);
-        User user = userRepository.findByEmail("foo@bar.com");
 
-        pvPermissionService.savePvPermissionsForUser(pvBatch, user);
+        User user = new User();
+        user.setEmail("foo_foo@bar.com");
+
+        User savedUser = userRepository.save(user);
+
+        pvPermissionService.savePvPermissionsForUser(pvBatch, savedUser);
+
+        List<PvPermission> pvPermissionsByUser = pvPermissionRepository.findByUser(savedUser);
+        assertThat(pvPermissionsByUser.size(), equalTo(2));
     }
 
 }
