@@ -14,7 +14,7 @@ public class AuthenticationController {
                         @RequestParam(required = false) String logout) {
 
         if (error != null) {
-            model.addAttribute("errorMessage", "User name or password invalid!");
+            model.addAttribute("errorMessage", "nome de usuário ou senha inválidos");
         }
 
         return "auth/login";
