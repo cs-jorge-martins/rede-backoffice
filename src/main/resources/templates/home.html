@@ -8,13 +8,11 @@
       <div class="col s3">
         <form method="get" th:action="@{/}">
           <div class="input-field row">
-            <input id="pv-code" name="code" th:value="${code}"
-              type="text" />
+            <input id="pv-code" name="code" th:value="${code}" type="text" />
             <label for="pv-code">Código do PV</label>
           </div>
           <div class="input-field row">
-            <input id="email" name="email" type="email"
-              th:value="${email}" />
+            <input id="email" name="email" type="email" th:value="${email}" />
             <label for="email">e-mail</label>
           </div>
           <div class="input-field row">
@@ -27,17 +25,13 @@
             <label for="acquirer">adquirente</label>
           </div>
           <div class="input-field row">
-            <button class="btn waves-effect waves-light" type="submit">
-              buscar
-            </button>
+            <button class="btn waves-effect waves-light" type="submit">buscar</button>
           </div>
         </form>
       </div>
       <div class="col s9">
-        <p th:unless="${pvPermissions.totalPages > 0}">Nenhum
-          resultado encontrado.</p>
-        <table class="striped"
-          th:unless="${pvPermissions.totalPages == 0}">
+        <p th:unless="${pvPermissions.totalPages > 0}">Nenhum resultado encontrado.</p>
+        <table class="striped" th:unless="${pvPermissions.totalPages == 0}">
           <thead>
             <tr>
               <th>e-mail</th>
@@ -47,42 +41,25 @@
             </tr>
           </thead>
           <tbody>
-            <tr th:each="permission: ${pvPermissions}">
+            <tr th:each="permission : ${pvPermissions}">
               <td th:text="${permission.user.email}"></td>
               <td th:text="${permission.pv.acquirer}"></td>
               <td th:text="${permission.pv.code}"></td>
-              <td><div th:if="${permission.pv.isHeadquarter()}"
-                  class="chip">Matriz</div></td>
+              <td><div th:if="${permission.pv.isHeadquarter()}" class="chip">Matriz</div></td>
             </tr>
           </tbody>
         </table>
-        <ul class="pagination center"
-          th:unless="${pvPermissions.totalPages == 0}">
-          <li
-            th:class="${pvPermissions.number eq 0} ? 'disabled' : 'waves-effect'">
-            <a th:if="${not pvPermissions.isFirst()}"
-            th:href="@{${'/'}(page=${pvPermissions.number-1},size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}"
-            class="material-icons">chevron_left</a> <a
-            th:if="${pvPermissions.isFirst()}"
-            href="javascript:void(0);" class="material-icons">chevron_left</a>
+        <ul class="pagination center" th:unless="${pvPermissions.totalPages == 0}">
+          <li th:class="${pvPermissions.isFirst()} ? 'disabled' : 'waves-effect'">
+            <a th:href="${pvPermissions.isFirst()} ? 'javascript:void(0);' : @{${'/'}(page=${pvPermissions.number-1}, size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_left</a>
           </li>
-          <li
-            th:each="pageNo : ${#numbers.sequence(0, pvPermissions.totalPages - 1)}"
-            th:class="${pvPermissions.number eq pageNo} ? 'active' : ''">
-            <a th:if="${pvPermissions.number eq pageNo}"
-            href="javascript:void(0);"> <span th:text="${pageNo+1}"></span>
-          </a> <a th:if="${not (pvPermissions.number eq pageNo)}"
-            th:href="@{${'/'}(page=${pageNo},size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}">
+          <li th:each="pageNo : ${#numbers.sequence(0, pvPermissions.totalPages - 1)}" th:class="${pvPermissions.number eq pageNo} ? 'active' : 'waves-effect'">
+            <a th:href="@{${'/'}(page=${pageNo}, size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}">
               <span th:text="${pageNo+1}"></span>
-          </a>
+            </a>
           </li>
-          <li
-            th:class="${pvPermissions.number + 1 ge pvPermissions.totalPages} ? 'disabled' : 'waves-effect'">
-            <a th:if="${not pvPermissions.isLast()}"
-            th:href="@{${'/'}(page=${pvPermissions.number+1},size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}"
-            class="material-icons">chevron_right</a> <a
-            th:if="${pvPermissions.isLast()}" href="javascript:void(0);"
-            class="material-icons">chevron_right</a>
+          <li th:class="${pvPermissions.isLast()} ? 'disabled' : 'waves-effect'">
+            <a th:href="${pvPermissions.isLast()} ? 'javascript:void(0);' : @{${'/'}(page=${pvPermissions.number+1}, size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_right</a>
           </li>
         </ul>
       </div>
