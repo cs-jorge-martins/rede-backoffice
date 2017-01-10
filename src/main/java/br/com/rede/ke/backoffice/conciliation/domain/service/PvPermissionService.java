@@ -18,7 +18,6 @@ import static org.springframework.util.StringUtils.isEmpty;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidSecondaryUserException;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.PvNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
@@ -117,7 +116,7 @@ public class PvPermissionService {
         }
 
         if (!userService.hasAccess(primaryUser, pv.get())) {
-            return Result.failure(String.format("User '%s' has no access to Pv '%s'",
+            return Result.failure(String.format("Usuário '%s' não tem acesso ao Pv '%s'",
                 primaryUser.getEmail(), pv.get().getCode()));
         }
 
@@ -136,7 +135,7 @@ public class PvPermissionService {
      */
     private User getUser(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> {
-            final String cause = String.format("User with email '%s' not found!", email);
+            final String cause = String.format("Usuário com o email '%s' não encontrado", email);
             LOGGER.warn(cause);
             return new UserNotFoundException(cause);
         });

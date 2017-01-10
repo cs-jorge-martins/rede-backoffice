@@ -100,7 +100,7 @@ public class PvPermissionServiceTest {
 
         Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
         assertThat(result.isFailure(), equalTo(true));
-        assertThat(result.failure().get(), equalTo("User 'null' has no access to Pv 'null'"));
+        assertThat(result.failure().get(), equalTo("Usuário 'null' não tem acesso ao Pv 'null'"));
     }
 
     @Test(expected = InvalidPrimaryUserException.class)
