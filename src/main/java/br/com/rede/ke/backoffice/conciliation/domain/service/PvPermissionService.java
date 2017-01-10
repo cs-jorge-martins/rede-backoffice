@@ -89,6 +89,12 @@ public class PvPermissionService {
         return pvPermissionRepository.findAll(spec, pageable);
     }
 
+    public void giveUserPermissionForHeadquarter(List<Pv> pvs, User user) {
+        PvBatch pvBatch = pvService.generatePvBatch(pvs);
+        this.savePvPermissionsForUser(pvBatch, user);
+
+    }
+
     /**
      * Creates for secondary User
      * @param pvPermissionRequests list of pv permission request

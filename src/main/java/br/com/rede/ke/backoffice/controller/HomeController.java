@@ -9,10 +9,9 @@
  */
 package br.com.rede.ke.backoffice.controller;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
+import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,10 +20,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
-import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 
 /**
  * The Class HomeController.
@@ -64,22 +59,10 @@ public class HomeController {
         model.addAttribute("code", code);
         model.addAttribute("acquirer", acquirer);
         model.addAttribute("email", email);
-        model.addAttribute("acquirers", acquirersWithoutRede());
+        model.addAttribute("acquirers", ControllersUtil.acquirersWithoutRede());
         Page<PvPermission> pvPermissions = pvPermissionService.findAllByAcquirerAndCodeAndEmail(acquirer, code, email,
             pageable);
         model.addAttribute("pvPermissions", pvPermissions);
         return "home";
-    }
-
-    /**
-     * Acquirers without rede.
-     *
-     * @return the list
-     */
-    private List<Acquirer> acquirersWithoutRede() {
-        return Arrays.asList(Acquirer.values())
-            .stream()
-            .filter(a -> !Acquirer.REDE.equals(a))
-            .collect(Collectors.toList());
     }
 }

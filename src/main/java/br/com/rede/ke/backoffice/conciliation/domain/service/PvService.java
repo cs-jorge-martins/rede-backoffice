@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
- 
+
 /**
  * The Class PvService.
  */
@@ -64,7 +64,7 @@ public class PvService {
     public PvBatch generatePvBatch(List<Pv> pvs){
         PvBatch pvBatch = new PvBatch();
         
-        for(Pv pv: pvs){
+        for (Pv pv: pvs){
             if (!isValidPvFormat(pv)) {
                 pvBatch.addInvalidPv(pv);
                 continue;
