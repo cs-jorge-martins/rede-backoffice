@@ -9,12 +9,7 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * The Class User.
@@ -29,7 +24,8 @@ public class User {
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "PRIMARY_USER_ID")
+    @ManyToOne
+    @JoinColumn(name = "PRIMARY_USER_ID")
     private User primaryUser;
 
     /** The email. */

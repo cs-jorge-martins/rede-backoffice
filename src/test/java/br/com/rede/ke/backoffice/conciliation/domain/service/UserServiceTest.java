@@ -9,6 +9,7 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
@@ -53,7 +54,7 @@ public class UserServiceTest {
      */
     @Test
     public void hasAccessWhenUserHasNoPermission() {
-        when(pvPermissionRepository.findByUser(user)).thenReturn(Collections.emptySet());
+        when(pvPermissionRepository.findByUser(user)).thenReturn(Collections.emptyList());
 
         boolean hasAccess = userService.hasAccess(user, pv);
         assertThat(hasAccess, equalTo(false));
@@ -66,7 +67,7 @@ public class UserServiceTest {
     public void hasAccessWhenUserHasPermissionThatNotAllowPvAccess() {
         PvPermission pvPermission = mock(PvPermission.class);
         when(pvPermission.permitAccess(pv)).thenReturn(false);
-        when(pvPermissionRepository.findByUser(user)).thenReturn(Collections.singleton(pvPermission));
+        when(pvPermissionRepository.findByUser(user)).thenReturn(Arrays.asList(pvPermission));
 
         boolean hasAccess = userService.hasAccess(user, pv);
         assertThat(hasAccess, equalTo(false));
@@ -79,7 +80,7 @@ public class UserServiceTest {
     public void hasAccessWhenUserHasPermissionThatAllowPvAccess() {
         PvPermission pvPermission = mock(PvPermission.class);
         when(pvPermission.permitAccess(pv)).thenReturn(true);
-        when(pvPermissionRepository.findByUser(user)).thenReturn(Collections.singleton(pvPermission));
+        when(pvPermissionRepository.findByUser(user)).thenReturn(Arrays.asList(pvPermission));
 
         boolean hasAccess = userService.hasAccess(user, pv);
         assertThat(hasAccess, equalTo(true));

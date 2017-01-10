@@ -170,7 +170,7 @@ public class PvPermissionService {
             Pv savedPv = pvService.save(pv);
             PvPermissionId pvPermissionId = new PvPermissionId(user.getId(), savedPv.getId());
             PvPermission pvPermission = new PvPermission(pvPermissionId, user, savedPv);
-            repository.save(pvPermission);
+            pvPermissionRepository.save(pvPermission);
         }
     }
 }

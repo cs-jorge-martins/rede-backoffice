@@ -29,15 +29,15 @@ public class PvService {
         PvBatch pvBatch = new PvBatch();
         
         for(Pv pv: pvs){
-            if(! isValidPvFormat(pv)){
+            if (!isValidPvFormat(pv)) {
                 pvBatch.addInvalidPv(pv);
                 continue;
             }
             
-            Pv foundPv = repository.findByCode(pv.getCode());
-            if(foundPv == null){
+            Pv foundPv = repository.findByCode(pv.getCode()).orElse(null);
+            if (foundPv == null) {
                 pvBatch.addValidPv(pv);
-            } else if(! foundPv.isHeadquarter()){
+            } else if (!foundPv.isHeadquarter()) {
                 pvBatch.addInvalidPv(pv);
             }
         }

@@ -1,17 +1,10 @@
 /*
  * Copyright 2017 Rede S.A.
  *************************************************************
-<<<<<<< HEAD
  * Nome     : PvPermission.java
  * Descrição: PvPermission.java.
  * Autor    : Johnny Richard <jrichard@thoughtworks.com>
  * Data     : 04/01/2017
-=======
- * Nome     : UserServiceTest.java
- * Descrição: UserServiceTest.java.
- * Autor    : Johnny Richard <jrichard@thoughtworks.com>
- * Data     : 03/01/2017
->>>>>>> [GpJ1APqK] Implementar e fazer testes de acesso de pv matriz filial
  * Empresa  : ThoughtWorks
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;

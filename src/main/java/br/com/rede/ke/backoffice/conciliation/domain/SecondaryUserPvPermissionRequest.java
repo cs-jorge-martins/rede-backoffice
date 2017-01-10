@@ -1,8 +1,8 @@
 /*
  * Copyright 2017 Rede S.A.
  *************************************************************
- * Nome     : PvPermissionToChildUserRequest.java
- * Descrição: PvPermissionToChildUserRequest.java.
+ * Nome     : SecondaryUserPvPermissionRequest.java
+ * Descrição: SecondaryUserPvPermissionRequest.java.
  * Autor    : Johnny Richard <jrichard@thoughtworks.com>
  * Data     : 09/01/2017
  * Empresa  : ThoughtWorks
