@@ -15,10 +15,10 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.UserHasNoPvAccessException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
+import br.com.rede.ke.backoffice.util.Result;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -27,6 +27,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -79,7 +81,7 @@ public class PvPermissionServiceTest {
         verify(pvPermissionRepository).save(pvPermission);
     }
 
-    @Test(expected = UserHasNoPvAccessException.class)
+    @Test
     public void testCreateForSecondaryWhenRequesterUserHasNoPvPermissionAccess() {
         SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
             PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
@@ -96,7 +98,9 @@ public class PvPermissionServiceTest {
 
         when(userService.hasAccess(primaryUser, pv)).thenReturn(false);
 
-        pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
+        Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
+        assertThat(result.isFailure(), equalTo(true));
+        assertThat(result.failure().get(), equalTo("User 'null' has no access to Pv 'null'"));
     }
 
     @Test(expected = InvalidPrimaryUserException.class)

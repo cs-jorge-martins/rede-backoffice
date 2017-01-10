@@ -18,11 +18,11 @@ import static org.springframework.util.StringUtils.isEmpty;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidSecondaryUserException;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.UserHasNoPvAccessException;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.PvNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
+import br.com.rede.ke.backoffice.util.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +38,9 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The Class PvPermissionService.
@@ -89,11 +92,17 @@ public class PvPermissionService {
         return pvPermissionRepository.findAll(spec, pageable);
     }
 
+    public List<Result<PvPermission, String>> createForSecondaryUser(List<SecondaryUserPvPermissionRequest> pvPermissionRequests) {
+        return pvPermissionRequests.stream()
+            .map(this::createForSecondaryUser)
+            .collect(Collectors.toList());
+    }
+
     /**
      * Create pv permission for secondary user.
      * @param pvPermissionRequest the secondary user pv permission request.
      */
-    public void createForSecondaryUser(SecondaryUserPvPermissionRequest pvPermissionRequest) {
+    public Result<PvPermission, String> createForSecondaryUser(SecondaryUserPvPermissionRequest pvPermissionRequest) {
         User primaryUser = getPrimaryUser(pvPermissionRequest.getRequesterUserEmail());
         User secondaryUser = getSecondaryUser(pvPermissionRequest.getToBePermittedUserEmail());
         Pv pv = getPv(pvPermissionRequest.getPvCode());
@@ -103,7 +112,8 @@ public class PvPermissionService {
         }
 
         if (!userService.hasAccess(primaryUser, pv)) {
-            throw new UserHasNoPvAccessException(primaryUser, pv);
+            return Result.failure(String.format("User '%s' has no access to Pv '%s'",
+                primaryUser.getEmail(), pv.getCode()));
         }
 
         PvPermission pvPermission = new PvPermission();
@@ -111,6 +121,7 @@ public class PvPermissionService {
         pvPermission.setUser(secondaryUser);
 
         pvPermissionRepository.save(pvPermission);
+        return Result.success(pvPermission);
     }
 
     /**
