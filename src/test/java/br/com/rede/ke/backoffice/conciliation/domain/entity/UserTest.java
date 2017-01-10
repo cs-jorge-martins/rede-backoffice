@@ -21,54 +21,54 @@ import static org.junit.Assert.*;
 public class UserTest {
 
     /**
-     * parent user.
+     * primary user.
      */
-    private User parent;
+    private User primaryUser;
 
     /**
-     * child user.
+     * secondary user.
      */
-    private User child;
+    private User secondaryUser;
 
     /**
      * setUp test.
      */
     @Before
     public void setUp() {
-        this.child = new User();
-        this.parent = new User();
-        this.child.setPrimaryUser(parent);
+        this.secondaryUser = new User();
+        this.primaryUser = new User();
+        this.secondaryUser.setPrimaryUser(primaryUser);
     }
 
     /**
-     * Test if is master user.
+     * Test if is primary user.
      */
     @Test
-    public void testIsMaster() {
-        assertThat(parent.isPrimary(), equalTo(true));
+    public void testIsPrimary() {
+        assertThat(primaryUser.isPrimary(), equalTo(true));
     }
 
     /**
-     * Test if is child user.
+     * Test if is secondary user.
      */
     @Test
-    public void testIsChild() {
-        assertThat(child.isPrimary(), equalTo(false));
+    public void testIsSecondary() {
+        assertThat(secondaryUser.isPrimary(), equalTo(false));
     }
 
     /**
-     * Test if is parent of given valid child.
+     * Test if is primaryUser of given valid secondaryUser.
      */
     @Test
-    public void testIfIsParentOfGivenValidChild() {
-        assertThat(parent.isPrimaryOf(child), equalTo(true));
+    public void testIfIsPrimaryOfGivenValidSecondary() {
+        assertThat(primaryUser.isPrimaryOf(secondaryUser), equalTo(true));
     }
 
     /**
-     * Test if is parent of given invalid child.
+     * Test if is primaryUser of given invalid secondaryUser.
      */
     @Test
-    public void testIfIsParentOfGivenInvalidChild() {
-        assertThat(child.isPrimaryOf(parent), equalTo(false));
+    public void testIfIsPrimaryOfGivenInvalidSecondary() {
+        assertThat(secondaryUser.isPrimaryOf(primaryUser), equalTo(false));
     }
 }

@@ -11,7 +11,7 @@
 package br.com.rede.ke.backoffice.conciliation.domain;
 
 /**
- * Child user pv permission request.
+ * Secondary user pv permission request.
  */
 public class SecondaryUserPvPermissionRequest {
 
