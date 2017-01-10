@@ -12,7 +12,18 @@ package br.com.rede.ke.backoffice.conciliation.domain.entity;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  * The Class Pv.
@@ -40,7 +51,7 @@ public class Pv {
     @Column(name = "ACQUIRER_ID")
     private Integer acquirerId;
 
-    /** the branches set */
+    /**  the branches set. */
     @OneToMany(mappedBy = "headquarter")
     private Set<Pv> branches;
 
@@ -52,13 +63,27 @@ public class Pv {
         inverseJoinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"))
     private Set<User> users;
     
+    /**
+     * Instantiates a new pv.
+     */
     public Pv(){
     }
     
+    /**
+     * Instantiates a new pv.
+     *
+     * @param code the code
+     */
     public Pv(String code){
         this.code = code;
     }
     
+    /**
+     * Instantiates a new pv.
+     *
+     * @param code the code
+     * @param acquirer the acquirer
+     */
     public Pv(String code, Acquirer acquirer){
         this.code = code;
         this.acquirerId = acquirer.ordinal();
@@ -158,22 +183,45 @@ public class Pv {
         return this.headquarter == null;
     }
 
+    /**
+     * Sets the headquarter.
+     *
+     * @param headquarter the new headquarter
+     */
     public void setHeadquarter(Pv headquarter) {
         this.headquarter = headquarter;
     }
 
+    /**
+     * Gets the headquarter.
+     *
+     * @return the headquarter
+     */
     public Pv getHeadquarter() {
         return headquarter;
     }
 
+    /**
+     * Sets the branches.
+     *
+     * @param branches the new branches
+     */
     public void setBranches(Set<Pv> branches) {
         this.branches = branches;
     }
 
+    /**
+     * Gets the branches.
+     *
+     * @return the branches
+     */
     public Set<Pv> getBranches() {
         return branches;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -192,6 +240,9 @@ public class Pv {
             && Objects.equals(acquirerId, pv.acquirerId);
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id, code, headquarter, branches, acquirerId);

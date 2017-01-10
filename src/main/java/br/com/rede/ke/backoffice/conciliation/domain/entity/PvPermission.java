@@ -12,6 +12,7 @@ package br.com.rede.ke.backoffice.conciliation.domain.entity;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -122,6 +123,9 @@ public class PvPermission {
             .orElse(false);
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -137,6 +141,9 @@ public class PvPermission {
             Objects.equals(pv, that.pv);
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
     @Override
     public int hashCode() {
         return Objects.hash(id, user, pv);

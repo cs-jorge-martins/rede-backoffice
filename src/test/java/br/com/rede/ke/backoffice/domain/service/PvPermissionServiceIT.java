@@ -9,7 +9,21 @@
  */
 package br.com.rede.ke.backoffice.domain.service;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.rede.ke.backoffice.Application;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
@@ -22,19 +36,6 @@ import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepo
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 /**
  * The Class PvPermissionServiceIT.
@@ -50,9 +51,11 @@ public class PvPermissionServiceIT {
     @Autowired
     private PvPermissionService pvPermissionService;
 
+    /** The pv service. */
     @Autowired
     private PvService pvService;
 
+    /** The user repository. */
     @Autowired
     private UserRepository userRepository;
 
@@ -61,6 +64,7 @@ public class PvPermissionServiceIT {
      */
     private Pageable pageable;
 
+    /** The pv permission repository. */
     @Autowired
     private PvPermissionRepository pvPermissionRepository;
 
@@ -108,6 +112,9 @@ public class PvPermissionServiceIT {
         assertThat(searchResults.getNumberOfElements(), equalTo(1));
     }
 
+    /**
+     * Test save pv permissions for user.
+     */
     @Test
     @Transactional
     public void testSavePvPermissionsForUser() {

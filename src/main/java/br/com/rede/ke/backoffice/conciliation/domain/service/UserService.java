@@ -9,10 +9,11 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
+import org.springframework.stereotype.Service;
+
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
-import org.springframework.stereotype.Service;
 
 /**
  * The UserService class.
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
+    /** The pv permission repository. */
     private PvPermissionRepository pvPermissionRepository;
 
     /**

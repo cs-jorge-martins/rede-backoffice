@@ -43,6 +43,11 @@ public class SecondaryUserPvPermissionRequest {
         this.pvCode = pvCode;
     }
 
+    /**
+     * Gets the requester user email.
+     *
+     * @return the requester user email
+     */
     public String getRequesterUserEmail() {
         return requesterUserEmail;
     }

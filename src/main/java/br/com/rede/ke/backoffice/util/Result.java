@@ -13,6 +13,7 @@ package br.com.rede.ke.backoffice.util;
 import java.util.Optional;
 import java.util.function.Function;
 
+// TODO: Auto-generated Javadoc
 /**
  * Result<S, F> is the type used for returning and propagating errors
  *
@@ -49,28 +50,29 @@ public interface Result<S, F> {
     /**
      * Map new result.
      *
-     * @see java.util.Optional#map(Function)
-     * @param mapper the mapper function (Functor)
      * @param <U> success mapped type
+     * @param mapper the mapper function (Functor)
      * @return new mapped Result
+     * @see java.util.Optional#map(Function)
      */
     <U> Result<U, F> map(Function<S, U> mapper);
 
     /**
-     * Combine two results
+     * Combine two results.
      *
-     * @see java.util.Optional#flatMap(Function)
-     * @param mapper the mapper function (Monad)
      * @param <U> success mapped type
+     * @param mapper the mapper function (Monad)
      * @return new mapped Result
+     * @see java.util.Optional#flatMap(Function)
      */
     <U> Result<U, F> flatMap(Function<S, Result<U, F>> mapper);
 
     /**
      * Create new success result.
-     * @param value the success value
+     *
      * @param <S> the success object type
      * @param <F> the failure object type
+     * @param value the success value
      * @return new success result
      */
     static <S, F> Success<S, F> success(S value) {
@@ -79,9 +81,10 @@ public interface Result<S, F> {
 
     /**
      * Create new failure result.
-     * @param value the failure value
+     *
      * @param <S> the success object type
      * @param <F> the failure object type
+     * @param value the failure value
      * @return new failure result
      */
     static <S, F> Failure<S, F> failure(F value) {
@@ -115,31 +118,49 @@ public interface Result<S, F> {
             return this.value;
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#isSuccess()
+         */
         @Override
         public boolean isSuccess() {
             return true;
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#isFailure()
+         */
         @Override
         public boolean isFailure() {
             return false;
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#success()
+         */
         @Override
         public Optional<S> success() {
             return Optional.of(this.value);
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#failure()
+         */
         @Override
         public Optional<F> failure() {
             return Optional.empty();
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#map(java.util.function.Function)
+         */
         @Override
         public <U> Result<U, F> map(Function<S, U> mapper) {
             return Result.success(mapper.apply(this.value));
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#flatMap(java.util.function.Function)
+         */
         @Override
         public <U> Result<U, F> flatMap(Function<S, Result<U, F>> mapper) {
             return mapper.apply(this.value);
@@ -152,9 +173,8 @@ public interface Result<S, F> {
      * @param <F> the failure object type
      */
     class Failure<S, F> implements Result<S, F> {
-        /**
-         * the failure value
-         */
+        
+        /** the failure value. */
         private final F value;
 
         /**
@@ -173,31 +193,49 @@ public interface Result<S, F> {
             return this.value;
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#isSuccess()
+         */
         @Override
         public boolean isSuccess() {
             return false;
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#isFailure()
+         */
         @Override
         public boolean isFailure() {
             return true;
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#success()
+         */
         @Override
         public Optional<S> success() {
             return Optional.empty();
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#failure()
+         */
         @Override
         public Optional<F> failure() {
             return Optional.of(this.value);
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#map(java.util.function.Function)
+         */
         @Override
         public <U> Result<U, F> map(Function<S, U> mapper) {
             return Result.failure(this.value);
         }
 
+        /* (non-Javadoc)
+         * @see br.com.rede.ke.backoffice.util.Result#flatMap(java.util.function.Function)
+         */
         @Override
         public <U> Result<U, F> flatMap(Function<S, Result<U, F>> mapper) {
             return Result.failure(this.value);

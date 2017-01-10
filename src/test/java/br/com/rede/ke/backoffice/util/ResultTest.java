@@ -94,7 +94,7 @@ public class ResultTest {
         Result<String, Integer> result = success.map(String::valueOf);
 
         assertThat(result instanceof Result.Success, equalTo(true));
-        assertThat(((Result.Success) result).getValue(), equalTo("1"));
+        assertThat(((Result.Success<String, Integer>) result).getValue(), equalTo("1"));
     }
 
     /**
@@ -106,7 +106,7 @@ public class ResultTest {
         Result<String, Integer> result = failure.map(String::valueOf);
 
         assertThat(result instanceof Result.Failure, equalTo(true));
-        assertThat(((Result.Failure) result).getValue(), equalTo(1));
+        assertThat(((Result.Failure<String, Integer>) result).getValue(), equalTo(1));
     }
 
     /**
@@ -118,7 +118,7 @@ public class ResultTest {
         Result<Integer, Integer> result = success.flatMap(x -> Result.success(x + x));
 
         assertThat(result instanceof Result.Success, equalTo(true));
-        assertThat(((Result.Success) result).getValue(), equalTo(2));
+        assertThat(((Result.Success<Integer, Integer>) result).getValue(), equalTo(2));
     }
 
     /**
@@ -130,7 +130,7 @@ public class ResultTest {
         Result<Integer, Integer> result = success.flatMap(x -> Result.failure(2));
 
         assertThat(result instanceof Result.Failure, equalTo(true));
-        assertThat(((Result.Failure) result).getValue(), equalTo(2));
+        assertThat(((Result.Failure<Integer, Integer>) result).getValue(), equalTo(2));
     }
 
     /**
@@ -142,7 +142,7 @@ public class ResultTest {
         Result<Integer, Integer> result = failure.flatMap(x -> Result.success(x + x));
 
         assertThat(result instanceof Result.Failure, equalTo(true));
-        assertThat(((Result.Failure) result).getValue(), equalTo(1));
+        assertThat(((Result.Failure<Integer, Integer>) result).getValue(), equalTo(1));
     }
 
     /**
@@ -154,6 +154,6 @@ public class ResultTest {
         Result<Integer, Integer> result = failure.flatMap(x -> Result.failure(2));
 
         assertThat(result instanceof Result.Failure, equalTo(true));
-        assertThat(((Result.Failure) result).getValue(), equalTo(1));
+        assertThat(((Result.Failure<Integer, Integer>) result).getValue(), equalTo(1));
     }
 }
