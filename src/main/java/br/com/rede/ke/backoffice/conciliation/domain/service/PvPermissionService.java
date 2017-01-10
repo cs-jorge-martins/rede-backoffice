@@ -40,6 +40,7 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -105,36 +106,27 @@ public class PvPermissionService {
     public Result<PvPermission, String> createForSecondaryUser(SecondaryUserPvPermissionRequest pvPermissionRequest) {
         User primaryUser = getPrimaryUser(pvPermissionRequest.getRequesterUserEmail());
         User secondaryUser = getSecondaryUser(pvPermissionRequest.getToBePermittedUserEmail());
-        Pv pv = getPv(pvPermissionRequest.getPvCode());
+        Optional<Pv> pv = pvRepository.findByCode(pvPermissionRequest.getPvCode());
+
+        if (!pv.isPresent()) {
+            return Result.failure(String.format("Pv '%s' não existe", pvPermissionRequest.getPvCode()));
+        }
 
         if (!primaryUser.isPrimaryOf(secondaryUser)) {
             throw new InvalidSecondaryUserException(secondaryUser, primaryUser);
         }
 
-        if (!userService.hasAccess(primaryUser, pv)) {
+        if (!userService.hasAccess(primaryUser, pv.get())) {
             return Result.failure(String.format("User '%s' has no access to Pv '%s'",
-                primaryUser.getEmail(), pv.getCode()));
+                primaryUser.getEmail(), pv.get().getCode()));
         }
 
         PvPermission pvPermission = new PvPermission();
-        pvPermission.setPv(pv);
+        pvPermission.setPv(pv.get());
         pvPermission.setUser(secondaryUser);
 
         pvPermissionRepository.save(pvPermission);
         return Result.success(pvPermission);
-    }
-
-    /**
-     * Get pv by code.
-     * @param code the pv code.
-     * @return found pv if exists.
-     */
-    private Pv getPv(String code) {
-        return pvRepository.findByCode(code).orElseThrow(() -> {
-            final String cause = String.format("Pv with code '%s' not found!", code);
-            LOGGER.warn(cause);
-            return new PvNotFoundException(cause);
-        });
     }
 
     /**

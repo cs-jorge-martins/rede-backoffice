@@ -150,4 +150,25 @@ public class PvPermissionServiceTest {
 
         pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
     }
+
+    @Test
+    public void testCreateForSecondaryUserWhenPvDoNotExists() {
+        SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
+                PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
+
+        User primaryUser = mock(User.class);
+        when(primaryUser.isPrimary()).thenReturn(true);
+        when(userRepository.findByEmail(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
+
+        User secondaryUser = mock(User.class);
+        when(secondaryUser.isPrimary()).thenReturn(false);
+        when(userRepository.findByEmail(SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
+
+        when(pvRepository.findByCode(PV_CODE)).thenReturn(Optional.empty());
+
+        Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
+
+        assertThat(result.isFailure(), equalTo(true));
+        assertThat(result.failure().get(), equalTo(String.format("Pv '%s' não existe", PV_CODE)));
+    }
 }
