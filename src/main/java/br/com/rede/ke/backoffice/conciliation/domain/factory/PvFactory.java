@@ -10,12 +10,15 @@
 
 package br.com.rede.ke.backoffice.conciliation.domain.factory;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.service.FileService;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * A factory for creating Pv objects.
@@ -26,17 +29,19 @@ public final class PvFactory {
      * Instantiates a new pv factory.
      */
     private PvFactory(){
+        // empty
     }
-    
+
     /**
-     * From string.
      *
-     * @param pvList the pv list
-     * @return the list
+     * @param file
+     * @param acquirer
+     * @return
+     * @throws IOException
      */
-    public static List<Pv> fromCodesAndAcquirer(String pvList, Acquirer acquirer) {
-        return Arrays.asList(pvList.split("\n")).stream()
-               .map(code -> new Pv(code, acquirer))
-               .collect(Collectors.toList());
+    public static List<Pv> fromCodesAndAcquirer(MultipartFile file, Acquirer acquirer) throws IOException {
+        return FileService.processFileLineByLine(file).stream()
+            .map(line -> new Pv(line, acquirer))
+            .collect(Collectors.toList());
     }
 }

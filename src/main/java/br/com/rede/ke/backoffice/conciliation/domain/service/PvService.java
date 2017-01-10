@@ -36,16 +36,6 @@ public class PvService {
     }
     
     /**
-     * Save.
-     *
-     * @param pv the pv
-     * @return the pv
-     */
-    public Pv save(Pv pv){
-        return repository.save(pv);
-    }
-    
-    /**
      * Checks if is valid pv format.
      *
      * @param pv the pv
@@ -54,7 +44,21 @@ public class PvService {
     public boolean isValidPvFormat(Pv pv) {
         return pv.getCode().matches("[0-9]{1,20}");
     }
-    
+
+    public boolean isValidPv(Pv pv) {
+        if (!isValidPvFormat(pv)){
+            return false;
+        }
+        Pv resultPv = repository.findByCode(pv.getCode());
+        if (resultPv == null) {
+            return true;
+        }
+        if (!resultPv.isHeadquarter()){
+            return false;
+        }
+        return false;
+    }
+
     /**
      * Generate pv batch.
      *
@@ -63,17 +67,11 @@ public class PvService {
      */
     public PvBatch generatePvBatch(List<Pv> pvs){
         PvBatch pvBatch = new PvBatch();
-        
-        for (Pv pv: pvs){
-            if (!isValidPvFormat(pv)) {
-                pvBatch.addInvalidPv(pv);
-                continue;
-            }
-            
-            Pv foundPv = repository.findByCode(pv.getCode());
-            if (foundPv == null) {
+
+        for (Pv pv: pvs) {
+            if (isValidPv(pv)) {
                 pvBatch.addValidPv(pv);
-            } else if (!foundPv.isHeadquarter()) {
+            } else {
                 pvBatch.addInvalidPv(pv);
             }
         }

@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
+import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 import org.springframework.stereotype.Controller;
@@ -43,13 +44,13 @@ public class PvController {
     }
 
     @PostMapping("/pv")
-    public String create(@RequestParam(required = false) MultipartFile file,
-                         @RequestParam(defaultValue = "NULL") Acquirer acquirer,
+    public String create(@RequestParam() MultipartFile file,
+                         @RequestParam() Acquirer acquirer,
                          @RequestParam() String email) {
         User user = userRepository.findByEmail(email);
         if (user != null) {
             try {
-                pvPermissionService.giveUserPermissionForHeadquarter(ControllersUtil.fromCodesToPvs(file, acquirer), user);
+                pvPermissionService.giveUserPermissionForHeadquarter(PvFactory.fromCodesAndAcquirer(file, acquirer), user);
             } catch (IOException e) {
                 e.printStackTrace();
             }

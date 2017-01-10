@@ -8,11 +8,11 @@
 			<form action="pv" method="post" enctype="multipart/form-data" class="col s12">
 				<div class="row">
 					<div class="input-field col s6">
-						<input id="email" type="email" class="validate" name="email"/>
+						<input id="email" type="email" class="validate" name="email" th:required="required"/>
 						<label for="email">email</label>
 					</div>
 					<div class="input-field col s6">
-						<select id="acquirer" name="acquirer">
+						<select id="acquirer" name="acquirer" th:required="required">
 							<option th:selected="${acquirer == acquirerItem}"
 									th:each="acquirerItem: ${acquirers}"
 									th:text="#{'option.acquirer.' + ${acquirerItem}}"
@@ -25,7 +25,7 @@
 					<div class="file-field input-field col s12">
 						<div class="btn">
 							<span>arquivo</span>
-							<input type="file" name="file" />
+							<input type="file" name="file" th:required="required"/>
 						</div>
 						<div class="file-path-wrapper">
 							<input class="file-path validate" type="text" />

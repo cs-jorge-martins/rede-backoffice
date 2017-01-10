@@ -147,7 +147,7 @@ public class PvPermissionService {
 
     public void savePvPermissionsForUser(PvBatch pvBatch, User user){
         for(Pv pv: pvBatch.getValidPvs()){
-            Pv savedPv = pvService.save(pv);
+            Pv savedPv = pvRepository.save(pv);
             PvPermissionId pvPermissionId = new PvPermissionId(user.getId(), savedPv.getId());
             PvPermission pvPermission = new PvPermission(pvPermissionId, user, savedPv);
             pvPermissionRepository.save(pvPermission);

@@ -9,9 +9,8 @@
  */
 package br.com.rede.ke.backoffice.domain.service;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Before;
@@ -36,6 +35,12 @@ import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepo
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvService;
+
+import org.springframework.web.multipart.MultipartFile;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * The Class PvPermissionServiceIT.
@@ -117,9 +122,13 @@ public class PvPermissionServiceIT {
      */
     @Test
     @Transactional
-    public void testSavePvPermissionsForUser() {
+    public void testSavePvPermissionsForUser() throws IOException {
         String pvs = "1000201314\n101476A6629\n1000201330\n1005B867493\n22345678\n";
-        List<Pv> pvList = PvFactory.fromCodesAndAcquirer(pvs, Acquirer.CIELO);
+
+        MultipartFile multipartFile = mock(MultipartFile.class);
+        when(multipartFile.getInputStream()).thenReturn(new ByteArrayInputStream(pvs.getBytes()));
+
+        List<Pv> pvList = PvFactory.fromCodesAndAcquirer(multipartFile, Acquirer.CIELO);
         PvBatch pvBatch = pvService.generatePvBatch(pvList);
 
         User user = new User();
