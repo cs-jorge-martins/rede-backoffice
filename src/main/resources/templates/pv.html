@@ -43,7 +43,7 @@
 		</div>
 		<div class="row">
 			<div>
-				<p th:text="${errorMessage}" th:unless="${errorMessage == null}"></p>
+				<p th:text="${userMessage}" th:unless="${userMessage == null}"></p>
 				<ul>
 					<li th:each="invalidPv : ${invalidPvs}" th:text="${invalidPv.code}"></li>
 				</ul>

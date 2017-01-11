@@ -10,10 +10,8 @@
 package br.com.rede.ke.backoffice.controller;
 
 import java.io.IOException;
-import java.util.List;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
@@ -42,39 +40,55 @@ public class PvController {
 
     @GetMapping("/pv")
     public String pv(Model model) {
-        model.addAttribute("acquirers", ControllersUtil.acquirersWithoutRede());
+        model.addAttribute("acquirers", Controllers.acquirersWithoutRede());
         return "pv";
     }
 
     @PostMapping("/pv")
     public String create(Model model,
-                         @RequestParam() MultipartFile file,
-                         @RequestParam() Acquirer acquirer,
-                         @RequestParam() String email) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            user = new User();
-            user.setEmail(email);
+                         @RequestParam MultipartFile file,
+                         @RequestParam Acquirer acquirer,
+                         @RequestParam String email) {
 
-            user = userRepository.save(user);
-        }
-
+        User user = findOrCreateUser(email);
         try {
             PvBatch pvBatch = pvPermissionService.giveUserPermissionForHeadquarter(
                 PvFactory.fromCodesAndAcquirer(file, acquirer), user);
 
-            String errorMessage = "Operação ocorreu com sucesso";
-            if (pvBatch != null && !pvBatch.getInvalidPvs().isEmpty()) {
-                errorMessage = "Com exceção dos PVs abaixo, a operação ocorreu com sucesso:";
-            }
-
-            List<Pv> invalidPvs = pvBatch.getInvalidPvs();
-
-            model.addAttribute("errorMessage", errorMessage);
-            model.addAttribute("invalidPvs", invalidPvs);
+            model.addAttribute("userMessage", buildUserMessage(pvBatch));
+            model.addAttribute("invalidPvs", pvBatch.getInvalidPvs());
         } catch (IOException e) {
-            e.printStackTrace();
+            model.addAttribute("userMessage", buildUserMessage(e));
         }
+        model.addAttribute("acquirers", Controllers.acquirersWithoutRede());
         return "pv";
+    }
+
+    private User findOrCreateUser(String email) {
+        User user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            user = new User();
+            user.setEmail(email);
+            user = userRepository.save(user);
+        }
+        return user;
+    }
+
+    private String buildUserMessage(Exception exception) {
+        return String.format("Um erro ocorreu ao fazer upload do arquivo: %s", exception.getMessage());
+    }
+
+    private String buildUserMessage(PvBatch pvBatch) {
+        String userMessage = "Operação ocorreu com sucesso";
+
+        if (hasInvalidPvs(pvBatch)) {
+            userMessage = "Com exceção dos PVs abaixo, a operação ocorreu com sucesso:";
+        }
+        return userMessage;
+    }
+
+    private boolean hasInvalidPvs(PvBatch pvBatch) {
+        return pvBatch != null && !pvBatch.getInvalidPvs().isEmpty();
     }
 }

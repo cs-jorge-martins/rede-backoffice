@@ -16,9 +16,13 @@ import java.util.stream.Collectors;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 
 /**
- * Class ControllersUtil.
+ * Class Controllers.
  */
-public class ControllersUtil {
+public final class Controllers {
+
+    private Controllers() {
+        //empty
+    }
 
     /**
      * Acquirers without rede.
@@ -26,8 +30,7 @@ public class ControllersUtil {
      * @return the list
      */
     public static List<Acquirer> acquirersWithoutRede() {
-        return Arrays.asList(Acquirer.values())
-            .stream()
+        return Arrays.stream(Acquirer.values())
             .filter(a -> !(Acquirer.REDE.equals(a) || Acquirer.NULL.equals(a)))
             .collect(Collectors.toList());
     }

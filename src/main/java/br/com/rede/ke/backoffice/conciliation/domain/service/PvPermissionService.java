@@ -18,7 +18,6 @@ import static org.springframework.util.StringUtils.isEmpty;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
 import br.com.rede.ke.backoffice.util.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,11 +146,21 @@ public class PvPermissionService {
 
 
     public void savePvPermissionsForUser(PvBatch pvBatch, User user){
-        for(Pv pv: pvBatch.getValidPvs()){
-            Pv savedPv = pvRepository.save(pv);
-            PvPermissionId pvPermissionId = new PvPermissionId(user.getId(), savedPv.getId());
-            PvPermission pvPermission = new PvPermission(pvPermissionId, user, savedPv);
-            pvPermissionRepository.save(pvPermission);
+        for (Pv pv : pvBatch.getValidPvs()){
+            //TODO não pode procurar somente por code, precisa ser por code e adquirente
+            Pv savedPv = pvRepository.findByCode(pv.getCode());
+
+            if (savedPv == null) {
+                savedPv = pvRepository.save(pv);
+            }
+
+            PvPermission savedPvPermission = pvPermissionRepository.findByUserAndPv(user, savedPv);
+
+            if (savedPvPermission == null) {
+                PvPermissionId pvPermissionId = new PvPermissionId(user.getId(), savedPv.getId());
+                PvPermission pvPermission = new PvPermission(pvPermissionId, user, savedPv);
+                pvPermissionRepository.save(pvPermission);
+            }
         }
     }
 }

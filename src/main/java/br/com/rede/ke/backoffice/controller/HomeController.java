@@ -59,7 +59,7 @@ public class HomeController {
         model.addAttribute("code", code);
         model.addAttribute("acquirer", acquirer);
         model.addAttribute("email", email);
-        model.addAttribute("acquirers", ControllersUtil.acquirersWithoutRede());
+        model.addAttribute("acquirers", Controllers.acquirersWithoutRede());
         Page<PvPermission> pvPermissions = pvPermissionService.findAllByAcquirerAndCodeAndEmail(acquirer, code, email,
             pageable);
         model.addAttribute("pvPermissions", pvPermissions);

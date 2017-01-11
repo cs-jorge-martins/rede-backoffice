@@ -50,13 +50,10 @@ public class PvService {
             return false;
         }
         Pv resultPv = repository.findByCode(pv.getCode());
-        if (resultPv == null) {
-            return true;
-        }
-        if (!resultPv.isHeadquarter()){
+        if (resultPv != null && !resultPv.isHeadquarter()){
             return false;
         }
-        return false;
+        return true;
     }
 
     /**
