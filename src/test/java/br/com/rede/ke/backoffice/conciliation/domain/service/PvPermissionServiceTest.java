@@ -9,6 +9,19 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
@@ -18,18 +31,6 @@ import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundExcep
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.util.Result;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Optional;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
 
 /**
  * The Class PvPermissionServiceTest.
@@ -87,7 +88,7 @@ public class PvPermissionServiceTest {
 
         secondaryUser = new User();
         secondaryUser.setPrimaryUser(primaryUser);
-        when(userService.getSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
+        when(userService.getOrCreateSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(secondaryUser);
 
         pv = new Pv();
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, pvPermissionRequest.getAcquirer().ordinal()))
@@ -141,15 +142,6 @@ public class PvPermissionServiceTest {
     @Test(expected = UserNotFoundException.class)
     public void testCreateForSecondaryUserWhenPrimaryUserNotExists() {
         when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.empty());
-        pvPermissionService.createForSecondaryUser(pvPermissionRequest);
-    }
-
-    /**
-     * Test create for secondary user when secondary user not exists.
-     */
-    @Test(expected = UserNotFoundException.class)
-    public void testCreateForSecondaryUserWhenSecondaryUserNotExists() {
-        when(userService.getSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(Optional.empty());
         pvPermissionService.createForSecondaryUser(pvPermissionRequest);
     }
 }

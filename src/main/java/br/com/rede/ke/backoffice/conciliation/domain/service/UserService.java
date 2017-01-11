@@ -11,13 +11,14 @@ package br.com.rede.ke.backoffice.conciliation.domain.service;
 
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidSecondaryUserException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
-import org.springframework.stereotype.Service;
 
 /**
  * The UserService class.
@@ -99,11 +100,15 @@ public class UserService {
      * @param secondaryUserEmail the secondary user email
      * @return the secondary user
      */
-    public Optional<User> getSecondaryUserFor(User primaryUser, String secondaryUserEmail) {
+    public User getOrCreateSecondaryUserFor(User primaryUser, String secondaryUserEmail) {
         Optional<User> secondaryUserOpt = userRepository.findByEmail(secondaryUserEmail);
 
+        if (!primaryUser.isPrimary()) {
+            throw new InvalidPrimaryUserException(primaryUser);
+        }
+        
         if (!secondaryUserOpt.isPresent()) {
-            return Optional.empty();
+            return createSecondaryUserFor(primaryUser, secondaryUserEmail);
         }
 
         User secondaryUser = secondaryUserOpt.get();
@@ -115,6 +120,21 @@ public class UserService {
             throw new InvalidSecondaryUserException(primaryUser, secondaryUser);
         }
 
-        return secondaryUserOpt;
+        return secondaryUser;
+    }
+    
+    
+    /**
+     * Creates the secondary user.
+     *
+     * @param primaryUser the primary user
+     * @param secondaryUserEmail the secondary user email
+     * @return the user
+     */
+    private User createSecondaryUserFor(User primaryUser, String secondaryUserEmail){
+        User secondaryUser = new User();
+        secondaryUser.setEmail(secondaryUserEmail);
+        secondaryUser.setPrimaryUser(primaryUser);
+        return userRepository.save(secondaryUser);
     }
 }
