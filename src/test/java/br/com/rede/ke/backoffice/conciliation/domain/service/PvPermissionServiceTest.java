@@ -51,9 +51,9 @@ public class PvPermissionServiceTest {
     @Mock
     private PvPermissionRepository pvPermissionRepository;
 
-    public static final String PRIMARY_USER_EMAIL = "primary_user@email.com";
-    public static final String SECONDARY_USER_EMAIL = "secondary_user@email.com";
-    public static final String PV_CODE = "pvcode";
+    private static final String PRIMARY_USER_EMAIL = "primary_user@email.com";
+    private static final String SECONDARY_USER_EMAIL = "secondary_user@email.com";
+    private static final String PV_CODE = "pvcode";
 
     @Test
     public void testCreateForSecondaryUser() {
