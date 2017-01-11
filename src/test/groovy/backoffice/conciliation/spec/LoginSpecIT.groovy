@@ -28,7 +28,7 @@ class LoginSpecIT extends GebSpec {
         then:
         assert at(LoginPage)
         and:
-        assert errorMessage == "User name or password invalid!"
+        assert errorMessage == "nome de usuário ou senha inválidos"
     }
 
     def "do login with valid credentials"() {
