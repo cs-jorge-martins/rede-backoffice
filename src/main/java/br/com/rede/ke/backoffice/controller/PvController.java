@@ -10,6 +10,7 @@
 package br.com.rede.ke.backoffice.controller;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
@@ -53,7 +54,7 @@ public class PvController {
         User user = findOrCreateUser(email);
         try {
             PvBatch pvBatch = pvPermissionService.giveUserPermissionForHeadquarter(
-                PvFactory.fromCodesAndAcquirer(file, acquirer), user);
+                PvFactory.fromFileAndAcquirer(file, acquirer), user);
 
             model.addAttribute("userMessage", buildUserMessage(pvBatch));
             model.addAttribute("invalidPvs", pvBatch.getInvalidPvs());
@@ -65,14 +66,13 @@ public class PvController {
     }
 
     private User findOrCreateUser(String email) {
-        User user = userRepository.findByEmail(email);
+        Optional<User> user = userRepository.findByEmail(email);
 
-        if (user == null) {
-            user = new User();
-            user.setEmail(email);
-            user = userRepository.save(user);
-        }
-        return user;
+        return user.orElseGet(() -> {
+            User newUser = new User();
+            newUser.setEmail(email);
+            return userRepository.save(newUser);
+        });
     }
 
     private String buildUserMessage(Exception exception) {

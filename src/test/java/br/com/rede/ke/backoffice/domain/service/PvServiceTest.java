@@ -87,7 +87,7 @@ public class PvServiceTest {
         MultipartFile multipartFile = mock(MultipartFile.class);
         when(multipartFile.getInputStream()).thenReturn(new ByteArrayInputStream(pvs.getBytes()));
 
-        List<Pv> pvList = PvFactory.fromCodesAndAcquirer(multipartFile, Acquirer.CIELO);
+        List<Pv> pvList = PvFactory.fromFileAndAcquirer(multipartFile, Acquirer.CIELO);
         
         assertThat(pvList.size(), equalTo(4));
     }

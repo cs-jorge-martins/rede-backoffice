@@ -17,7 +17,6 @@ import static org.springframework.data.jpa.domain.Specifications.where;
 import static org.springframework.util.StringUtils.isEmpty;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.util.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,8 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
-
+import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -144,15 +144,12 @@ public class PvPermissionService {
         return () -> new UserNotFoundException(String.format("Usuário com email '%s' não encontrado", email));
     }
 
-
+    @Transactional(rollbackFor = Exception.class)
     public void savePvPermissionsForUser(PvBatch pvBatch, User user){
         for (Pv pv : pvBatch.getValidPvs()){
-            //TODO não pode procurar somente por code, precisa ser por code e adquirente
-            Pv savedPv = pvRepository.findByCode(pv.getCode());
+            Optional<Pv> pvFromDb = pvRepository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
 
-            if (savedPv == null) {
-                savedPv = pvRepository.save(pv);
-            }
+            Pv savedPv = pvFromDb.orElseGet(() -> pvRepository.save(pv));
 
             PvPermission savedPvPermission = pvPermissionRepository.findByUserAndPv(user, savedPv);
 

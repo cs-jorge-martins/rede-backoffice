@@ -39,7 +39,7 @@ public final class PvFactory {
      * @return
      * @throws IOException
      */
-    public static List<Pv> fromCodesAndAcquirer(MultipartFile file, Acquirer acquirer) throws IOException {
+    public static List<Pv> fromFileAndAcquirer(MultipartFile file, Acquirer acquirer) throws IOException {
         return FileService.processFileLineByLine(file).stream()
             .map(line -> new Pv(line, acquirer))
             .collect(Collectors.toList());

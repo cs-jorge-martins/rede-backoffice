@@ -10,6 +10,7 @@
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -49,11 +50,8 @@ public class PvService {
         if (!isValidPvFormat(pv)){
             return false;
         }
-        Pv resultPv = repository.findByCode(pv.getCode());
-        if (resultPv != null && !resultPv.isHeadquarter()){
-            return false;
-        }
-        return true;
+        Optional<Pv> resultPv = repository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
+        return resultPv.map(Pv::isHeadquarter).orElse(true);
     }
 
     /**
