@@ -15,9 +15,7 @@ import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermiss
 import static org.springframework.data.jpa.domain.Specifications.not;
 import static org.springframework.data.jpa.domain.Specifications.where;
 import static org.springframework.util.StringUtils.isEmpty;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidSecondaryUserException;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
@@ -40,6 +38,7 @@ import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepo
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -54,14 +53,12 @@ public class PvPermissionService {
     private PvService pvService;
     private PvPermissionRepository pvPermissionRepository;
     private UserService userService;
-    private UserRepository userRepository;
 
-    public PvPermissionService(PvPermissionRepository repository, PvService pvService, PvRepository pvRepository, UserService userService, UserRepository userRepository) {
+    public PvPermissionService(PvPermissionRepository repository, PvService pvService, PvRepository pvRepository, UserService userService) {
         this.pvPermissionRepository = repository;
         this.pvService = pvService;
         this.pvRepository = pvRepository;
         this.userService = userService;
-        this.userRepository = userRepository;
     }
 
     /**
@@ -92,6 +89,11 @@ public class PvPermissionService {
         return pvPermissionRepository.findAll(spec, pageable);
     }
 
+    /**
+     * Creates for secondary User
+     * @param pvPermissionRequests list of pv permission request
+     * @return the list of pv permission result
+     */
     public List<Result<PvPermission, String>> createForSecondaryUser(List<SecondaryUserPvPermissionRequest> pvPermissionRequests) {
         return pvPermissionRequests.stream()
             .map(this::createForSecondaryUser)
@@ -100,28 +102,29 @@ public class PvPermissionService {
 
     /**
      * Create pv permission for secondary user.
-     * @param pvPermissionRequest the secondary user pv permission request.
+     * @param request the secondary user pv permission request.
      */
-    public Result<PvPermission, String> createForSecondaryUser(SecondaryUserPvPermissionRequest pvPermissionRequest) {
-        User primaryUser = getPrimaryUser(pvPermissionRequest.getRequesterUserEmail());
-        User secondaryUser = getSecondaryUser(pvPermissionRequest.getToBePermittedUserEmail());
-        Optional<Pv> pv = pvRepository.findByCode(pvPermissionRequest.getPvCode());
+    public Result<PvPermission, String> createForSecondaryUser(SecondaryUserPvPermissionRequest request) {
+        User primaryUser = userService.getPrimaryUser(request.getRequesterUserEmail())
+                .orElseThrow(getUserNotFoundException(request.getRequesterUserEmail()));
+        User secondaryUser = userService.getSecondaryUserFor(primaryUser, request.getToBePermittedUserEmail())
+                .orElseThrow(getUserNotFoundException(request.getToBePermittedUserEmail()));
 
-        if (!pv.isPresent()) {
-            return Result.failure(String.format("Pv '%s' não existe", pvPermissionRequest.getPvCode()));
+        Optional<Pv> pvOpt = pvRepository.findByCode(request.getPvCode());
+
+        if (!pvOpt.isPresent()) {
+            return Result.failure(String.format("Pv '%s' não existe", request.getPvCode()));
         }
 
-        if (!primaryUser.isPrimaryOf(secondaryUser)) {
-            throw new InvalidSecondaryUserException(secondaryUser, primaryUser);
-        }
+        Pv pv = pvOpt.get();
 
-        if (!userService.hasAccess(primaryUser, pv.get())) {
+        if (!userService.hasAccess(primaryUser, pv)) {
             return Result.failure(String.format("Usuário '%s' não tem acesso ao Pv '%s'",
-                primaryUser.getEmail(), pv.get().getCode()));
+                primaryUser.getEmail(), pv.getCode()));
         }
 
         PvPermission pvPermission = new PvPermission();
-        pvPermission.setPv(pv.get());
+        pvPermission.setPv(pv);
         pvPermission.setUser(secondaryUser);
 
         pvPermissionRepository.save(pvPermission);
@@ -129,44 +132,15 @@ public class PvPermissionService {
     }
 
     /**
-     * Get user by email.
-     * @param email user email.
-     * @return found user if exists.
+     * Gets user not found exception
+     * @param email the user email
+     * @return the UserNotFoundException supplier
      */
-    private User getUser(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> {
-            final String cause = String.format("Usuário com o email '%s' não encontrado", email);
-            LOGGER.warn(cause);
-            return new UserNotFoundException(cause);
-        });
+    private Supplier<UserNotFoundException> getUserNotFoundException(String email) {
+        return () -> new UserNotFoundException(String.format("Usuário com email '%s' não encontrado", email));
     }
 
-    /**
-     * Get primary user.
-     * @param email the primary user email.
-     * @return found user if exists.
-     */
-    private User getPrimaryUser(String email) {
-        User user = getUser(email);
-        if (!user.isPrimary()) {
-            throw new InvalidPrimaryUserException(user);
-        }
-        return user;
-    }
 
-    /**
-     * Get secondary user.
-     * @param email the primary user email.
-     * @return found user if exists.
-     */
-    private User getSecondaryUser(String email) {
-        User user = getUser(email);
-        if (user.isPrimary()) {
-            throw new InvalidSecondaryUserException(user);
-        }
-        return user;
-    }
-    
     public void savePvPermissionsForUser(PvBatch pvBatch, User user){
         for(Pv pv: pvBatch.getValidPvs()){
             Pv savedPv = pvService.save(pv);

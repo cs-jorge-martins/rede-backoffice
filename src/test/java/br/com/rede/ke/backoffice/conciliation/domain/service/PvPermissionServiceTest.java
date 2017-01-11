@@ -9,16 +9,15 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
-import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidSecondaryUserException;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
 import br.com.rede.ke.backoffice.util.Result;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -29,71 +28,93 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * The Class PvPermissionServiceTest.
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class PvPermissionServiceTest {
 
+    /** The pv permission service */
     @InjectMocks
     private PvPermissionService pvPermissionService;
 
+    /** The user service */
     @Mock
     private UserService userService;
 
+    /** The pv repository */
     @Mock
     private PvRepository pvRepository;
 
-    @Mock
-    private UserRepository userRepository;
-
+    /** The pv permission repository */
     @Mock
     private PvPermissionRepository pvPermissionRepository;
 
+    /** The primary user email constant */
     private static final String PRIMARY_USER_EMAIL = "primary_user@email.com";
+
+    /** The secondary user email constant */
     private static final String SECONDARY_USER_EMAIL = "secondary_user@email.com";
+
+    /** The pv code constant */
     private static final String PV_CODE = "pvcode";
 
+    /** The primary user */
+    private User primaryUser;
+
+    /** The secondary user */
+    private User secondaryUser;
+
+    /** The pv */
+    private Pv pv;
+
+    /**
+     * The setUp
+     */
+    @Before
+    public void setUp() {
+        primaryUser = new User();
+        when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
+
+        secondaryUser = new User();
+        secondaryUser.setPrimaryUser(primaryUser);
+        when(userService.getSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
+
+        pv = new Pv();
+    }
+
+    /**
+     * Test create for secondary user.
+     */
     @Test
     public void testCreateForSecondaryUser() {
         SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
             PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
 
-        User primaryUser = new User();
-        when(userRepository.findByEmail(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
-
-        User secondaryUser = new User();
-        secondaryUser.setPrimaryUser(primaryUser);
-        when(userRepository.findByEmail(SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
-
-        Pv pv = new Pv();
         when(pvRepository.findByCode(PV_CODE)).thenReturn(Optional.of(pv));
 
         when(userService.hasAccess(primaryUser, pv)).thenReturn(true);
 
-        pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
+        Result<PvPermission, String> pvPermissionResult = pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
 
         PvPermission pvPermission = new PvPermission();
         pvPermission.setPv(pv);
         pvPermission.setUser(secondaryUser);
 
-        verify(pvPermissionRepository).save(pvPermission);
+        assertThat(pvPermissionResult.isSuccess(), equalTo(true));
+        assertThat(pvPermissionResult.success().get(), equalTo(pvPermission));
     }
 
+    /**
+     * Test create for secondary user when requester user has no pv permission access
+     */
     @Test
-    public void testCreateForSecondaryWhenRequesterUserHasNoPvPermissionAccess() {
+    public void testCreateForSecondaryUserWhenRequesterUserHasNoPvPermissionAccess() {
         SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
             PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
 
-        User primaryUser = new User();
-        when(userRepository.findByEmail(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
-
-        User secondaryUser = new User();
-        secondaryUser.setPrimaryUser(primaryUser);
-        when(userRepository.findByEmail(SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
-
-        Pv pv = new Pv();
         when(pvRepository.findByCode(PV_CODE)).thenReturn(Optional.of(pv));
 
         when(userService.hasAccess(primaryUser, pv)).thenReturn(false);
@@ -103,66 +124,13 @@ public class PvPermissionServiceTest {
         assertThat(result.failure().get(), equalTo("Usuário 'null' não tem acesso ao Pv 'null'"));
     }
 
-    @Test(expected = InvalidPrimaryUserException.class)
-    public void testCreateForSecondaryWhenRequesterUserIsSecondaryUser() {
-        SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
-            SECONDARY_USER_EMAIL, PRIMARY_USER_EMAIL, PV_CODE);
-
-        User secondaryUser = mock(User.class);
-        when(secondaryUser.isPrimary()).thenReturn(false);
-        when(userRepository.findByEmail(SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
-
-        pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
-    }
-
-    @Test(expected = InvalidSecondaryUserException.class)
-    public void testCreateForSecondaryWhenToBePermittedUserIsNotSecondaryUserOfRequesterUser() {
-        SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
-
-        User primaryUser = mock(User.class);
-        when(primaryUser.isPrimary()).thenReturn(true);
-        when(userRepository.findByEmail(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
-
-        User secondaryUser = mock(User.class);
-        when(secondaryUser.isPrimary()).thenReturn(false);
-        when(userRepository.findByEmail(SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
-
-        when(primaryUser.isPrimaryOf(secondaryUser)).thenReturn(false);
-
-        when(pvRepository.findByCode(PV_CODE)).thenReturn(Optional.of(new Pv()));
-
-        pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
-    }
-
-    @Test(expected = InvalidSecondaryUserException.class)
-    public void testCreateForSecondaryWhenToBePermittedUserIsPrimaryUser() {
-        SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
-
-        User primaryUser = mock(User.class);
-        when(primaryUser.isPrimary()).thenReturn(true);
-        when(userRepository.findByEmail(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
-
-        User secondaryUser = mock(User.class);
-        when(secondaryUser.isPrimary()).thenReturn(true);
-        when(userRepository.findByEmail(SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
-
-        pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
-    }
-
+    /**
+     * Test create for secondary user when pv do not exists.
+     */
     @Test
     public void testCreateForSecondaryUserWhenPvDoNotExists() {
         SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
                 PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
-
-        User primaryUser = mock(User.class);
-        when(primaryUser.isPrimary()).thenReturn(true);
-        when(userRepository.findByEmail(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
-
-        User secondaryUser = mock(User.class);
-        when(secondaryUser.isPrimary()).thenReturn(false);
-        when(userRepository.findByEmail(SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
 
         when(pvRepository.findByCode(PV_CODE)).thenReturn(Optional.empty());
 
@@ -170,5 +138,31 @@ public class PvPermissionServiceTest {
 
         assertThat(result.isFailure(), equalTo(true));
         assertThat(result.failure().get(), equalTo(String.format("Pv '%s' não existe", PV_CODE)));
+    }
+
+    /**
+     * Test create for secondary user when primary user not exists.
+     */
+    @Test(expected = UserNotFoundException.class)
+    public void testCreateForSecondaryUserWhenPrimaryUserNotExists() {
+        SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
+                PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
+
+        when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.empty());
+
+        pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
+    }
+
+    /**
+     * Test create for secondary user when secondary user not exists.
+     */
+    @Test(expected = UserNotFoundException.class)
+    public void testCreateForSecondaryUserWhenSecondaryUserNotExists() {
+        SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
+                PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
+
+        when(userService.getSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(Optional.empty());
+
+        pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
     }
 }

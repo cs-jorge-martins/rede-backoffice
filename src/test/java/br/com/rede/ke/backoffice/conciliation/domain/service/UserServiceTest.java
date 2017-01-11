@@ -9,13 +9,19 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
+import java.security.cert.PKIXRevocationChecker;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidSecondaryUserException;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +45,9 @@ public class UserServiceTest {
 
     @Mock
     private PvPermissionRepository pvPermissionRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     private User user;
     private Pv pv;
@@ -84,5 +93,53 @@ public class UserServiceTest {
 
         boolean hasAccess = userService.hasAccess(user, pv);
         assertThat(hasAccess, equalTo(true));
+    }
+
+    /**
+     * Test get primary user when email belongs to secondary user
+     */
+    @Test(expected = InvalidPrimaryUserException.class)
+    public void testGetPrimaryUserWhenEmailBelongsToSecondaryUser() {
+        final String SECONDARY_USER = "secondary_user@email.com";
+
+        User secondaryUser = new User();
+        secondaryUser.setPrimaryUser(new User());
+
+        when(userRepository.findByEmail(SECONDARY_USER)).thenReturn(Optional.of(secondaryUser));
+
+        userService.getPrimaryUser(SECONDARY_USER);
+    }
+
+    /**
+     * Test get secondary user when secondary email belongs to primary user.
+     */
+    @Test(expected = InvalidSecondaryUserException.class)
+    public void testGetSecondaryUserWhenSecondaryEmailBelongsToPrimaryUser() {
+        final String PRIMARY_USER = "primary_user@email.com";
+
+        User primaryUser1 = new User();
+        User primaryUser2 = new User();
+
+        when(userRepository.findByEmail(PRIMARY_USER)).thenReturn(Optional.of(primaryUser2));
+
+        userService.getSecondaryUserFor(primaryUser1, PRIMARY_USER);
+    }
+
+    /**
+     * Test get secondary user when secondary user do not belongs to given primary user.
+     */
+    @Test(expected = InvalidSecondaryUserException.class)
+    public void testGetSecondaryUserWhenSecondaryUserDoNotBelongsToGivenPrimaryUser() {
+        final String SECONDARY_USER = "secondary_user@email.com";
+
+        User primaryUser = new User();
+        primaryUser.setId(1L);
+
+        User secondaryUser = new User();
+        secondaryUser.setPrimaryUser(new User());
+
+        when(userRepository.findByEmail(SECONDARY_USER)).thenReturn(Optional.of(secondaryUser));
+
+        userService.getSecondaryUserFor(primaryUser, SECONDARY_USER);
     }
 }
