@@ -10,8 +10,11 @@
 package br.com.rede.ke.backoffice.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
@@ -44,16 +47,33 @@ public class PvController {
     }
 
     @PostMapping("/pv")
-    public String create(@RequestParam() MultipartFile file,
+    public String create(Model model,
+                         @RequestParam() MultipartFile file,
                          @RequestParam() Acquirer acquirer,
                          @RequestParam() String email) {
         User user = userRepository.findByEmail(email);
-        if (user != null) {
-            try {
-                pvPermissionService.giveUserPermissionForHeadquarter(PvFactory.fromCodesAndAcquirer(file, acquirer), user);
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (user == null) {
+            user = new User();
+            user.setEmail(email);
+
+            user = userRepository.save(user);
+        }
+
+        try {
+            PvBatch pvBatch = pvPermissionService.giveUserPermissionForHeadquarter(
+                PvFactory.fromCodesAndAcquirer(file, acquirer), user);
+
+            String errorMessage = "Operação ocorreu com sucesso";
+            if (pvBatch != null && !pvBatch.getInvalidPvs().isEmpty()) {
+                errorMessage = "Com exceção dos PVs abaixo, a operação ocorreu com sucesso:";
             }
+
+            List<Pv> invalidPvs = pvBatch.getInvalidPvs();
+
+            model.addAttribute("errorMessage", errorMessage);
+            model.addAttribute("invalidPvs", invalidPvs);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return "pv";
     }

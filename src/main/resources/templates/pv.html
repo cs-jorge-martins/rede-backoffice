@@ -41,6 +41,14 @@
 				</div>
 			</form>
 		</div>
+		<div class="row">
+			<div>
+				<p th:text="${errorMessage}" th:unless="${errorMessage == null}"></p>
+				<ul>
+					<li th:each="invalidPv : ${invalidPvs}" th:text="${invalidPv.code}"></li>
+				</ul>
+			</div>
+		</div>
 	</div>
 	<div th:replace="fragments/scripts"></div>
     </body>

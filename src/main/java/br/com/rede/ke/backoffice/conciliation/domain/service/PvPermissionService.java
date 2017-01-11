@@ -89,10 +89,11 @@ public class PvPermissionService {
         return pvPermissionRepository.findAll(spec, pageable);
     }
 
-    public void giveUserPermissionForHeadquarter(List<Pv> pvs, User user) {
+    public PvBatch giveUserPermissionForHeadquarter(List<Pv> pvs, User user) {
         PvBatch pvBatch = pvService.generatePvBatch(pvs);
         this.savePvPermissionsForUser(pvBatch, user);
 
+        return pvBatch;
     }
 
     /**
