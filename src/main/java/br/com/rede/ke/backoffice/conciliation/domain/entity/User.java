@@ -9,12 +9,8 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Objects;
 
 /**
  * The Class User.
@@ -28,6 +24,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "PRIMARY_USER_ID")
+    private User primaryUser;
 
     /** The email. */
     @Column(name = "EMAIL")
@@ -52,6 +52,14 @@ public class User {
         this.id = id;
     }
 
+    public void setPrimaryUser(User primaryUser) {
+        this.primaryUser = primaryUser;
+    }
+
+    public User getPrimaryUser() {
+        return primaryUser;
+    }
+
     /**
      * Gets the email.
      *
@@ -69,5 +77,39 @@ public class User {
      */
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isPrimary() {
+        return primaryUser == null;
+    }
+
+    public boolean isPrimaryOf(User secondary) {
+        if (secondary == null) {
+            return false;
+        }
+        return this.equals(secondary.getPrimaryUser());
+    }
+
+    /**
+     * (non-Javadoc)
+     * @see Object#equals(Object)
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) &&
+                Objects.equals(primaryUser, user.primaryUser) &&
+                Objects.equals(email, user.email);
+    }
+
+    /**
+     * (non-Javadoc)
+     * @see Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, primaryUser, email);
     }
 }

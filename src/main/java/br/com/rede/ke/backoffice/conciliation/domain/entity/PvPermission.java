@@ -9,6 +9,10 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -36,8 +40,27 @@ public class PvPermission {
     @MapsId("pvId")
     private Pv pv;
 
+    /**
+     * The default constructor.
+     */
     public PvPermission() {}
 
+    /**
+     * The pv permission constructor.
+     * @param user the user
+     * @param pv the pv
+     */
+    public PvPermission(User user, Pv pv) {
+        this.user = user;
+        this.pv = pv;
+    }
+
+    /**
+     * The pv permission constructor.
+     * @param id the id
+     * @param user the user
+     * @param pv the pv
+     */
     public PvPermission(PvPermissionId id, User user, Pv pv) {
         this.id = id;
         this.user = user;
@@ -96,5 +119,52 @@ public class PvPermission {
      */
     public void setPv(Pv pv) {
         this.pv = pv;
+    }
+
+    /**
+     * Permit access.
+     * @param pv Pv to check access.
+     * @return if given pv is permitted.
+     */
+    public boolean permitAccess(Pv pv) {
+        if(getPv() == null || pv == null) {
+            return false;
+        }
+
+        if(pv.equals(getPv())) {
+            return true;
+        }
+
+        return Optional.ofNullable(getPv())
+            .map(Pv::getBranches)
+            .map(Set::stream)
+            .map(pvStream -> pvStream.anyMatch(pvBranch -> pvBranch.equals(pv)))
+            .orElse(false);
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PvPermission that = (PvPermission) o;
+        return Objects.equals(id, that.id) &&
+            Objects.equals(user, that.user) &&
+            Objects.equals(pv, that.pv);
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, pv);
     }
 }
