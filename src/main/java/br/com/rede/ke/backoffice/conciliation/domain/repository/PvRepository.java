@@ -23,5 +23,6 @@ import java.util.Optional;
 @Repository
 public interface PvRepository extends JpaRepository<Pv, Long> {
     List<Pv> findByCodeIn(List<String> pvCodes);
-    Optional<Pv> findByCode(String code);
+    Pv findByCode(String pvCode);
+    Optional<Pv> findByCodeAndAcquirerId(String pvCode, Integer acquirerId);
 }

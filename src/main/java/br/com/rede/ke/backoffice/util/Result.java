@@ -13,7 +13,6 @@ package br.com.rede.ke.backoffice.util;
 import java.util.Optional;
 import java.util.function.Function;
 
-// TODO: Auto-generated Javadoc
 /**
  * Result<S, F> is the type used for returning and propagating errors
  *

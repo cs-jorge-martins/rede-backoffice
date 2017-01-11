@@ -40,8 +40,27 @@ public class PvPermission {
     @MapsId("pvId")
     private Pv pv;
 
+    /**
+     * The default constructor.
+     */
     public PvPermission() {}
 
+    /**
+     * The pv permission constructor.
+     * @param user the user
+     * @param pv the pv
+     */
+    public PvPermission(User user, Pv pv) {
+        this.user = user;
+        this.pv = pv;
+    }
+
+    /**
+     * The pv permission constructor.
+     * @param id the id
+     * @param user the user
+     * @param pv the pv
+     */
     public PvPermission(PvPermissionId id, User user, Pv pv) {
         this.id = id;
         this.user = user;

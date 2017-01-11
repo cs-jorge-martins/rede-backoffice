@@ -10,6 +10,7 @@
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
@@ -70,11 +71,17 @@ public class PvPermissionServiceTest {
     /** The pv */
     private Pv pv;
 
+    /** The secondary user pv permission request */
+    private SecondaryUserPvPermissionRequest pvPermissionRequest;
+
     /**
      * The setUp
      */
     @Before
     public void setUp() {
+        this.pvPermissionRequest = new SecondaryUserPvPermissionRequest(
+                PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE, Acquirer.CIELO);
+
         primaryUser = new User();
         when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
 
@@ -83,6 +90,8 @@ public class PvPermissionServiceTest {
         when(userService.getSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
 
         pv = new Pv();
+        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, pvPermissionRequest.getAcquirer().ordinal()))
+                .thenReturn(Optional.of(pv));
     }
 
     /**
@@ -90,18 +99,11 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForSecondaryUser() {
-        SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
-
-        when(pvRepository.findByCode(PV_CODE)).thenReturn(Optional.of(pv));
-
         when(userService.hasAccess(primaryUser, pv)).thenReturn(true);
 
-        Result<PvPermission, String> pvPermissionResult = pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
+        Result<PvPermission, String> pvPermissionResult = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
 
-        PvPermission pvPermission = new PvPermission();
-        pvPermission.setPv(pv);
-        pvPermission.setUser(secondaryUser);
+        PvPermission pvPermission = new PvPermission(secondaryUser, pv);
 
         assertThat(pvPermissionResult.isSuccess(), equalTo(true));
         assertThat(pvPermissionResult.success().get(), equalTo(pvPermission));
@@ -112,14 +114,9 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForSecondaryUserWhenRequesterUserHasNoPvPermissionAccess() {
-        SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
-
-        when(pvRepository.findByCode(PV_CODE)).thenReturn(Optional.of(pv));
-
         when(userService.hasAccess(primaryUser, pv)).thenReturn(false);
 
-        Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
+        Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
         assertThat(result.isFailure(), equalTo(true));
         assertThat(result.failure().get(), equalTo("Usuário 'null' não tem acesso ao Pv 'null'"));
     }
@@ -129,12 +126,10 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForSecondaryUserWhenPvDoNotExists() {
-        SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
-                PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
+        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, pvPermissionRequest.getAcquirer().ordinal()))
+                .thenReturn(Optional.empty());
 
-        when(pvRepository.findByCode(PV_CODE)).thenReturn(Optional.empty());
-
-        Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
+        Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
 
         assertThat(result.isFailure(), equalTo(true));
         assertThat(result.failure().get(), equalTo(String.format("Pv '%s' não existe", PV_CODE)));
@@ -145,12 +140,8 @@ public class PvPermissionServiceTest {
      */
     @Test(expected = UserNotFoundException.class)
     public void testCreateForSecondaryUserWhenPrimaryUserNotExists() {
-        SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
-                PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
-
         when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.empty());
-
-        pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
+        pvPermissionService.createForSecondaryUser(pvPermissionRequest);
     }
 
     /**
@@ -158,11 +149,7 @@ public class PvPermissionServiceTest {
      */
     @Test(expected = UserNotFoundException.class)
     public void testCreateForSecondaryUserWhenSecondaryUserNotExists() {
-        SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
-                PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE);
-
         when(userService.getSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(Optional.empty());
-
-        pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
+        pvPermissionService.createForSecondaryUser(pvPermissionRequest);
     }
 }

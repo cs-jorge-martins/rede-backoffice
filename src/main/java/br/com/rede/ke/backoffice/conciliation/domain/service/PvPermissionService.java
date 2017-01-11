@@ -110,7 +110,7 @@ public class PvPermissionService {
         User secondaryUser = userService.getSecondaryUserFor(primaryUser, request.getToBePermittedUserEmail())
                 .orElseThrow(getUserNotFoundException(request.getToBePermittedUserEmail()));
 
-        Optional<Pv> pvOpt = pvRepository.findByCode(request.getPvCode());
+        Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(request.getPvCode(), request.getAcquirer().ordinal());
 
         if (!pvOpt.isPresent()) {
             return Result.failure(String.format("Pv '%s' não existe", request.getPvCode()));
@@ -123,9 +123,7 @@ public class PvPermissionService {
                 primaryUser.getEmail(), pv.getCode()));
         }
 
-        PvPermission pvPermission = new PvPermission();
-        pvPermission.setPv(pv);
-        pvPermission.setUser(secondaryUser);
+        PvPermission pvPermission = new PvPermission(secondaryUser, pv);
 
         pvPermissionRepository.save(pvPermission);
         return Result.success(pvPermission);

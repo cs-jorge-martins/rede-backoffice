@@ -70,7 +70,7 @@ public class PvService {
                 continue;
             }
             
-            Pv foundPv = repository.findByCode(pv.getCode()).orElse(null);
+            Pv foundPv = repository.findByCode(pv.getCode());
             if (foundPv == null) {
                 pvBatch.addValidPv(pv);
             } else if (!foundPv.isHeadquarter()) {
