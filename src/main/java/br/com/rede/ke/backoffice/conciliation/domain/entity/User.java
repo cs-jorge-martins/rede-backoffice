@@ -10,6 +10,7 @@
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 /**
  * The Class User.
@@ -87,5 +88,28 @@ public class User {
             return false;
         }
         return this.equals(secondary.getPrimaryUser());
+    }
+
+    /**
+     * (non-Javadoc)
+     * @see Object#equals(Object)
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) &&
+                Objects.equals(primaryUser, user.primaryUser) &&
+                Objects.equals(email, user.email);
+    }
+
+    /**
+     * (non-Javadoc)
+     * @see Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, primaryUser, email);
     }
 }
