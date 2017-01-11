@@ -52,23 +52,21 @@ public class SecondaryUserPvPermissionRequest {
         return requesterUserEmail;
     }
 
-    public void setRequesterUserEmail(String requesterUserEmail) {
-        this.requesterUserEmail = requesterUserEmail;
-    }
-
+    /**
+     * Gets the to be permitted user email.
+     *
+     * @return the to be permitted user email
+     */
     public String getToBePermittedUserEmail() {
         return toBePermittedUserEmail;
     }
 
-    public void setToBePermittedUserEmail(String toBePermittedUserEmail) {
-        this.toBePermittedUserEmail = toBePermittedUserEmail;
-    }
-
+    /**
+     * Gets the pv code.
+     *
+     * @return the pv code
+     */
     public String getPvCode() {
         return pvCode;
-    }
-
-    public void setPvCode(String pvId) {
-        this.pvCode = pvId;
     }
 }
