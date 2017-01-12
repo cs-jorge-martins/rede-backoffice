@@ -9,8 +9,15 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
-import javax.persistence.*;
 import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 /**
  * The Class User.
@@ -46,7 +53,7 @@ public class User {
      * Sets the id.
      *
      * @param id
-     *            the new id
+     *            the new id.
      */
     public void setId(Long id) {
         this.id = id;
@@ -56,6 +63,10 @@ public class User {
         this.primaryUser = primaryUser;
     }
 
+    /**
+     * Gets primary user.
+     * @return primary user.
+     */
     public User getPrimaryUser() {
         return primaryUser;
     }
@@ -79,10 +90,19 @@ public class User {
         this.email = email;
     }
 
+    /**
+     * Verifies if user is primary.
+     * @return true if user is primary.
+     */
     public boolean isPrimary() {
         return primaryUser == null;
     }
 
+    /**
+     * Verifies if this user is primary of another one.
+     * @param secondary secondary user.
+     * @return true if this user is primary of the secondary.
+     */
     public boolean isPrimaryOf(User secondary) {
         if (secondary == null) {
             return false;
@@ -91,7 +111,6 @@ public class User {
     }
 
     /**
-     * (non-Javadoc)
      * @see Object#equals(Object)
      */
     @Override
@@ -99,13 +118,12 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) &&
-                Objects.equals(primaryUser, user.primaryUser) &&
-                Objects.equals(email, user.email);
+        return Objects.equals(id, user.id)
+            && Objects.equals(primaryUser, user.primaryUser)
+            && Objects.equals(email, user.email);
     }
 
     /**
-     * (non-Javadoc)
      * @see Object#hashCode()
      */
     @Override
