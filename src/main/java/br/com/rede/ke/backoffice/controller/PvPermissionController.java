@@ -1,0 +1,13 @@
+package br.com.rede.ke.backoffice.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class PvPermissionController {
+    
+    @GetMapping("/pv-permission")
+    public String index(){
+        return "pv-permission";
+    }
+}
