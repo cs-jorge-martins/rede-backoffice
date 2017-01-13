@@ -24,9 +24,11 @@
 			    </nav>
 			  </div>
 		</header>
-        <main>
+        <main class="container">
         	<th:block th:include="this :: content"/>
         </main>
+        <footer></footer>
+        <div th:replace="fragments/scripts"></div>
         <th:block th:include="this :: scripts"/>
     </body>
 </html>

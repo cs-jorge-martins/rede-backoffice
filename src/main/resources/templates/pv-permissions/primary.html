@@ -1,11 +1,13 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/head::common_head('cadastro de PV\'s')"></head>
-    <body>
-	<div th:replace="fragments/header"></div>
-	<div class="container">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      th:include="layout/base :: page">
+
+	<head th:replace="fragments/head::common_head('Permissão para Pvs')"></head>
+	
+	<th:block th:fragment="content">
+		<h1>Permissionamento de PVs para usuários primários</h1>
 		<div class="row">
-			<form action="pv" method="post" enctype="multipart/form-data" class="col s12">
+			<form th:action="@{pv-permissions/primary}" method="post" enctype="multipart/form-data" class="col s12">
 				<div class="row">
 					<div class="input-field col s6">
 						<input id="email" type="email" class="validate" name="email" th:required="required"/>
@@ -49,7 +51,5 @@
 				</ul>
 			</div>
 		</div>
-	</div>
-	<div th:replace="fragments/scripts"></div>
-    </body>
+	</th:block>
 </html>
