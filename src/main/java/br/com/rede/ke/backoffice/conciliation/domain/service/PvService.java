@@ -10,13 +10,14 @@
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
- 
+
 /**
  * The Class PvService.
  */
@@ -36,16 +37,6 @@ public class PvService {
     }
     
     /**
-     * Save.
-     *
-     * @param pv the pv
-     * @return the pv
-     */
-    public Pv save(Pv pv){
-        return repository.save(pv);
-    }
-    
-    /**
      * Checks if is valid pv format.
      *
      * @param pv the pv
@@ -54,7 +45,15 @@ public class PvService {
     public boolean isValidPvFormat(Pv pv) {
         return pv.getCode().matches("[0-9]{1,20}");
     }
-    
+
+    public boolean isValidPv(Pv pv) {
+        if (!isValidPvFormat(pv)){
+            return false;
+        }
+        Optional<Pv> resultPv = repository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
+        return resultPv.map(Pv::isHeadquarter).orElse(true);
+    }
+
     /**
      * Generate pv batch.
      *
@@ -63,17 +62,11 @@ public class PvService {
      */
     public PvBatch generatePvBatch(List<Pv> pvs){
         PvBatch pvBatch = new PvBatch();
-        
-        for(Pv pv: pvs){
-            if (!isValidPvFormat(pv)) {
-                pvBatch.addInvalidPv(pv);
-                continue;
-            }
-            
-            Pv foundPv = repository.findByCode(pv.getCode());
-            if (foundPv == null) {
+
+        for (Pv pv: pvs) {
+            if (isValidPv(pv)) {
                 pvBatch.addValidPv(pv);
-            } else if (!foundPv.isHeadquarter()) {
+            } else {
                 pvBatch.addInvalidPv(pv);
             }
         }

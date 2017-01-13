@@ -24,12 +24,13 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 /**
  * The Class Pv.
  */
 @Entity
-@Table(name = "PV")
+@Table(name = "PV", uniqueConstraints = @UniqueConstraint(columnNames = {"CODE", "ACQUIRER_ID"}))
 public class Pv {
 
     /** The id. */

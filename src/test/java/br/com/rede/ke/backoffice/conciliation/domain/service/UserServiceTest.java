@@ -31,7 +31,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -108,6 +111,57 @@ public class UserServiceTest {
         when(userRepository.findByEmail(SECONDARY_USER)).thenReturn(Optional.of(secondaryUser));
 
         userService.getPrimaryUser(SECONDARY_USER);
+    }
+
+    /**
+     * Test get or create primary user when no user exists with this email.
+     */
+    @Test
+    public void testGetOrCreatePrimaryUserWhenNoUserExists() {
+        final String primaryUserEmail = "primary_user@email.com";
+
+        User primaryUser = new User();
+        primaryUser.setEmail(primaryUserEmail);
+
+        when(userRepository.findByEmail(primaryUserEmail)).thenReturn(Optional.empty());
+
+        userService.getOrCreatePrimaryUser(primaryUserEmail);
+
+        verify(userRepository, times(1)).save(primaryUser);
+    }
+
+    /**
+     * Test get or create primary user when primary user exists.
+     */
+    @Test
+    public void testGetOrCreatePrimaryUserWhenPrimaryUserAlreadyExists() {
+        final String primaryUserEmail = "primary_user@email.com";
+
+        User primaryUser = new User();
+        primaryUser.setEmail(primaryUserEmail);
+
+        when(userRepository.findByEmail(primaryUserEmail)).thenReturn(Optional.of(primaryUser));
+
+        User primaryUserFromDb = userService.getOrCreatePrimaryUser(primaryUserEmail);
+
+        verify(userRepository, times(0)).save(primaryUser);
+        assertThat(primaryUserFromDb, equalTo(primaryUser));
+    }
+
+    /**
+     * Test get or create primary user when user already exists and is not a primary user.
+     */
+    @Test(expected = InvalidPrimaryUserException.class)
+    public void testGetOrCreatePrimaryUserWhenUserAlreadyExistsAndIsNotPrimary() {
+        final String secondaryUserEmail = "secondary_user@email.com";
+
+        User secondaryUser = new User();
+        secondaryUser.setEmail(secondaryUserEmail);
+        secondaryUser.setPrimaryUser(new User());
+
+        when(userRepository.findByEmail(secondaryUserEmail)).thenReturn(Optional.of(secondaryUser));
+
+        userService.getOrCreatePrimaryUser(secondaryUserEmail);
     }
 
     /**

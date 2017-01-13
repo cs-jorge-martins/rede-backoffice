@@ -17,8 +17,6 @@ import static org.springframework.data.jpa.domain.Specifications.where;
 import static org.springframework.util.StringUtils.isEmpty;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
 import br.com.rede.ke.backoffice.util.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +33,8 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
-
+import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -89,6 +88,13 @@ public class PvPermissionService {
         return pvPermissionRepository.findAll(spec, pageable);
     }
 
+    public PvBatch giveUserPermissionForHeadquarter(List<Pv> pvs, User user) {
+        PvBatch pvBatch = pvService.generatePvBatch(pvs);
+        this.savePvPermissionsForUser(pvBatch, user);
+
+        return pvBatch;
+    }
+
     /**
      * Creates for secondary User
      * @param pvPermissionRequests list of pv permission request
@@ -138,13 +144,20 @@ public class PvPermissionService {
         return () -> new UserNotFoundException(String.format("Usuário com email '%s' não encontrado", email));
     }
 
-
+    @Transactional(rollbackFor = Exception.class)
     public void savePvPermissionsForUser(PvBatch pvBatch, User user){
-        for(Pv pv: pvBatch.getValidPvs()){
-            Pv savedPv = pvService.save(pv);
-            PvPermissionId pvPermissionId = new PvPermissionId(user.getId(), savedPv.getId());
-            PvPermission pvPermission = new PvPermission(pvPermissionId, user, savedPv);
-            pvPermissionRepository.save(pvPermission);
+        for (Pv pv : pvBatch.getValidPvs()){
+            Optional<Pv> pvFromDb = pvRepository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
+
+            Pv savedPv = pvFromDb.orElseGet(() -> pvRepository.save(pv));
+
+            PvPermission savedPvPermission = pvPermissionRepository.findByUserAndPv(user, savedPv);
+
+            if (savedPvPermission == null) {
+                PvPermissionId pvPermissionId = new PvPermissionId(user.getId(), savedPv.getId());
+                PvPermission pvPermission = new PvPermission(pvPermissionId, user, savedPv);
+                pvPermissionRepository.save(pvPermission);
+            }
         }
     }
 }

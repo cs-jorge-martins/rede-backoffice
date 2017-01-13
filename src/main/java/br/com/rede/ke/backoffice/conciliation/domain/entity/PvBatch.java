@@ -1,3 +1,12 @@
+/*
+ * Copyright 2017 Rede S.A.
+ *************************************************************
+ * Nome     : PvBatch.java
+ * Descrição: PvBatch.java.
+ * Autor    : Karlisson Bezerra <kbezerra@thoughtworks.com>
+ * Data     : 04/01/2017
+ * Empresa  : ThoughtWorks
+ */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
 import java.util.ArrayList;

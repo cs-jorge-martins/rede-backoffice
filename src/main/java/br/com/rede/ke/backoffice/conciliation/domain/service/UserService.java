@@ -9,16 +9,15 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
-import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidSecondaryUserException;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
-import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidSecondaryUserException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
-
-import java.util.Optional;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
 /**
  * The UserService class.
@@ -71,6 +70,26 @@ public class UserService {
             throw new InvalidPrimaryUserException(primaryUser);
         }
         return primaryUserOpt;
+    }
+
+    /**
+     * Gets or creates user email.
+     * @param email user email.
+     * @return the primary user created or from database.
+     */
+    public User getOrCreatePrimaryUser(final String email) {
+        Optional<User> primaryUserOpt = userRepository.findByEmail(email);
+
+        return primaryUserOpt.map(user -> {
+            if (!user.isPrimary()) {
+                throw new InvalidPrimaryUserException(user);
+            }
+            return user;
+        }).orElseGet(() -> {
+            User primaryUser = new User();
+            primaryUser.setEmail(email);
+            return userRepository.save(primaryUser);
+        });
     }
 
     /**
