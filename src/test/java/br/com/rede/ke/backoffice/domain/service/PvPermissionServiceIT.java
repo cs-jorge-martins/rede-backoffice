@@ -139,7 +139,7 @@ public class PvPermissionServiceIT {
         pvPermissionService.savePvPermissionsForUser(pvBatch, savedUser);
 
         List<PvPermission> pvPermissionsByUser = pvPermissionRepository.findByUser(savedUser);
-        assertThat(pvPermissionsByUser.size(), equalTo(2));
+        assertThat(pvPermissionsByUser.size(), equalTo(3));
     }
 
 }
