@@ -55,7 +55,7 @@ public class PvServiceIT {
 
         PvBatch pvBatch = pvService.generatePvBatch(pvList);
         
-        assertThat(pvBatch.getValidPvs().size(), equalTo(2));
-        assertThat(pvBatch.getInvalidPvs().size(), equalTo(3));
+        assertThat(pvBatch.getValidPvs().size(), equalTo(3));
+        assertThat(pvBatch.getInvalidPvs().size(), equalTo(2));
     }
 }
