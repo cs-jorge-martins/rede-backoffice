@@ -1,9 +1,17 @@
 html {
-  font-family: OpenSans;
+  font-family: 'Open Sans', sans-serif;
+}
+
+body {
+  font-size: 16px;
 }
 
 nav {
   background-color: #00b8b6;
+}
+
+nav .brand-logo {
+  font-size: 1.56em;
 }
 
 .btn {
