@@ -10,8 +10,10 @@
 
 package br.com.rede.ke.backoffice.util;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Result<S, F> is the type used for returning and propagating errors
@@ -239,5 +241,39 @@ public interface Result<S, F> {
         public <U> Result<U, F> flatMap(Function<S, Result<U, F>> mapper) {
             return Result.failure(this.value);
         }
+    }
+    
+    
+    /**
+     * Gets the success values.
+     *
+     * @param <S> the generic type
+     * @param <F> the generic type
+     * @param results the results
+     * @return the success values
+     */
+    public static <S, F> List<S> getSuccessValues(List<Result<S, F>> results) {
+        return results.stream()
+                .map(result -> result.success())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+    
+    
+    /**
+     * Gets the failure values.
+     *
+     * @param <S> the generic type
+     * @param <F> the generic type
+     * @param results the results
+     * @return the failure values
+     */
+    public static <S, F> List<F> getFailureValues(List<Result<S, F>> results) {
+        return results.stream()
+                .map(result -> result.failure())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 }

@@ -9,12 +9,14 @@
  */
 package br.com.rede.ke.backoffice.util;
 
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * The ResultTest class.
@@ -155,5 +157,27 @@ public class ResultTest {
 
         assertThat(result instanceof Result.Failure, equalTo(true));
         assertThat(((Result.Failure<Integer, Integer>) result).getValue(), equalTo(1));
+    }
+
+    /**
+     * Test get success values.
+     */
+    @Test
+    public void testGetSuccessValues() {
+        List<Result<String, Integer>> results = Arrays.asList(Result.failure(1), Result.success("OK"), Result.failure(3));
+        
+        List<String> successValues = Result.getSuccessValues(results);
+        assertThat(successValues, equalTo(Arrays.asList("OK")));
+    }
+
+    /**
+     * Test get failure values.
+     */
+    @Test
+    public void testGetFailureValues() {
+        List<Result<String, Integer>> results = Arrays.asList(Result.failure(1), Result.failure(2), Result.success("Teste"));
+        
+        List<Integer> failureValues = Result.getFailureValues(results);
+        assertThat(failureValues, equalTo(Arrays.asList(1, 2)));
     }
 }

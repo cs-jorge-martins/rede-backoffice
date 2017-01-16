@@ -7,16 +7,16 @@
 	</th:block>
 	
 	<th:block th:fragment="content">
-		<h1>Permissionamento de PVs para usuários secundários</h1>
+		<h1>Permissão de PVs para usuários secundários</h1>
 		<div class="row">
 			<form th:action="@{/pv-permissions/secondary}" method="post" enctype="multipart/form-data" class="col s12">
 				<div class="row">
 					<div class="input-field col s4">
-						<input id="primary-user-email" name="primaryUserEmail" type="email" th:value="${primaryUserEmail}" />
+						<input id="primary-user-email" name="primaryEmail" type="email" th:value="${primaryEmail}" />
             			<label for="primary-user-email">E-mail do usuário primário</label>
 					</div>
 					<div class="input-field col s4">
-						<input id="secondary-user-email" name="secondaryUserEmail" type="email" th:value="${secondaryUserEmail}" />
+						<input id="secondary-user-email" name="secondaryEmail" type="email" th:value="${secondaryEmail}" />
 			            <label for="secondary-user-email">E-mail do usuário secundário</label>
 					</div>
 					<div class="input-field col s4">
@@ -51,12 +51,18 @@
 			</form>
 		</div>
 		<div class="row">
-			<div>
-				<p th:text="${userMessage}" th:unless="${userMessage == null}"></p>
-				<ul>
-					<li th:each="invalidPv : ${invalidPvs}" th:text="${invalidPv.code}"></li>
-				</ul>
-			</div>
+			<p th:text="${errorMessage}" th:unless="${errorMessage == null}"></p>
+			<span th:unless="${#lists.isEmpty(validPvs)}">
+				Operação realizada com sucesso! Os seguintes Pv's foram cadastrados:
+			</span>
+			<ul th:unless="${#lists.isEmpty(validPvs)}">
+				<li th:each="pvPermission : ${validPvs}" th:text="${pvPermission.pv.code}"></li>
+			</ul>
+			
+			<p th:unless="${#lists.isEmpty(invalidPvs)}">Os pv's abaixo não puderam ser cadastrados:</p>
+			<ul th:unless="${#lists.isEmpty(invalidPvs)}">
+				<li th:each="message : ${invalidPvs}" th:text="${message}"></li>
+			</ul>
 		</div>
 	</th:block>
 </html>

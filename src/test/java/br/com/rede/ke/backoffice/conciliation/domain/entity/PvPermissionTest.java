@@ -9,12 +9,13 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  *
@@ -27,7 +28,7 @@ public class PvPermissionTest {
     @Test
     public void permitAccessHeadquarterPv() {
         Pv headquarterPv = new Pv();
-        headquarterPv.setBranches(Collections.emptySet());
+        headquarterPv.setBranches(Collections.emptyList());
 
         PvPermission pvPermission = new PvPermission();
         pvPermission.setPv(headquarterPv);
@@ -46,7 +47,7 @@ public class PvPermissionTest {
         Pv branchPv = new Pv();
 
         branchPv.setHeadquarter(headquarterPv);
-        headquarterPv.setBranches(Collections.singleton(branchPv));
+        headquarterPv.setBranches(Arrays.asList(branchPv));
 
         PvPermission pvPermission = new PvPermission();
         pvPermission.setPv(headquarterPv);

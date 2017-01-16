@@ -9,6 +9,7 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Pv.
  */
@@ -54,7 +56,7 @@ public class Pv {
 
     /**  the branches set. */
     @OneToMany(mappedBy = "headquarter")
-    private Set<Pv> branches;
+    private List<Pv> branches;
 
     /** The users. */
     @ManyToMany
@@ -201,23 +203,25 @@ public class Pv {
     public Pv getHeadquarter() {
         return headquarter;
     }
-
-    /**
-     * Sets the branches.
-     *
-     * @param branches the new branches
-     */
-    public void setBranches(Set<Pv> branches) {
-        this.branches = branches;
-    }
-
+    
+    
     /**
      * Gets the branches.
      *
      * @return the branches
      */
-    public Set<Pv> getBranches() {
+    public List<Pv> getBranches() {
         return branches;
+    }
+    
+    
+    /**
+     * Sets the branches.
+     *
+     * @param branches the new branches
+     */
+    public void setBranches(List<Pv> branches) {
+        this.branches = branches;
     }
 
     /* (non-Javadoc)

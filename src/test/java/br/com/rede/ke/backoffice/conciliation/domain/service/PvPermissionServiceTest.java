@@ -26,6 +26,7 @@ import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRe
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
@@ -104,7 +105,8 @@ public class PvPermissionServiceTest {
 
         Result<PvPermission, String> pvPermissionResult = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
 
-        PvPermission pvPermission = new PvPermission(secondaryUser, pv);
+        PvPermissionId id = new PvPermissionId(secondaryUser.getId(), pv.getId());
+        PvPermission pvPermission = new PvPermission(id, secondaryUser, pv);
 
         assertThat(pvPermissionResult.isSuccess(), equalTo(true));
         assertThat(pvPermissionResult.success().get(), equalTo(pvPermission));

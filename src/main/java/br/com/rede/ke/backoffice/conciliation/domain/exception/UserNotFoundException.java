@@ -13,7 +13,7 @@ package br.com.rede.ke.backoffice.conciliation.domain.exception;
 /**
  * The UserNotFoundException class.
  */
-public class UserNotFoundException extends RuntimeException {
+public class UserNotFoundException extends DomainException {
 
     /**
      * The constructor.

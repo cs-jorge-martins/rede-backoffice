@@ -1,7 +1,10 @@
 package br.com.rede.ke.backoffice.controller;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import br.com.rede.ke.backoffice.conciliation.exception.InvalidFileException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
@@ -21,11 +25,18 @@ import br.com.rede.ke.backoffice.conciliation.domain.exception.DomainException;
 import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 import br.com.rede.ke.backoffice.conciliation.domain.service.UserService;
+import br.com.rede.ke.backoffice.util.Result;
 
+/**
+ * The Class PvPermissionController.
+ */
 @Controller
 public class PvPermissionController {
     
+    /** The pv permission service. */
     private PvPermissionService pvPermissionService;
+    
+    /** The user service. */
     private UserService userService;
     
     /**
@@ -40,7 +51,12 @@ public class PvPermissionController {
  
     /**
      * Get pv permissions.
+     *
      * @param model page model.
+     * @param pageable the pageable
+     * @param code the code
+     * @param acquirer the acquirer
+     * @param email the email
      * @return mapping.
      */
     @GetMapping({"/", "/pv-permissions"})
@@ -61,6 +77,12 @@ public class PvPermissionController {
         return "pv-permissions/index";
     }
     
+    /**
+     * Primary.
+     *
+     * @param model the model
+     * @return the string
+     */
     @GetMapping("/pv-permissions/primary")
     public String primary(Model model){
         model.addAttribute("acquirers", Controllers.acquirersWithoutRede());
@@ -86,41 +108,59 @@ public class PvPermissionController {
             PvBatch pvBatch = pvPermissionService.giveUserPermissionForHeadquarter(
                 PvFactory.fromFileAndAcquirer(file, acquirer), user);
 
-            model.addAttribute("userMessage", buildUserMessage(pvBatch));
+            model.addAttribute("validPvs", pvBatch.getValidPvs());
             model.addAttribute("invalidPvs", pvBatch.getInvalidPvs());
-        } catch (DomainException e) {
-            model.addAttribute("userMessage", buildUserMessage(e));
-        } catch (IOException e) {
-            model.addAttribute("userMessage", buildInvalidFileMessage());
+        } catch (DomainException | InvalidFileException e) {
+            model.addAttribute("errorMessage", e.getMessage());
         }
         model.addAttribute("acquirers", Controllers.acquirersWithoutRede());
         return "pv-permissions/primary";
     }
     
+    
+    /**
+     * Gets the secondary.
+     *
+     * @param model the model
+     * @return the secondary
+     */
     @GetMapping("/pv-permissions/secondary")
-    public String secondary(Model model) {
+    public String getSecondary(Model model) {
         model.addAttribute("acquirers", Controllers.acquirersWithoutRede());
         return "pv-permissions/secondary";
     }
     
-    private String buildUserMessage(Exception exception) {
-        return String.format("Um erro ocorreu: %s", exception.getMessage());
-    }
+    /**
+     * Creates the secondary.
+     *
+     * @param model the model
+     * @param file the file
+     * @param acquirer the acquirer
+     * @param primaryEmail the primary email
+     * @param secondaryEmail the secondary email
+     * @return the string
+     */
+    @PostMapping("/pv-permissions/secondary")
+    public String createSecondary(Model model,
+                         @RequestParam MultipartFile file,
+                         @RequestParam Acquirer acquirer,
+                         @RequestParam String primaryEmail,
+                         @RequestParam String secondaryEmail) {
 
-    private String buildInvalidFileMessage() {
-        return "Erro ao processar arquivo";
-    }
-
-    private String buildUserMessage(PvBatch pvBatch) {
-        String userMessage = "Operação ocorreu com sucesso";
-
-        if (hasInvalidPvs(pvBatch)) {
-            userMessage = "Com exceção dos PVs abaixo, a operação ocorreu com sucesso:";
+        try {
+            
+            List<SecondaryUserPvPermissionRequest> pvPermissionRequests = PvFactory.fromFileAndAcquirer(file, acquirer).stream()
+                    .map(pv -> new SecondaryUserPvPermissionRequest(primaryEmail, secondaryEmail, pv.getCode(), acquirer))
+                    .collect(Collectors.toList());
+            List<Result<PvPermission, String>> results = pvPermissionService.createForSecondaryUser(pvPermissionRequests);
+            model.addAttribute("validPvs", Result.getSuccessValues(results));
+            model.addAttribute("invalidPvs", Result.getFailureValues(results));
+        } catch (DomainException | InvalidFileException e) {
+            model.addAttribute("errorMessage", e.getMessage());
         }
-        return userMessage;
-    }
-
-    private boolean hasInvalidPvs(PvBatch pvBatch) {
-        return pvBatch != null && !pvBatch.getInvalidPvs().isEmpty();
+        model.addAttribute("primaryEmail", primaryEmail);
+        model.addAttribute("secondaryEmail", secondaryEmail);
+        model.addAttribute("acquirers", Controllers.acquirersWithoutRede());
+        return "pv-permissions/secondary";
     }
 }

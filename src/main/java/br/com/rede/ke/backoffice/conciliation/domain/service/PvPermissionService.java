@@ -130,7 +130,8 @@ public class PvPermissionService {
                 primaryUser.getEmail(), pv.getCode()));
         }
 
-        PvPermission pvPermission = new PvPermission(secondaryUser, pv);
+        PvPermissionId pvPermissionId = new PvPermissionId(secondaryUser.getId(), pv.getId());
+        PvPermission pvPermission = new PvPermission(pvPermissionId, secondaryUser, pv);
 
         pvPermissionRepository.save(pvPermission);
         return Result.success(pvPermission);

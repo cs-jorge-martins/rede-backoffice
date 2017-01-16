@@ -31,7 +31,7 @@ public class UserService {
 
     /** The user repository. */
     private UserRepository userRepository;
-
+    
     /**
      * Constructor.
      * @param pvPermissionRepository Pv permission repository.
@@ -50,7 +50,7 @@ public class UserService {
      */
     public boolean hasAccess(User user, Pv pv) {
         return pvPermissionRepository.findByUser(user).stream()
-            .anyMatch(pvPermission -> pvPermission.permitAccess(pv));
+            .anyMatch(permission -> permission.permitAccess(pv));
     }
 
     /**
