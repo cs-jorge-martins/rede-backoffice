@@ -202,7 +202,7 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         when: "informo o usuario secundario como requisitante"
         form.with { primaryEmail = secondaryUserEmail }
 
-        and: "informo o usuario novo"
+        and: "informo o usuario a ser permitido"
         form.with { secondaryEmail = "usuario_novo@email.com" }
 
         and: "informo o adquirente"
@@ -217,5 +217,32 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         expect: "mensagem 'The user 'usuario_secundario_4@email.com' is a secondary user instead primary user.' deve aparecer"
         at PvPermissionSecondaryPage
         assert(messages.text().contains("The user 'usuario_secundario_4@email.com' is a secondary user instead primary user."))
+    }
+
+    def "Usuario requisitante inexistente"() {
+        setup: "o usuario requisitante é inexistente no banco"
+        def primaryUserEmail = "usuario_novo_5@email.com"
+
+        and: "na pagina de permissão de pvs para usuario secundario"
+        to PvPermissionSecondaryPage
+
+        when: "informo o usuario requisitante inexistente"
+        form.with { primaryEmail = primaryUserEmail }
+
+        and: "informo o usuario a ser permitido"
+        form.with { secondaryEmail = "usuario_novo@email.com" }
+
+        and: "informo o adquirente"
+        form.with { acquirer = "CIELO" }
+
+        and: "escolho um arquivo que tem PV"
+        form.with { file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath }
+
+        then:
+        submitButton.click()
+
+        expect: "mensagem 'Usuário com email 'usuario_novo_5@email.com' não encontrado' deve aparecer"
+        at PvPermissionSecondaryPage
+        assert(messages.text().contains("Usuário com email 'usuario_novo_5@email.com' não encontrado"))
     }
 }
