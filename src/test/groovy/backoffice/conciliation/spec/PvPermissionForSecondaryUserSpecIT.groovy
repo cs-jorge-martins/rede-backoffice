@@ -245,4 +245,38 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         at PvPermissionSecondaryPage
         assert(messages.text().contains("Usuário com email 'usuario_novo_5@email.com' não encontrado"))
     }
+
+    def "Usuario requisitante é primario e usuario a ser permitido é primario"() {
+        setup: "Dado que o usuario requisitante e o usuario a ser permitido são primarios"
+        def primaryUserAEmail = "usuario_primario_a@email.com"
+        def primaryUserBEmail = "usuario_primario_b@email.com"
+        def u = new User()
+        u.setEmail(primaryUserAEmail)
+        userRepository.save(u)
+        u = new User()
+        u.setEmail(primaryUserBEmail)
+        userRepository.save(u)
+
+        and: "na pagina de permissão de pvs para usuario secundario"
+        to PvPermissionSecondaryPage
+
+        when: "informo o usuario requisitante"
+        form.with { primaryEmail = primaryUserAEmail }
+
+        and: "informo o usuario a ser permitido"
+        form.with { secondaryEmail = primaryUserBEmail }
+
+        and: "informo o adquirente"
+        form.with { acquirer = "CIELO" }
+
+        and: "escolho um arquivo que tem PV"
+        form.with { file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath }
+
+        then:
+        submitButton.click()
+
+        expect: "mensagem 'User 'usuario_primario_b@email.com' is primary user.' deve aparecer"
+        at PvPermissionSecondaryPage
+        assert(messages.text().contains("User 'usuario_primario_b@email.com' is primary user."))
+    }
 }
