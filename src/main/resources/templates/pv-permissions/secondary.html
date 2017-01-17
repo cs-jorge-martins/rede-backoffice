@@ -48,9 +48,9 @@
 				</div>
 			</form>
 		</div>
-		<div class="row">
+		<div class="row messages">
 			<p th:text="${errorMessage}" th:unless="${errorMessage == null}"></p>
-			<span th:unless="${#lists.isEmpty(validPvs)}">
+			<span class="valid-pvs-message" th:unless="${#lists.isEmpty(validPvs)}">
 				Operação realizada com sucesso! Os seguintes Pv's foram cadastrados:
 			</span>
 			<ul th:unless="${#lists.isEmpty(validPvs)}">
