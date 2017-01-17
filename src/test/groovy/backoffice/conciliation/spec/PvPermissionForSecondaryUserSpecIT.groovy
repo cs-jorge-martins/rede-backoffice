@@ -24,6 +24,7 @@ import geb.spock.GebSpec
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.transaction.annotation.Transactional
 
 
 @ContextConfiguration
@@ -54,43 +55,85 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
     def "Dar permissão de PV a um Usuário secundário"() {
         setup: "o pv matriz existe no banco"
-            def p = new Pv("11111111", Acquirer.CIELO)
-            def pv = pvRepository.save(p)
+        def primaryUserEmail = "usuario_primario_1@email.com"
+        def secondaryUserEmail = "usuario_secundario_1@email.com"
+        def p = new Pv("11111111", Acquirer.CIELO)
+        def pv = pvRepository.save(p)
 
         and: "o usuario requisitante é primario"
-            def u = new User()
-            u.setEmail("usuario_primario@email.com")
-            def primaryUser = userRepository.save(u)
+        def u = new User()
+        u.setEmail(primaryUserEmail)
+        def primaryUser = userRepository.save(u)
 
         and: "o usuario requisitante tem permissão no pv matriz"
-            def id = new PvPermissionId(primaryUser.getId(), pv.getId())
-            def pvPermission = pvPermissionRepository.save(new PvPermission(id, primaryUser, pv))
+        def id = new PvPermissionId(primaryUser.getId(), pv.getId())
+        def pvPermission = pvPermissionRepository.save(new PvPermission(id, primaryUser, pv))
 
         and: "o usuario para dar permissão é secundario do requisitante"
-            u = new User()
-            u.setEmail("usuario_secundario@email.com")
-            u.setPrimaryUser(primaryUser)
-            def secondaryUser = userRepository.save(u)
+        u = new User()
+        u.setEmail(secondaryUserEmail)
+        u.setPrimaryUser(primaryUser)
+        def secondaryUser = userRepository.save(u)
+
         and: "na pagina de permissão de pvs para usuario secundario"
-           to PvPermissionSecondaryPage
+        to PvPermissionSecondaryPage
 
         when: "informo o usuario primario"
-            form.with { primaryEmail = "usuario_primario@email.com" }
+        form.with { primaryEmail = primaryUserEmail}
 
         and: "informo o usuario secundario"
-            form.with { secondaryEmail = "usuario_secundario@email.com" }
+        form.with { secondaryEmail = secondaryUserEmail }
 
         and: "informo o adquirente"
-            form.with { acquirer = "CIELO" }
+        form.with { acquirer = "CIELO" }
 
         and: "escolho um arquivo que tem o PV matriz"
-            form.with { file = new File(Class.getResource("/functional-testing-pvs-1").toURI()).absolutePath }
+        form.with { file = new File(Class.getResource("/functional-testing-pvs-1").toURI()).absolutePath }
 
-        then: "mensagem 'Operação realizada com sucesso!' deve aparecer"
-            submitButton.click()
+        then:
+        submitButton.click()
 
-        expect:
-            at PvPermissionSecondaryPage
-            assert(messages.text().contains("Operação realizada com sucesso!"))
+        expect: "mensagem 'Operação realizada com sucesso!' deve aparecer"
+        at PvPermissionSecondaryPage
+        assert(messages.text().contains("Operação realizada com sucesso!"))
+    }
+
+    def "Dar permissão de PV a um Usuário secundário inexistente"() {
+        setup: "o pv matriz existe no banco"
+        def primaryUserEmail = "usuario_primario_2@email.com"
+        def secondaryUserEmail = "usuario_secundario_2@email.com"
+        def p = new Pv("22222222", Acquirer.CIELO)
+        def pv = pvRepository.save(p)
+
+        and: "o usuario requisitante é primario"
+        def u = new User()
+        u.setEmail(primaryUserEmail)
+        def primaryUser = userRepository.save(u)
+
+        and: "o usuario requisitante tem permissão no pv matriz"
+        def id = new PvPermissionId(primaryUser.getId(), pv.getId())
+        def pvPermission = pvPermissionRepository.save(new PvPermission(id, primaryUser, pv))
+
+        and: "na pagina de permissão de pvs para usuario secundario"
+        to PvPermissionSecondaryPage
+
+        when: "informo o usuario primario"
+        form.with { primaryEmail = primaryUserEmail }
+
+        and: "informo o usuario secundario"
+        form.with { secondaryEmail = secondaryUserEmail }
+
+        and: "informo o adquirente"
+        form.with { acquirer = "CIELO" }
+
+        and: "escolho um arquivo que tem o PV matriz"
+        form.with { file = new File(Class.getResource("/functional-testing-pvs-2").toURI()).absolutePath }
+
+        then:
+        submitButton.click()
+
+        expect: "mensagem 'Operação realizada com sucesso!' deve aparecer"
+        at PvPermissionSecondaryPage
+        assert(messages.text().contains("Operação realizada com sucesso!"))
     }
 }
