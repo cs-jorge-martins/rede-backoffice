@@ -24,7 +24,6 @@ import geb.spock.GebSpec
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.transaction.annotation.Transactional
 
 
 @ContextConfiguration
@@ -342,5 +341,36 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         expect: "mensagem 'Pv '***invalid_pv_code***' com formato invalido' deve aparecer"
         at PvPermissionSecondaryPage
         assert(messages.text().contains("Pv '***invalid_pv_code***' com formato invalido"))
+    }
+
+    def "Dar permissão de PV quando o usuario primario não tem permissão"() {
+        setup: "o pv matriz existe no banco"
+        def primaryUserEmail = "usuario_primario_1@email.com"
+        def secondaryUserEmail = "usuario_secundario_1@email.com"
+        def p = new Pv("88888888", Acquirer.CIELO)
+        pvRepository.save(p)
+
+        and: "o usuario requisitante é primario"
+        def u = new User()
+        u.setEmail(primaryUserEmail)
+        def primaryUser = userRepository.save(u)
+
+        and: "na pagina de permissão de pvs para usuario secundario"
+        to PvPermissionSecondaryPage
+
+        when: "informo os dados do formulaio"
+        form.with {
+            primaryEmail = primaryUserEmail
+            secondaryEmail = secondaryUserEmail
+            acquirer = "CIELO"
+            file = new File(Class.getResource("/functional-testing-pvs-4").toURI()).absolutePath
+        }
+
+        then:
+        submitButton.click()
+
+        expect: "mensagem 'Usuário 'usuario_primario_1@email.com' não tem acesso ao Pv '88888888'' deve aparecer"
+        at PvPermissionSecondaryPage
+        assert(messages.text().contains("Usuário 'usuario_primario_1@email.com' não tem acesso ao Pv '88888888'"))
     }
 }
