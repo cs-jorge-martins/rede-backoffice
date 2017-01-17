@@ -117,6 +117,10 @@ public class PvPermissionService {
                 .orElseThrow(getUserNotFoundException(request.getRequesterUserEmail()));
         User secondaryUser = userService.getOrCreateSecondaryUserFor(primaryUser, request.getToBePermittedUserEmail());
 
+        if (!pvService.isValidPv(new Pv(request.getPvCode()))) {
+            return Result.failure(String.format("Pv '%s' com formato invalido", request.getPvCode()));
+        }
+
         Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(request.getPvCode(), request.getAcquirer().ordinal());
 
         if (!pvOpt.isPresent()) {

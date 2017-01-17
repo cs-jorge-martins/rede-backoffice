@@ -316,4 +316,31 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         at PvPermissionSecondaryPage
         assert(messages.text().contains("User 'usuario_primario_a1@email.com' is not secondary user of 'usuario_secundario_b1a1@email.com'"))
     }
+
+    def "Pv com formato invalido"() {
+        setup: "Dado que que existe um usuario primario"
+        def primaryUserEmail = "usuario_primario_7@email.com"
+        def secondaryUserEmail = "usuario_secundario_7@email.com"
+        def u = new User()
+        u.setEmail(primaryUserEmail)
+        userRepository.save(u)
+
+        and: "na pagina de permissão de pvs para usuario secundario"
+        to PvPermissionSecondaryPage
+
+        when: "informo dados do fomulario"
+        form.with {
+            primaryEmail = primaryUserEmail
+            secondaryEmail = secondaryUserEmail
+            acquirer = "CIELO"
+            file = new File(Class.getResource("/functional-testing-pvs-invalid-format").toURI()).absolutePath
+        }
+
+        then:
+        submitButton.click()
+
+        expect: "mensagem 'Pv '***invalid_pv_code***' com formato invalido' deve aparecer"
+        at PvPermissionSecondaryPage
+        assert(messages.text().contains("Pv '***invalid_pv_code***' com formato invalido"))
+    }
 }
