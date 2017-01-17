@@ -173,7 +173,7 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         and: "informo o adquirente"
         form.with { acquirer = "CIELO" }
 
-        and: "escolho um arquivo que tem o PV matriz"
+        and: "escolho um arquivo que tem o PV filial"
         form.with { file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath }
 
         then:
@@ -182,5 +182,40 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         expect: "mensagem 'Operação realizada com sucesso!' deve aparecer"
         at PvPermissionSecondaryPage
         assert(messages.text().contains("Operação realizada com sucesso!"))
+    }
+
+    def "Usuario requisitante é secundario"() {
+        setup: "o usuario requisitante existe no banco como secundario"
+        def primaryUserEmail = "usuario_primario_4@email.com"
+        def secondaryUserEmail = "usuario_secundario_4@email.com"
+        def u = new User()
+        u.setEmail(primaryUserEmail)
+        def primaryUser = userRepository.save(u)
+        u = new User()
+        u.setEmail(secondaryUserEmail)
+        u.setPrimaryUser(primaryUser)
+        def secundaryUser = userRepository.save(u)
+
+        and: "na pagina de permissão de pvs para usuario secundario"
+        to PvPermissionSecondaryPage
+
+        when: "informo o usuario secundario como requisitante"
+        form.with { primaryEmail = secondaryUserEmail }
+
+        and: "informo o usuario novo"
+        form.with { secondaryEmail = "usuario_novo@email.com" }
+
+        and: "informo o adquirente"
+        form.with { acquirer = "CIELO" }
+
+        and: "escolho um arquivo que tem o PV matriz"
+        form.with { file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath }
+
+        then:
+        submitButton.click()
+
+        expect: "mensagem 'The user 'usuario_secundario_4@email.com' is a secondary user instead primary user.' deve aparecer"
+        at PvPermissionSecondaryPage
+        assert(messages.text().contains("The user 'usuario_secundario_4@email.com' is a secondary user instead primary user."))
     }
 }
