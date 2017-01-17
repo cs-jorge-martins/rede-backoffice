@@ -67,13 +67,13 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
         and: "o usuario requisitante tem permissão no pv matriz"
         def id = new PvPermissionId(primaryUser.getId(), pv.getId())
-        def pvPermission = pvPermissionRepository.save(new PvPermission(id, primaryUser, pv))
+        pvPermissionRepository.save(new PvPermission(id, primaryUser, pv))
 
         and: "o usuario para dar permissão é secundario do requisitante"
         u = new User()
         u.setEmail(secondaryUserEmail)
         u.setPrimaryUser(primaryUser)
-        def secondaryUser = userRepository.save(u)
+        userRepository.save(u)
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
@@ -112,7 +112,7 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
         and: "o usuario requisitante tem permissão no pv matriz"
         def id = new PvPermissionId(primaryUser.getId(), pv.getId())
-        def pvPermission = pvPermissionRepository.save(new PvPermission(id, primaryUser, pv))
+        pvPermissionRepository.save(new PvPermission(id, primaryUser, pv))
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
@@ -128,6 +128,53 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
         and: "escolho um arquivo que tem o PV matriz"
         form.with { file = new File(Class.getResource("/functional-testing-pvs-2").toURI()).absolutePath }
+
+        then:
+        submitButton.click()
+
+        expect: "mensagem 'Operação realizada com sucesso!' deve aparecer"
+        at PvPermissionSecondaryPage
+        assert(messages.text().contains("Operação realizada com sucesso!"))
+    }
+
+    def "Dar permissão para um PV filial existente a um Usuário secundário"() {
+        setup: "o pv filial existe no banco"
+        def primaryUserEmail = "usuario_primario_3@email.com"
+        def secondaryUserEmail = "usuario_secundario_3@email.com"
+        def headquarterPv = pvRepository.save(new Pv("33333333", Acquirer.CIELO))
+        def branchPv = new Pv("33333334", Acquirer.CIELO)
+        branchPv.setHeadquarter(headquarterPv)
+        pvRepository.save(branchPv)
+
+        and: "o usuario requisitante é primario"
+        def u = new User()
+        u.setEmail(primaryUserEmail)
+        def primaryUser = userRepository.save(u)
+
+        and: "o usuario requisitante tem permissão no pv matriz"
+        def id = new PvPermissionId(primaryUser.getId(), headquarterPv.getId())
+        pvPermissionRepository.save(new PvPermission(id, primaryUser, headquarterPv))
+
+        and: "o usuario para dar permissão é secundario do requisitante"
+        u = new User()
+        u.setEmail(secondaryUserEmail)
+        u.setPrimaryUser(primaryUser)
+        userRepository.save(u)
+
+        and: "na pagina de permissão de pvs para usuario secundario"
+        to PvPermissionSecondaryPage
+
+        when: "informo o usuario primario"
+        form.with { primaryEmail = primaryUserEmail }
+
+        and: "informo o usuario secundario"
+        form.with { secondaryEmail = secondaryUserEmail }
+
+        and: "informo o adquirente"
+        form.with { acquirer = "CIELO" }
+
+        and: "escolho um arquivo que tem o PV matriz"
+        form.with { file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath }
 
         then:
         submitButton.click()
