@@ -263,7 +263,7 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         when: "informo o usuario requisitante"
         form.with { primaryEmail = primaryUserAEmail }
 
-        and: "informo o usuario a ser permitido"
+        and: "informo dados do formulario"
         form.with { secondaryEmail = primaryUserBEmail }
 
         and: "informo o adquirente"
@@ -278,5 +278,42 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         expect: "mensagem 'User 'usuario_primario_b@email.com' is primary user.' deve aparecer"
         at PvPermissionSecondaryPage
         assert(messages.text().contains("User 'usuario_primario_b@email.com' is primary user."))
+    }
+
+    def "Usuario a ser permitido é secundario de outro usuario primario"() {
+        setup: "Dado que o usuarios a1 e b1 são primarios"
+        def primaryUserA1Email = "usuario_primario_a1@email.com"
+        def primaryUserB1Email = "usuario_primario_b1@email.com"
+        def u = new User()
+        u.setEmail(primaryUserA1Email)
+        userRepository.save(u)
+        u = new User()
+        u.setEmail(primaryUserB1Email)
+        def primaryUserB1 = userRepository.save(u)
+
+        and: "o usuario b1a1 é secundario do usuario b1"
+        def secondaryUserB1A1Email = "usuario_secundario_b1a1@email.com"
+        u = new User()
+        u.setEmail(secondaryUserB1A1Email)
+        u.setPrimaryUser(primaryUserB1)
+        userRepository.save(u)
+
+        and: "na pagina de permissão de pvs para usuario secundario"
+        to PvPermissionSecondaryPage
+
+        when: "informo dados do fomulario"
+        form.with {
+            primaryEmail = primaryUserA1Email
+            secondaryEmail = secondaryUserB1A1Email
+            acquirer = "CIELO"
+            file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath
+        }
+
+        then:
+        submitButton.click()
+
+        expect: "mensagem 'User 'usuario_primario_a1@email.com' is not secondary user of 'usuario_secundario_b1a1@email.com'' deve aparecer"
+        at PvPermissionSecondaryPage
+        assert(messages.text().contains("User 'usuario_primario_a1@email.com' is not secondary user of 'usuario_secundario_b1a1@email.com'"))
     }
 }
