@@ -77,17 +77,13 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
-        when: "informo o usuario primario"
-        form.with { primaryEmail = primaryUserEmail}
-
-        and: "informo o usuario secundario"
-        form.with { secondaryEmail = secondaryUserEmail }
-
-        and: "informo o adquirente"
-        form.with { acquirer = "CIELO" }
-
-        and: "escolho um arquivo que tem o PV matriz"
-        form.with { file = new File(Class.getResource("/functional-testing-pvs-1").toURI()).absolutePath }
+        when: "informo dados do fomulario"
+        form.with {
+            primaryEmail = primaryUserEmail
+            secondaryEmail = secondaryUserEmail
+            acquirer = "CIELO"
+            file = new File(Class.getResource("/functional-testing-pvs-1").toURI()).absolutePath
+        }
 
         then:
         submitButton.click()
@@ -116,17 +112,13 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
-        when: "informo o usuario primario"
-        form.with { primaryEmail = primaryUserEmail }
-
-        and: "informo o usuario secundario"
-        form.with { secondaryEmail = secondaryUserEmail }
-
-        and: "informo o adquirente"
-        form.with { acquirer = "CIELO" }
-
-        and: "escolho um arquivo que tem o PV matriz"
-        form.with { file = new File(Class.getResource("/functional-testing-pvs-2").toURI()).absolutePath }
+        when: "informo dados do fomulario"
+        form.with {
+            primaryEmail = primaryUserEmail
+            secondaryEmail = secondaryUserEmail
+            acquirer = "CIELO"
+            file = new File(Class.getResource("/functional-testing-pvs-2").toURI()).absolutePath
+        }
 
         then:
         submitButton.click()
@@ -163,17 +155,13 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
-        when: "informo o usuario primario"
-        form.with { primaryEmail = primaryUserEmail }
-
-        and: "informo o usuario secundario"
-        form.with { secondaryEmail = secondaryUserEmail }
-
-        and: "informo o adquirente"
-        form.with { acquirer = "CIELO" }
-
-        and: "escolho um arquivo que tem o PV filial"
-        form.with { file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath }
+        when: "informo dados do fomulario"
+        form.with {
+            primaryEmail = primaryUserEmail
+            secondaryEmail = secondaryUserEmail
+            acquirer = "CIELO"
+            file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath
+        }
 
         then:
         submitButton.click()
@@ -198,24 +186,20 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
-        when: "informo o usuario secundario como requisitante"
-        form.with { primaryEmail = secondaryUserEmail }
-
-        and: "informo o usuario a ser permitido"
-        form.with { secondaryEmail = "usuario_novo@email.com" }
-
-        and: "informo o adquirente"
-        form.with { acquirer = "CIELO" }
-
-        and: "escolho um arquivo que tem o PV matriz"
-        form.with { file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath }
+        when: "informo dados do fomulario"
+        form.with {
+            primaryEmail = secondaryUserEmail
+            secondaryEmail = "usuario_novo@email.com"
+            acquirer = "CIELO"
+            file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath
+        }
 
         then:
         submitButton.click()
 
-        expect: "mensagem 'The user 'usuario_secundario_4@email.com' is a secondary user instead primary user.' deve aparecer"
+        expect: "mensagem 'O usuario 'usuario_secundario_4@email.com' é um usuario secundario ao invés de primario.' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("The user 'usuario_secundario_4@email.com' is a secondary user instead primary user."))
+        assert(messages.text().contains("O usuario 'usuario_secundario_4@email.com' é um usuario secundario ao invés de primario."))
     }
 
     def "Usuario requisitante inexistente"() {
@@ -225,17 +209,13 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
-        when: "informo o usuario requisitante inexistente"
-        form.with { primaryEmail = primaryUserEmail }
-
-        and: "informo o usuario a ser permitido"
-        form.with { secondaryEmail = "usuario_novo@email.com" }
-
-        and: "informo o adquirente"
-        form.with { acquirer = "CIELO" }
-
-        and: "escolho um arquivo que tem PV"
-        form.with { file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath }
+        when: "informo dados do fomulario"
+        form.with {
+            primaryEmail = primaryUserEmail
+            secondaryEmail = "usuario_novo@email.com"
+            acquirer = "CIELO"
+            file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath
+        }
 
         then:
         submitButton.click()
@@ -259,24 +239,20 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
-        when: "informo o usuario requisitante"
-        form.with { primaryEmail = primaryUserAEmail }
-
-        and: "informo dados do formulario"
-        form.with { secondaryEmail = primaryUserBEmail }
-
-        and: "informo o adquirente"
-        form.with { acquirer = "CIELO" }
-
-        and: "escolho um arquivo que tem PV"
-        form.with { file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath }
+        when: "informo dados do fomulario"
+        form.with {
+            primaryEmail = primaryUserAEmail
+            secondaryEmail = primaryUserBEmail
+            acquirer = "CIELO"
+            file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath
+        }
 
         then:
         submitButton.click()
 
-        expect: "mensagem 'User 'usuario_primario_b@email.com' is primary user.' deve aparecer"
+        expect: "mensagem 'Usuario 'usuario_primario_b@email.com' é um usuario primario.' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("User 'usuario_primario_b@email.com' is primary user."))
+        assert(messages.text().contains("Usuario 'usuario_primario_b@email.com' é um usuario primario."))
     }
 
     def "Usuario a ser permitido é secundario de outro usuario primario"() {
@@ -311,9 +287,9 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem 'User 'usuario_primario_a1@email.com' is not secondary user of 'usuario_secundario_b1a1@email.com'' deve aparecer"
+        expect: "mensagem 'Usuario 'usuario_primario_a1@email.com' não é secundario do usuario 'usuario_secundario_b1a1@email.com'' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("User 'usuario_primario_a1@email.com' is not secondary user of 'usuario_secundario_b1a1@email.com'"))
+        assert(messages.text().contains("Usuario 'usuario_primario_a1@email.com' não é secundario do usuario 'usuario_secundario_b1a1@email.com'"))
     }
 
     def "Pv com formato invalido"() {
@@ -369,9 +345,9 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem 'Usuário 'usuario_primario_1@email.com' não tem acesso ao Pv '88888888'' deve aparecer"
+        expect: "mensagem 'Usuário 'usuario_primario_8@email.com' não tem acesso ao Pv '88888888'' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("Usuário 'usuario_primario_1@email.com' não tem acesso ao Pv '88888888'"))
+        assert(messages.text().contains("Usuário 'usuario_primario_8@email.com' não tem acesso ao Pv '88888888'"))
     }
 
     def "Pv não existente"() {
