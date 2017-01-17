@@ -2,8 +2,8 @@
       xmlns:th="http://www.thymeleaf.org"
       th:include="layout/base :: page">
 
-	<head th:replace="fragments/head::common_head('Permissão para Pvs')"></head>
-	
+	<th:block th:fragment="title">Permissão de pvs para usuários primários</th:block>
+
 	<th:block th:fragment="content">
 		<h1>Permissão de PVs para usuários primários</h1>
 		<div class="row">

@@ -1,10 +1,8 @@
 package br.com.rede.ke.backoffice.controller;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import br.com.rede.ke.backoffice.conciliation.exception.InvalidFileException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,6 +23,7 @@ import br.com.rede.ke.backoffice.conciliation.domain.exception.DomainException;
 import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 import br.com.rede.ke.backoffice.conciliation.domain.service.UserService;
+import br.com.rede.ke.backoffice.conciliation.exception.InvalidFileException;
 import br.com.rede.ke.backoffice.util.Result;
 
 /**
@@ -74,6 +73,7 @@ public class PvPermissionController {
             Page<PvPermission> pvPermissions = pvPermissionService.findAllByAcquirerAndCodeAndEmail(acquirer, code, email,
                 pageable);
             model.addAttribute("pvPermissions", pvPermissions);
+            model.addAttribute("title", "Permissões de PVs");
         return "pv-permissions/index";
     }
     
