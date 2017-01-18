@@ -52,37 +52,55 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         loginButton.click()
     }
 
+    def createPrimaryUser(primaryUserEmail) {
+        def primaryUser = new User()
+        primaryUser.setEmail(primaryUserEmail)
+        userRepository.save(primaryUser)
+    }
+
+    def createSecondaryUserFor(primaryUser, secondaryUserEmail) {
+        def secondaryUser = new User()
+        secondaryUser.setEmail(secondaryUserEmail)
+        secondaryUser.setPrimaryUser(primaryUser)
+        userRepository.save(secondaryUser)
+    }
+
+    def createPv(code, acquirer) {
+        pvRepository.save(new Pv(code, acquirer))
+    }
+
+    def createBranchPvFor(headquarterPv, code) {
+        def branchPv = new Pv(code, headquarterPv.acquirer)
+        branchPv.setHeadquarter(headquarterPv)
+        pvRepository.save(branchPv)
+    }
+
+    def getFilePath(filename) {
+        new File(Class.getResource(filename).toURI()).absolutePath
+    }
+
     def "Dar permissão de PV a um Usuário secundário"() {
         setup: "o pv matriz existe no banco"
-        def primaryUserEmail = "usuario_primario_1@email.com"
-        def secondaryUserEmail = "usuario_secundario_1@email.com"
-        def p = new Pv("11111111", Acquirer.CIELO)
-        def pv = pvRepository.save(p)
+        def pv = createPv("11111111", Acquirer.CIELO)
 
         and: "o usuario requisitante é primario"
-        def u = new User()
-        u.setEmail(primaryUserEmail)
-        def primaryUser = userRepository.save(u)
+        def primaryUser = createPrimaryUser("usuario_primario_1@email.com")
 
         and: "o usuario requisitante tem permissão no pv matriz"
-        def id = new PvPermissionId(primaryUser.getId(), pv.getId())
-        pvPermissionRepository.save(new PvPermission(id, primaryUser, pv))
+        pvPermissionRepository.save(new PvPermission(primaryUser, pv))
 
         and: "o usuario para dar permissão é secundario do requisitante"
-        u = new User()
-        u.setEmail(secondaryUserEmail)
-        u.setPrimaryUser(primaryUser)
-        userRepository.save(u)
+        def secondaryUser = createSecondaryUserFor(primaryUser, "usuario_secundario_1@email.com")
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
         when: "informo dados do fomulario"
         form.with {
-            primaryEmail = primaryUserEmail
-            secondaryEmail = secondaryUserEmail
+            primaryEmail = primaryUser.email
+            secondaryEmail = secondaryUser.email
             acquirer = "CIELO"
-            file = new File(Class.getResource("/functional-testing-pvs-1").toURI()).absolutePath
+            file = getFilePath("/functional-testing-pvs-1")
         }
 
         then:
@@ -95,29 +113,24 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
     def "Dar permissão de PV a um Usuário secundário inexistente"() {
         setup: "o pv matriz existe no banco"
-        def primaryUserEmail = "usuario_primario_2@email.com"
         def secondaryUserEmail = "usuario_secundario_2@email.com"
-        def p = new Pv("22222222", Acquirer.CIELO)
-        def pv = pvRepository.save(p)
+        def pv = createPv("22222222", Acquirer.CIELO)
 
         and: "o usuario requisitante é primario"
-        def u = new User()
-        u.setEmail(primaryUserEmail)
-        def primaryUser = userRepository.save(u)
+        def primaryUser = createPrimaryUser("usuario_primario_2@email.com")
 
         and: "o usuario requisitante tem permissão no pv matriz"
-        def id = new PvPermissionId(primaryUser.getId(), pv.getId())
-        pvPermissionRepository.save(new PvPermission(id, primaryUser, pv))
+        pvPermissionRepository.save(new PvPermission(primaryUser, pv))
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
         when: "informo dados do fomulario"
         form.with {
-            primaryEmail = primaryUserEmail
+            primaryEmail = primaryUser.email
             secondaryEmail = secondaryUserEmail
             acquirer = "CIELO"
-            file = new File(Class.getResource("/functional-testing-pvs-2").toURI()).absolutePath
+            file = getFilePath("/functional-testing-pvs-2")
         }
 
         then:
@@ -130,37 +143,28 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
     def "Dar permissão para um PV filial existente a um Usuário secundário"() {
         setup: "o pv filial existe no banco"
-        def primaryUserEmail = "usuario_primario_3@email.com"
         def secondaryUserEmail = "usuario_secundario_3@email.com"
-        def headquarterPv = pvRepository.save(new Pv("33333333", Acquirer.CIELO))
-        def branchPv = new Pv("33333334", Acquirer.CIELO)
-        branchPv.setHeadquarter(headquarterPv)
-        pvRepository.save(branchPv)
+        def headquarterPv = createPv("33333333", Acquirer.CIELO)
+        createBranchPvFor(headquarterPv, "33333334")
 
         and: "o usuario requisitante é primario"
-        def u = new User()
-        u.setEmail(primaryUserEmail)
-        def primaryUser = userRepository.save(u)
+        def primaryUser = createPrimaryUser("usuario_primario_3@email.com")
 
         and: "o usuario requisitante tem permissão no pv matriz"
-        def id = new PvPermissionId(primaryUser.getId(), headquarterPv.getId())
-        pvPermissionRepository.save(new PvPermission(id, primaryUser, headquarterPv))
+        pvPermissionRepository.save(new PvPermission(primaryUser, headquarterPv))
 
         and: "o usuario para dar permissão é secundario do requisitante"
-        u = new User()
-        u.setEmail(secondaryUserEmail)
-        u.setPrimaryUser(primaryUser)
-        userRepository.save(u)
+        createSecondaryUserFor(primaryUser, secondaryUserEmail)
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
         when: "informo dados do fomulario"
         form.with {
-            primaryEmail = primaryUserEmail
+            primaryEmail = primaryUser.email
             secondaryEmail = secondaryUserEmail
             acquirer = "CIELO"
-            file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath
+            file = getFilePath("/functional-testing-pvs-3")
         }
 
         then:
@@ -173,25 +177,18 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
     def "Usuario requisitante é secundario"() {
         setup: "o usuario requisitante existe no banco como secundario"
-        def primaryUserEmail = "usuario_primario_4@email.com"
-        def secondaryUserEmail = "usuario_secundario_4@email.com"
-        def u = new User()
-        u.setEmail(primaryUserEmail)
-        def primaryUser = userRepository.save(u)
-        u = new User()
-        u.setEmail(secondaryUserEmail)
-        u.setPrimaryUser(primaryUser)
-        def secundaryUser = userRepository.save(u)
+        def primaryUser = createPrimaryUser("usuario_primario_4@email.com")
+        def secondaryUser = createSecondaryUserFor(primaryUser, "usuario_secundario_4@email.com")
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
         when: "informo dados do fomulario"
         form.with {
-            primaryEmail = secondaryUserEmail
+            primaryEmail = secondaryUser.email
             secondaryEmail = "usuario_novo@email.com"
             acquirer = "CIELO"
-            file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath
+            file = getFilePath("/functional-testing-pvs-3")
         }
 
         then:
@@ -214,7 +211,7 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
             primaryEmail = primaryUserEmail
             secondaryEmail = "usuario_novo@email.com"
             acquirer = "CIELO"
-            file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath
+            file = getFilePath("/functional-testing-pvs-3")
         }
 
         then:
@@ -227,24 +224,18 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
     def "Usuario requisitante é primario e usuario a ser permitido é primario"() {
         setup: "Dado que o usuario requisitante e o usuario a ser permitido são primarios"
-        def primaryUserAEmail = "usuario_primario_a@email.com"
-        def primaryUserBEmail = "usuario_primario_b@email.com"
-        def u = new User()
-        u.setEmail(primaryUserAEmail)
-        userRepository.save(u)
-        u = new User()
-        u.setEmail(primaryUserBEmail)
-        userRepository.save(u)
+        def primaryUserA = createPrimaryUser("usuario_primario_a@email.com")
+        def primaryUserB = createPrimaryUser("usuario_primario_b@email.com")
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
         when: "informo dados do fomulario"
         form.with {
-            primaryEmail = primaryUserAEmail
-            secondaryEmail = primaryUserBEmail
+            primaryEmail = primaryUserA.email
+            secondaryEmail = primaryUserB.email
             acquirer = "CIELO"
-            file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath
+            file = getFilePath("/functional-testing-pvs-3")
         }
 
         then:
@@ -257,31 +248,21 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
     def "Usuario a ser permitido é secundario de outro usuario primario"() {
         setup: "Dado que o usuarios a1 e b1 são primarios"
-        def primaryUserA1Email = "usuario_primario_a1@email.com"
-        def primaryUserB1Email = "usuario_primario_b1@email.com"
-        def u = new User()
-        u.setEmail(primaryUserA1Email)
-        userRepository.save(u)
-        u = new User()
-        u.setEmail(primaryUserB1Email)
-        def primaryUserB1 = userRepository.save(u)
+        def primaryUserA1 = createPrimaryUser("usuario_primario_a1@email.com")
+        def primaryUserB1 = createPrimaryUser("usuario_primario_b1@email.com")
 
         and: "o usuario b1a1 é secundario do usuario b1"
-        def secondaryUserB1A1Email = "usuario_secundario_b1a1@email.com"
-        u = new User()
-        u.setEmail(secondaryUserB1A1Email)
-        u.setPrimaryUser(primaryUserB1)
-        userRepository.save(u)
+        def secondaryUserB1A1 = createSecondaryUserFor(primaryUserB1, "usuario_secundario_b1a1@email.com")
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
         when: "informo dados do fomulario"
         form.with {
-            primaryEmail = primaryUserA1Email
-            secondaryEmail = secondaryUserB1A1Email
+            primaryEmail = primaryUserA1.email
+            secondaryEmail = secondaryUserB1A1.email
             acquirer = "CIELO"
-            file = new File(Class.getResource("/functional-testing-pvs-3").toURI()).absolutePath
+            file = getFilePath("/functional-testing-pvs-3")
         }
 
         then:
@@ -294,21 +275,18 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
     def "Pv com formato invalido"() {
         setup: "Dado que que existe um usuario primario"
-        def primaryUserEmail = "usuario_primario_7@email.com"
+        def primaryUser = createPrimaryUser("usuario_primario_7@email.com")
         def secondaryUserEmail = "usuario_secundario_7@email.com"
-        def u = new User()
-        u.setEmail(primaryUserEmail)
-        userRepository.save(u)
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
         when: "informo dados do fomulario"
         form.with {
-            primaryEmail = primaryUserEmail
+            primaryEmail = primaryUser.email
             secondaryEmail = secondaryUserEmail
             acquirer = "CIELO"
-            file = new File(Class.getResource("/functional-testing-pvs-invalid-format").toURI()).absolutePath
+            file = getFilePath("/functional-testing-pvs-invalid-format")
         }
 
         then:
@@ -321,25 +299,21 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
     def "Dar permissão de PV quando o usuario primario não tem permissão"() {
         setup: "o pv matriz existe no banco"
-        def primaryUserEmail = "usuario_primario_8@email.com"
         def secondaryUserEmail = "usuario_secundario_8@email.com"
-        def p = new Pv("88888888", Acquirer.CIELO)
-        pvRepository.save(p)
+        createPv("88888888", Acquirer.CIELO)
 
         and: "o usuario requisitante é primario"
-        def u = new User()
-        u.setEmail(primaryUserEmail)
-        def primaryUser = userRepository.save(u)
+        def primaryUser = createPrimaryUser("usuario_primario_8@email.com")
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
         when: "informo os dados do formulario"
         form.with {
-            primaryEmail = primaryUserEmail
+            primaryEmail = primaryUser.email
             secondaryEmail = secondaryUserEmail
             acquirer = "CIELO"
-            file = new File(Class.getResource("/functional-testing-pvs-4").toURI()).absolutePath
+            file = getFilePath("/functional-testing-pvs-4")
         }
 
         then:
@@ -352,21 +326,18 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
     def "Pv não existente"() {
         setup: "o usuario requisitante é primario"
-        def primaryUserEmail = "usuario_primario_9@email.com"
         def secondaryUserEmail = "usuario_secundario_9@email.com"
-        def u = new User()
-        u.setEmail(primaryUserEmail)
-        userRepository.save(u)
+        def primaryUser = createPrimaryUser("usuario_primario_9@email.com")
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
 
         when: "informo os dados do formulario"
         form.with {
-            primaryEmail = primaryUserEmail
+            primaryEmail = primaryUser.email
             secondaryEmail = secondaryUserEmail
             acquirer = "CIELO"
-            file = new File(Class.getResource("/functional-testing-pvs-5").toURI()).absolutePath
+            file = getFilePath("/functional-testing-pvs-5")
         }
 
         then:

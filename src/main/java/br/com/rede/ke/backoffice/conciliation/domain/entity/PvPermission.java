@@ -51,6 +51,7 @@ public class PvPermission {
      * @param pv the pv
      */
     public PvPermission(User user, Pv pv) {
+        this.id = new PvPermissionId(user.getId(), pv.getId());
         this.user = user;
         this.pv = pv;
     }
