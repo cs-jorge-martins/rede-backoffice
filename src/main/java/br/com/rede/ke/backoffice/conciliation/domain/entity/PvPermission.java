@@ -9,9 +9,9 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -51,6 +51,7 @@ public class PvPermission {
      * @param pv the pv
      */
     public PvPermission(User user, Pv pv) {
+        this.id = new PvPermissionId(user.getId(), pv.getId());
         this.user = user;
         this.pv = pv;
     }
@@ -137,7 +138,7 @@ public class PvPermission {
 
         return Optional.ofNullable(getPv())
             .map(Pv::getBranches)
-            .map(Set::stream)
+            .map(List::stream)
             .map(pvStream -> pvStream.anyMatch(pvBranch -> pvBranch.equals(pv)))
             .orElse(false);
     }

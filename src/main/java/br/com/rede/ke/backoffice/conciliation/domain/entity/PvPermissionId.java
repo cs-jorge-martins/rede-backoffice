@@ -10,6 +10,7 @@
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -69,5 +70,19 @@ public class PvPermissionId implements Serializable {
      */
     public void setPvId(Long pvId) {
         this.pvId = pvId;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, pvId);
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PvPermissionId pvPermissionId = (PvPermissionId) o;
+        return Objects.equals(userId, pvPermissionId.getUserId())
+            && Objects.equals(pvId, pvPermissionId.getPvId());
     }
 }

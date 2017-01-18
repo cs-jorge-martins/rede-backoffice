@@ -9,19 +9,17 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
-import java.security.cert.PKIXRevocationChecker;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidSecondaryUserException;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,13 +27,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidSecondaryUserException;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
 
 /**
  * The UserServiceTest.
@@ -43,18 +41,34 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
+    /** The user service. */
     @InjectMocks
     private UserService userService;
 
+    /** The pv permission repository. */
     @Mock
     private PvPermissionRepository pvPermissionRepository;
 
+    /** The user repository. */
     @Mock
     private UserRepository userRepository;
 
+    /** The user. */
     private User user;
+    
+    /** The pv. */
     private Pv pv;
+    
+    
+    /** The Constant PRIMARY_USER_EMAIL. */
+    private static final String PRIMARY_USER_EMAIL = "primary_user@email.com";
+    
+    /** The Constant SECONDARY_USER_EMAIL. */
+    private static final String SECONDARY_USER_EMAIL = "secondary_user@email.com";
 
+    /**
+     * Sets the up.
+     */
     @Before
     public void setUp() {
         user = new User();
@@ -99,18 +113,17 @@ public class UserServiceTest {
     }
 
     /**
-     * Test get primary user when email belongs to secondary user
+     * Test get primary user when email belongs to secondary user.
      */
     @Test(expected = InvalidPrimaryUserException.class)
     public void testGetPrimaryUserWhenEmailBelongsToSecondaryUser() {
-        final String SECONDARY_USER = "secondary_user@email.com";
 
         User secondaryUser = new User();
         secondaryUser.setPrimaryUser(new User());
 
-        when(userRepository.findByEmail(SECONDARY_USER)).thenReturn(Optional.of(secondaryUser));
+        when(userRepository.findByEmail(SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
 
-        userService.getPrimaryUser(SECONDARY_USER);
+        userService.getPrimaryUser(SECONDARY_USER_EMAIL);
     }
 
     /**
@@ -169,22 +182,19 @@ public class UserServiceTest {
      */
     @Test(expected = InvalidSecondaryUserException.class)
     public void testGetSecondaryUserWhenSecondaryEmailBelongsToPrimaryUser() {
-        final String PRIMARY_USER = "primary_user@email.com";
-
         User primaryUser1 = new User();
         User primaryUser2 = new User();
 
-        when(userRepository.findByEmail(PRIMARY_USER)).thenReturn(Optional.of(primaryUser2));
+        when(userRepository.findByEmail(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser2));
 
-        userService.getSecondaryUserFor(primaryUser1, PRIMARY_USER);
+        userService.getOrCreateSecondaryUserFor(primaryUser1, PRIMARY_USER_EMAIL);
     }
 
     /**
-     * Test get secondary user when secondary user do not belongs to given primary user.
+     * Test get secondary user when secondary user doesn't belong to given primary user.
      */
     @Test(expected = InvalidSecondaryUserException.class)
-    public void testGetSecondaryUserWhenSecondaryUserDoNotBelongsToGivenPrimaryUser() {
-        final String SECONDARY_USER = "secondary_user@email.com";
+    public void testGetSecondaryUserWhenSecondaryUserDoesntBelongToGivenPrimaryUser() {
 
         User primaryUser = new User();
         primaryUser.setId(1L);
@@ -192,8 +202,43 @@ public class UserServiceTest {
         User secondaryUser = new User();
         secondaryUser.setPrimaryUser(new User());
 
-        when(userRepository.findByEmail(SECONDARY_USER)).thenReturn(Optional.of(secondaryUser));
+        when(userRepository.findByEmail(SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
 
-        userService.getSecondaryUserFor(primaryUser, SECONDARY_USER);
+        userService.getOrCreateSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL);
+    }
+    
+    /**
+     * Test get or create secondary user when primary user isn't primary at all.
+     */
+    @Test(expected=InvalidPrimaryUserException.class)
+    public void testGetOrCreateSecondaryUserWhenPrimaryUserIsntPrimary() {
+        User primaryUser = new User();
+        primaryUser.setId(1L);
+
+        User secondaryUser = new User();
+        secondaryUser.setPrimaryUser(primaryUser);
+        secondaryUser.setEmail(SECONDARY_USER_EMAIL);
+
+        userService.getOrCreateSecondaryUserFor(secondaryUser, SECONDARY_USER_EMAIL);
+    }
+    
+    
+    /**
+     * Test get or create secondary user when secondary user doesn't exist.
+     */
+    @Test
+    public void testGetOrCreateSecondaryUserWhenSecondaryUserDoesntExist() {
+        User primaryUser = new User();
+        primaryUser.setId(1L);
+
+        User secondaryUser = new User();
+        secondaryUser.setPrimaryUser(primaryUser);
+        secondaryUser.setEmail(SECONDARY_USER_EMAIL);
+
+        when(userRepository.findByEmail(SECONDARY_USER_EMAIL)).thenReturn(Optional.empty());
+        when(userRepository.save(secondaryUser)).thenReturn(secondaryUser);
+        
+        User user = userService.getOrCreateSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL);
+        assertThat(user, equalTo(secondaryUser));
     }
 }

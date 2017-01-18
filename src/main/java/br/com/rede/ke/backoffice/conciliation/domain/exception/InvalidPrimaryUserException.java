@@ -26,7 +26,7 @@ public class InvalidPrimaryUserException extends DomainException {
      * @param user the user.
      */
     public InvalidPrimaryUserException(User user) {
-        super(String.format("The user '%s' is a secondary user instead primary user.", user.getEmail()));
+        super(String.format("O usuario '%s' é um usuario secundario ao invés de primario.", user.getEmail()));
         this.user = user;
     }
 }

@@ -15,30 +15,32 @@ import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermiss
 import static org.springframework.data.jpa.domain.Specifications.not;
 import static org.springframework.data.jpa.domain.Specifications.where;
 import static org.springframework.util.StringUtils.isEmpty;
-import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
-import br.com.rede.ke.backoffice.util.Result;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvBatch;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import br.com.rede.ke.backoffice.util.Result;
+
 
 /**
  * The Class PvPermissionService.
@@ -113,8 +115,11 @@ public class PvPermissionService {
     public Result<PvPermission, String> createForSecondaryUser(SecondaryUserPvPermissionRequest request) {
         User primaryUser = userService.getPrimaryUser(request.getRequesterUserEmail())
                 .orElseThrow(getUserNotFoundException(request.getRequesterUserEmail()));
-        User secondaryUser = userService.getSecondaryUserFor(primaryUser, request.getToBePermittedUserEmail())
-                .orElseThrow(getUserNotFoundException(request.getToBePermittedUserEmail()));
+        User secondaryUser = userService.getOrCreateSecondaryUserFor(primaryUser, request.getToBePermittedUserEmail());
+
+        if (!pvService.isValidPv(new Pv(request.getPvCode()))) {
+            return Result.failure(String.format("Pv '%s' com formato invalido", request.getPvCode()));
+        }
 
         Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(request.getPvCode(), request.getAcquirer().ordinal());
 

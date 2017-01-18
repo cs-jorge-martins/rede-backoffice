@@ -11,13 +11,13 @@
 package br.com.rede.ke.backoffice.conciliation.domain.factory;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.service.FileService;
+import br.com.rede.ke.backoffice.conciliation.exception.InvalidFileException;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -37,11 +37,15 @@ public final class PvFactory {
      * @param file
      * @param acquirer
      * @return
-     * @throws IOException
+     * @throws InvalidFileException
      */
-    public static List<Pv> fromFileAndAcquirer(MultipartFile file, Acquirer acquirer) throws IOException {
-        return FileService.processFileLineByLine(file).stream()
-            .map(line -> new Pv(line, acquirer))
-            .collect(Collectors.toList());
+    public static List<Pv> fromFileAndAcquirer(MultipartFile file, Acquirer acquirer) throws InvalidFileException {
+        try {
+            return FileService.processFileLineByLine(file).stream()
+                .map(line -> new Pv(line, acquirer))
+                .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new InvalidFileException("Erro ao processar o arquivo");
+        }
     }
 }

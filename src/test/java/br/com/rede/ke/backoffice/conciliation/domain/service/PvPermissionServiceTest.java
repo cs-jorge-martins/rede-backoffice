@@ -9,27 +9,30 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
-import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
-import br.com.rede.ke.backoffice.util.Result;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Optional;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
+import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
+import br.com.rede.ke.backoffice.util.Result;
 
 /**
  * The Class PvPermissionServiceTest.
@@ -45,6 +48,10 @@ public class PvPermissionServiceTest {
     @Mock
     private UserService userService;
 
+    /** The pv service */
+    @Mock
+    private PvService pvService;
+    
     /** The pv repository */
     @Mock
     private PvRepository pvRepository;
@@ -84,10 +91,11 @@ public class PvPermissionServiceTest {
 
         primaryUser = new User();
         when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
+        when(pvService.isValidPv(Mockito.any())).thenReturn(true);
 
         secondaryUser = new User();
         secondaryUser.setPrimaryUser(primaryUser);
-        when(userService.getSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(Optional.of(secondaryUser));
+        when(userService.getOrCreateSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(secondaryUser);
 
         pv = new Pv();
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, pvPermissionRequest.getAcquirer().ordinal()))
@@ -103,7 +111,8 @@ public class PvPermissionServiceTest {
 
         Result<PvPermission, String> pvPermissionResult = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
 
-        PvPermission pvPermission = new PvPermission(secondaryUser, pv);
+        PvPermissionId id = new PvPermissionId(secondaryUser.getId(), pv.getId());
+        PvPermission pvPermission = new PvPermission(id, secondaryUser, pv);
 
         assertThat(pvPermissionResult.isSuccess(), equalTo(true));
         assertThat(pvPermissionResult.success().get(), equalTo(pvPermission));
@@ -143,13 +152,19 @@ public class PvPermissionServiceTest {
         when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.empty());
         pvPermissionService.createForSecondaryUser(pvPermissionRequest);
     }
-
+    
     /**
-     * Test create for secondary user when secondary user not exists.
+     * Test create for secondary user when pv has invalid format.
      */
-    @Test(expected = UserNotFoundException.class)
-    public void testCreateForSecondaryUserWhenSecondaryUserNotExists() {
-        when(userService.getSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(Optional.empty());
-        pvPermissionService.createForSecondaryUser(pvPermissionRequest);
+    @Test
+    public void testCreateForSecondaryUserWhenPvHasInvalidFormat() {
+        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, pvPermissionRequest.getAcquirer().ordinal()))
+                .thenReturn(Optional.empty());
+        when(pvService.isValidPv(Mockito.any())).thenReturn(false);
+
+        Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
+
+        assertThat(result.isFailure(), equalTo(true));
+        assertThat(result.failure().get(), equalTo(String.format("Pv '%s' com formato invalido", PV_CODE)));
     }
 }
