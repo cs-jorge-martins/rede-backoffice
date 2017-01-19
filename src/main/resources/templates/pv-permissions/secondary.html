@@ -1,65 +1,65 @@
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
-      th:include="layout/base :: page">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:include="layout/base :: page">
 
-    <th:block th:fragment="title">Permissão de pvs para usuários secundários</th:block>
+	<th:block th:fragment="title">Permissão de pvs para usuários secundários</th:block>
 
-    <th:block th:fragment="content">
-        <h1>Permissão de PVs para usuários secundários</h1>
-        <div class="row">
-            <form th:action="@{/pv-permissions/secondary}" method="post" enctype="multipart/form-data" class="col s12">
-                <div class="row">
-                    <div class="input-field col s4">
-                        <input id="primary-user-email" name="primaryEmail" type="email" th:value="${primaryEmail}" />
-                        <label for="primary-user-email">E-mail do usuário primário</label>
-                    </div>
-                    <div class="input-field col s4">
-                        <input id="secondary-user-email" name="secondaryEmail" type="email" th:value="${secondaryEmail}" />
-                        <label for="secondary-user-email">E-mail do usuário secundário</label>
-                    </div>
-                    <div class="input-field col s4">
-                        <select id="acquirer" name="acquirer" th:required="required">
-                            <option th:selected="${acquirer == acquirerItem}"
-                                    th:each="acquirerItem: ${acquirers}"
-                                    th:text="#{'option.acquirer.' + ${acquirerItem}}"
-                                    th:value="${acquirerItem}"></option>
-                        </select>
-                        <label for="acquirer">adquirente</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="file-field input-field col s12">
-                        <div class="btn">
-                            <span>arquivo</span>
-                            <input type="file" name="file" th:required="required"/>
-                        </div>
-                        <div class="file-path-wrapper">
-                            <input class="file-path validate" type="text" />
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="input-field col s12">
-                        <button class="btn waves-effect waves-light right" type="submit" name="action">
-                            enviar
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="row messages">
-            <p th:text="${errorMessage}" th:unless="${errorMessage == null}"></p>
-            <span class="valid-pvs-message" th:unless="${#lists.isEmpty(validPvs)}">
-                Operação realizada com sucesso! Os seguintes Pv's foram cadastrados:
-            </span>
-            <ul th:unless="${#lists.isEmpty(validPvs)}">
-                <li th:each="pvPermission : ${validPvs}" th:text="${pvPermission.pv.code}"></li>
-            </ul>
+	<th:block th:fragment="content">
+		<h1>Permissão de PVs para usuários secundários</h1>
+		<div class="row">
+			<form th:action="@{/pv-permissions/secondary}" method="post" enctype="multipart/form-data" class="col s12">
+				<div class="row">
+					<div class="input-field col s4">
+						<input id="primary-user-email" name="primaryEmail" type="email" th:value="${primaryEmail}" />
+            			<label for="primary-user-email">E-mail do usuário primário</label>
+					</div>
+					<div class="input-field col s4">
+						<input id="secondary-user-email" name="secondaryEmail" type="email" th:value="${secondaryEmail}" />
+			            <label for="secondary-user-email">E-mail do usuário secundário</label>
+					</div>
+					<div class="input-field col s4">
+						<select id="acquirer" name="acquirer" th:required="required">
+							<option th:selected="${acquirer == acquirerItem}"
+									th:each="acquirerItem: ${acquirers}"
+									th:text="#{'option.acquirer.' + ${acquirerItem}}"
+									th:value="${acquirerItem}"></option>
+						</select>
+						<label for="acquirer">adquirente</label>
+					</div>
 
-            <p th:unless="${#lists.isEmpty(invalidPvs)}">Os pv's abaixo não puderam ser cadastrados:</p>
-            <ul th:unless="${#lists.isEmpty(invalidPvs)}">
-                <li th:each="message : ${invalidPvs}" th:text="${message}"></li>
-            </ul>
-        </div>
-    </th:block>
+				</div>
+				<div class="row">
+					<div class="file-field input-field col s12">
+						<div class="btn">
+							<span>arquivo</span>
+							<input type="file" name="file" th:required="required"/>
+						</div>
+						<div class="file-path-wrapper">
+							<input class="file-path validate" type="text" />
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="input-field col s12">
+						<button class="btn waves-effect waves-light right" type="submit" name="action">
+							enviar
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="row messages">
+			<p th:text="${errorMessage}" th:unless="${errorMessage == null}"></p>
+			<span class="valid-pvs-message" th:unless="${#lists.isEmpty(validPvs)}">
+				Operação realizada com sucesso! Os seguintes Pv's foram cadastrados:
+			</span>
+			<ul th:unless="${#lists.isEmpty(validPvs)}">
+				<li th:each="pvPermission : ${validPvs}" th:text="${pvPermission.pv.code}"></li>
+			</ul>
+
+			<p th:unless="${#lists.isEmpty(invalidPvs)}">Os pv's abaixo não puderam ser cadastrados:</p>
+			<ul th:unless="${#lists.isEmpty(invalidPvs)}">
+				<li th:each="message : ${invalidPvs}" th:text="${message}"></li>
+			</ul>
+		</div>
+	</th:block>
 </html>
