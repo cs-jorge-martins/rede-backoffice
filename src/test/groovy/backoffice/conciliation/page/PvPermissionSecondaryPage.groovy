@@ -16,10 +16,10 @@ import geb.Page
  */
 class PvPermissionSecondaryPage extends Page {
     static url = "/pv-permissions/secondary"
-    static at = { title == "Control Rede Backoffice | Permissão de pvs para usuários secundários" }
+    static at = { title == "control rede backoffice | permissão de pvs para usuários secundários" }
     static content = {
         messages { $(".messages") }
-        form { $("form") }
-        submitButton { $("button[type='submit']") }
+        form { $("#pv-permission-secondary-form") }
+        submitButton { $("#pv-permission-secondary-form button[type='submit']") }
     }
 }

@@ -21,11 +21,11 @@
                 <div class="center-align">
                     <h3>acessar</h3>
                     <p>informe suas credenciais para acessar sua conta</p>
-                    <span class="green message" th:text="${infoMessage}" th:unless="${infoMessage == null}"></span>
-                    <span class="red message" th:text="${errorMessage}" th:unless="${errorMessage == null}"></span>
+                    <span class="green info-message" th:text="${infoMessage}" th:unless="${infoMessage == null}"></span>
+                    <span class="red error-message" th:text="${errorMessage}" th:unless="${errorMessage == null}"></span>
                 </div>
 
-                <form th:action="@{/auth/login}" method="post">
+                <form id="login-form" th:action="@{/auth/login}" method="post">
                     <div class="row">
                         <div class="col s10 offset-s1">
                             <label for="username" class="active">nome de usuário</label>

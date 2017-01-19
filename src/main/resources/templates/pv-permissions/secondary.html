@@ -6,7 +6,7 @@
 	<th:block th:fragment="content">
 		<h4 class="header">permissão de pvs para usuários secundários</h4>
 		<div class="row">
-			<form th:action="@{/pv-permissions/secondary}" method="post" enctype="multipart/form-data" class="col s12">
+			<form id="pv-permission-secondary-form" th:action="@{/pv-permissions/secondary}" method="post" enctype="multipart/form-data" class="col s12">
 				<div class="row">
 					<div class="input-field col s4">
 						<input id="primary-user-email" name="primaryEmail" type="email" th:value="${primaryEmail}" />

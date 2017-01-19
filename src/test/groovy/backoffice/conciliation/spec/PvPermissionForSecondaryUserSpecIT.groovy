@@ -106,9 +106,9 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem 'Operação realizada com sucesso!' deve aparecer"
+        expect: "mensagem 'operação realizada com sucesso!' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("Operação realizada com sucesso!"))
+        assert(messages.text().contains("operação realizada com sucesso!"))
     }
 
     def "Dar permissão de PV a um Usuário secundário inexistente"() {
@@ -136,9 +136,9 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem 'Operação realizada com sucesso!' deve aparecer"
+        expect: "mensagem 'operação realizada com sucesso!' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("Operação realizada com sucesso!"))
+        assert(messages.text().contains("operação realizada com sucesso!"))
     }
 
     def "Dar permissão para um PV filial existente a um Usuário secundário"() {
@@ -170,9 +170,9 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem 'Operação realizada com sucesso!' deve aparecer"
+        expect: "mensagem 'operação realizada com sucesso!' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("Operação realizada com sucesso!"))
+        assert(messages.text().contains("operação realizada com sucesso!"))
     }
 
     def "Usuario requisitante é secundario"() {
