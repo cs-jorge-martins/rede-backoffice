@@ -35,3 +35,22 @@ td, th {
 .pagination li.active {
     background-color: #00b8b6;
 }
+
+.message {
+	padding: 5px 10px;
+}
+
+#login-panel {
+	margin: 20% auto 0;
+}
+
+#logout-btn {
+	background-color: transparent;
+	font-size: 1rem;
+	border: 0;
+	padding: 0 15px;
+    transition: background-color .3s;
+}
+#logout-btn:hover {
+    background-color: rgba(0,0,0,0.1);
+}

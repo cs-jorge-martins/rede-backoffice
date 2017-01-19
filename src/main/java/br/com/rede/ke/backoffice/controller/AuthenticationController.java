@@ -36,6 +36,9 @@ public class AuthenticationController {
         if (error != null) {
             model.addAttribute("errorMessage", "nome de usuário ou senha inválidos");
         }
+        if (logout != null) {
+            model.addAttribute("infoMessage", "logout realizado com sucesso");
+        }
 
         return "auth/login";
     }

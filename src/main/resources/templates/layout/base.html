@@ -26,6 +26,11 @@
                       <li><a href="/pv-permissions/secondary">usuários secundários</a></li>
                     </ul>
                   </li>
+                  <li>
+                  <form th:action="@{/logout}" method="post">
+                    <button id="logout-btn" type="submit">logout</button>
+                  </form>
+                  </li>
                 </ul>
               </div>
             </nav>
