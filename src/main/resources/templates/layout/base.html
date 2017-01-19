@@ -10,13 +10,22 @@
     </head>
 
     <body>
-          <header>
+        <header>
           <div class="navbar-fixed">
             <nav>
               <div class="nav-wrapper container">
                 <a href="/" class="brand-logo">Control Rede | Backoffice</a>
                 <ul class="right">
-                  <li><a href="/pv-permissions">Permissões de pvs</a></li>
+                  <li>
+                    <a class='dropdown-button' href='/pv-permissions/'
+                        data-beloworigin="true"
+                        data-constrainwidth="false"
+                        data-activates='dropdown-pv-permissions'>permissão de pvs</a>
+                    <ul id='dropdown-pv-permissions' class='dropdown-content'>
+                      <li><a href="/pv-permissions/primary">usuários primários</a></li>
+                      <li><a href="/pv-permissions/secondary">usuários secundários</a></li>
+                    </ul>
+                  </li>
                 </ul>
               </div>
             </nav>
