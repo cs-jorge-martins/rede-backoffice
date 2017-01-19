@@ -17,26 +17,21 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
  */
 public class SecondaryUserPvPermissionRequest {
 
-    /** Requester user email */
     private String requesterUserEmail;
-
-    /** To be permitted user email */
     private String toBePermittedUserEmail;
-
-    /** Pv code */
     private String pvCode;
-
-    /** Acquirer */
     private Acquirer acquirer;
 
     /**
-     * Constructor.
+     * Instantiates a new secondary user pv permission request.
      *
-     * @param requesterUserEmail user user email param
-     * @param toBePermittedUserEmail child user email param
-     * @param pvCode pv code
+     * @param requesterUserEmail the requester user email
+     * @param toBePermittedUserEmail the to be permitted user email
+     * @param pvCode the pv code
+     * @param acquirer the acquirer
      */
-    public SecondaryUserPvPermissionRequest(String requesterUserEmail, String toBePermittedUserEmail, String pvCode, Acquirer acquirer) {
+    public SecondaryUserPvPermissionRequest(String requesterUserEmail, String toBePermittedUserEmail, String pvCode,
+        Acquirer acquirer) {
         this.requesterUserEmail = requesterUserEmail;
         this.toBePermittedUserEmail = toBePermittedUserEmail;
         this.pvCode = pvCode;

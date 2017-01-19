@@ -9,6 +9,13 @@
  */
 package br.com.rede.ke.backoffice.authentication.domain.service;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,13 +27,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import br.com.rede.ke.backoffice.authentication.domain.entity.AdminUser;
 import br.com.rede.ke.backoffice.authentication.domain.repository.AdminUserRepository;
-import br.com.rede.ke.backoffice.authentication.domain.service.UserDetailsServiceImpl;
-
-import java.util.Optional;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
 
 /**
  * The Class UserDetailsServiceImplTest.

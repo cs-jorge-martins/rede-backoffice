@@ -31,9 +31,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @SpringBootTest(classes = Application.class)
 public class PvRepositoryIT {
 
+    /** The pv repository. */
     @Autowired
     private PvRepository pvRepository;
 
+    /**
+     * Save pv when no pv with same code and acquirer exists.
+     *
+     * @throws Exception
+     *             the exception
+     */
     @Transactional
     @Test
     public void savePvWhenNoPvWithSameCodeAndAcquirerExists() throws Exception {
@@ -46,6 +53,12 @@ public class PvRepositoryIT {
         assertThat(savedPv.getCode(), equalTo("12300000"));
     }
 
+    /**
+     * Save pv when exists pv with same code different acquirer.
+     *
+     * @throws Exception
+     *             the exception
+     */
     @Transactional
     @Test
     public void savePvWhenExistsPvWithSameCodeDifferentAcquirer() throws Exception {
@@ -64,6 +77,12 @@ public class PvRepositoryIT {
         assertThat(savedPv.getCode(), equalTo("12300000"));
     }
 
+    /**
+     * Do not save pv when exists pv with same code and acquirer.
+     *
+     * @throws Exception
+     *             the exception
+     */
     @Transactional
     @Test(expected = DataIntegrityViolationException.class)
     public void doNotSavePvWhenExistsPvWithSameCodeAndAcquirer() throws Exception {

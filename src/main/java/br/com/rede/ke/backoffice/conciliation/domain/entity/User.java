@@ -10,6 +10,7 @@
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
 import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -65,6 +66,7 @@ public class User {
 
     /**
      * Gets primary user.
+     *
      * @return primary user.
      */
     public User getPrimaryUser() {
@@ -92,6 +94,7 @@ public class User {
 
     /**
      * Verifies if user is primary.
+     *
      * @return true if user is primary.
      */
     public boolean isPrimary() {
@@ -100,7 +103,9 @@ public class User {
 
     /**
      * Verifies if this user is primary of another one.
-     * @param secondary secondary user.
+     *
+     * @param secondary
+     *            secondary user.
      * @return true if this user is primary of the secondary.
      */
     public boolean isPrimaryOf(User secondary) {
@@ -115,8 +120,12 @@ public class User {
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         User user = (User) o;
         return Objects.equals(id, user.id)
             && Objects.equals(primaryUser, user.primaryUser)

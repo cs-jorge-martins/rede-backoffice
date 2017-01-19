@@ -41,6 +41,12 @@ import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
+    /** The Constant PRIMARY_USER_EMAIL. */
+    private static final String PRIMARY_USER_EMAIL = "primary_user@email.com";
+
+    /** The Constant SECONDARY_USER_EMAIL. */
+    private static final String SECONDARY_USER_EMAIL = "secondary_user@email.com";
+
     /** The user service. */
     @InjectMocks
     private UserService userService;
@@ -55,16 +61,9 @@ public class UserServiceTest {
 
     /** The user. */
     private User user;
-    
+
     /** The pv. */
     private Pv pv;
-    
-    
-    /** The Constant PRIMARY_USER_EMAIL. */
-    private static final String PRIMARY_USER_EMAIL = "primary_user@email.com";
-    
-    /** The Constant SECONDARY_USER_EMAIL. */
-    private static final String SECONDARY_USER_EMAIL = "secondary_user@email.com";
 
     /**
      * Sets the up.
@@ -162,7 +161,8 @@ public class UserServiceTest {
     }
 
     /**
-     * Test get or create primary user when user already exists and is not a primary user.
+     * Test get or create primary user when user already exists and is not a
+     * primary user.
      */
     @Test(expected = InvalidPrimaryUserException.class)
     public void testGetOrCreatePrimaryUserWhenUserAlreadyExistsAndIsNotPrimary() {
@@ -191,7 +191,8 @@ public class UserServiceTest {
     }
 
     /**
-     * Test get secondary user when secondary user doesn't belong to given primary user.
+     * Test get secondary user when secondary user doesn't belong to given
+     * primary user.
      */
     @Test(expected = InvalidSecondaryUserException.class)
     public void testGetSecondaryUserWhenSecondaryUserDoesntBelongToGivenPrimaryUser() {
@@ -206,11 +207,11 @@ public class UserServiceTest {
 
         userService.getOrCreateSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL);
     }
-    
+
     /**
      * Test get or create secondary user when primary user isn't primary at all.
      */
-    @Test(expected=InvalidPrimaryUserException.class)
+    @Test(expected = InvalidPrimaryUserException.class)
     public void testGetOrCreateSecondaryUserWhenPrimaryUserIsntPrimary() {
         User primaryUser = new User();
         primaryUser.setId(1L);
@@ -221,8 +222,7 @@ public class UserServiceTest {
 
         userService.getOrCreateSecondaryUserFor(secondaryUser, SECONDARY_USER_EMAIL);
     }
-    
-    
+
     /**
      * Test get or create secondary user when secondary user doesn't exist.
      */
@@ -237,7 +237,7 @@ public class UserServiceTest {
 
         when(userRepository.findByEmail(SECONDARY_USER_EMAIL)).thenReturn(Optional.empty());
         when(userRepository.save(secondaryUser)).thenReturn(secondaryUser);
-        
+
         User user = userService.getOrCreateSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL);
         assertThat(user, equalTo(secondaryUser));
     }

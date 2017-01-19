@@ -24,7 +24,7 @@ import org.junit.Test;
 public class ResultTest {
 
     /**
-     * Test is success
+     * Test is success.
      */
     @Test
     public void testIsSuccess() {
@@ -33,7 +33,7 @@ public class ResultTest {
     }
 
     /**
-     * Test is failure
+     * Test is failure.
      */
     @Test
     public void testIsFailure() {
@@ -77,7 +77,7 @@ public class ResultTest {
     }
 
     /**
-     * Test get failure {@link Optional} from success result
+     * Test get failure optional from success result.
      */
     @Test
     public void testGetFailureOptionalFromSuccessResult() {
@@ -164,8 +164,9 @@ public class ResultTest {
      */
     @Test
     public void testGetSuccessValues() {
-        List<Result<String, Integer>> results = Arrays.asList(Result.failure(1), Result.success("OK"), Result.failure(3));
-        
+        List<Result<String, Integer>> results = Arrays.asList(Result.failure(1), Result.success("OK"),
+            Result.failure(3));
+
         List<String> successValues = Result.getSuccessValues(results);
         assertThat(successValues, equalTo(Arrays.asList("OK")));
     }
@@ -175,8 +176,9 @@ public class ResultTest {
      */
     @Test
     public void testGetFailureValues() {
-        List<Result<String, Integer>> results = Arrays.asList(Result.failure(1), Result.failure(2), Result.success("Teste"));
-        
+        List<Result<String, Integer>> results = Arrays.asList(Result.failure(1), Result.failure(2),
+            Result.success("Teste"));
+
         List<Integer> failureValues = Result.getFailureValues(results);
         assertThat(failureValues, equalTo(Arrays.asList(1, 2)));
     }

@@ -27,7 +27,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Pv.
  */
@@ -54,7 +53,7 @@ public class Pv {
     @Column(name = "ACQUIRER_ID")
     private Integer acquirerId;
 
-    /**  the branches set. */
+    /** the branches set. */
     @OneToMany(mappedBy = "headquarter")
     private List<Pv> branches;
 
@@ -65,29 +64,32 @@ public class Pv {
         joinColumns = @JoinColumn(name = "PV_ID", referencedColumnName = "ID"),
         inverseJoinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"))
     private Set<User> users;
-    
+
     /**
      * Instantiates a new pv.
      */
-    public Pv(){
+    public Pv() {
     }
-    
+
     /**
      * Instantiates a new pv.
      *
-     * @param code the code
+     * @param code
+     *            the code
      */
-    public Pv(String code){
+    public Pv(String code) {
         this.code = code;
     }
-    
+
     /**
      * Instantiates a new pv.
      *
-     * @param code the code
-     * @param acquirer the acquirer
+     * @param code
+     *            the code
+     * @param acquirer
+     *            the acquirer
      */
-    public Pv(String code, Acquirer acquirer){
+    public Pv(String code, Acquirer acquirer) {
         this.code = code;
         this.acquirerId = acquirer.ordinal();
     }
@@ -189,7 +191,8 @@ public class Pv {
     /**
      * Sets the headquarter.
      *
-     * @param headquarter the new headquarter
+     * @param headquarter
+     *            the new headquarter
      */
     public void setHeadquarter(Pv headquarter) {
         this.headquarter = headquarter;
@@ -203,8 +206,7 @@ public class Pv {
     public Pv getHeadquarter() {
         return headquarter;
     }
-    
-    
+
     /**
      * Gets the branches.
      *
@@ -213,18 +215,20 @@ public class Pv {
     public List<Pv> getBranches() {
         return branches;
     }
-    
-    
+
     /**
      * Sets the branches.
      *
-     * @param branches the new branches
+     * @param branches
+     *            the new branches
      */
     public void setBranches(List<Pv> branches) {
         this.branches = branches;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -245,7 +249,9 @@ public class Pv {
             && Objects.equals(acquirerId, pv.acquirerId);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see java.lang.Object#hashCode()
      */
     @Override

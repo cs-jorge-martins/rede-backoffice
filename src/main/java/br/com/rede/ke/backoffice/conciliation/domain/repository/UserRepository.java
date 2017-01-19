@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Rede S.A.
  *************************************************************
  * Nome     : UserRepository.java
@@ -15,7 +15,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * The Interface UserRepository.
+ */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    /**
+     * Find by email.
+     *
+     * @param email
+     *            the email
+     * @return the optional
+     */
     Optional<User> findByEmail(String email);
 }

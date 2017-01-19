@@ -31,11 +31,14 @@ public class UserService {
 
     /** The user repository. */
     private UserRepository userRepository;
-    
+
     /**
      * Constructor.
-     * @param pvPermissionRepository Pv permission repository.
-     * @param userRepository User repository.
+     *
+     * @param pvPermissionRepository
+     *            Pv permission repository.
+     * @param userRepository
+     *            User repository.
      */
     public UserService(PvPermissionRepository pvPermissionRepository, UserRepository userRepository) {
         this.pvPermissionRepository = pvPermissionRepository;
@@ -44,8 +47,11 @@ public class UserService {
 
     /**
      * Verify if user has access to pv.
-     * @param user user.
-     * @param pv pv.
+     *
+     * @param user
+     *            user.
+     * @param pv
+     *            pv.
      * @return if has access.
      */
     public boolean hasAccess(User user, Pv pv) {
@@ -54,9 +60,10 @@ public class UserService {
     }
 
     /**
-     * Gets the primary user
+     * Gets the primary user.
      *
-     * @param email the user email
+     * @param email
+     *            the email
      * @return the primary user
      */
     public Optional<User> getPrimaryUser(String email) {
@@ -75,7 +82,9 @@ public class UserService {
 
     /**
      * Gets or creates user email.
-     * @param email user email.
+     *
+     * @param email
+     *            user email.
      * @return the primary user created or from database.
      */
     public User getOrCreatePrimaryUser(final String email) {
@@ -96,8 +105,10 @@ public class UserService {
     /**
      * Gets the secondary user for given primary user.
      *
-     * @param primaryUser the primary user
-     * @param secondaryUserEmail the secondary user email
+     * @param primaryUser
+     *            the primary user
+     * @param secondaryUserEmail
+     *            the secondary user email
      * @return the secondary user
      */
     public User getOrCreateSecondaryUserFor(User primaryUser, String secondaryUserEmail) {
@@ -106,7 +117,7 @@ public class UserService {
         if (!primaryUser.isPrimary()) {
             throw new InvalidPrimaryUserException(primaryUser);
         }
-        
+
         if (!secondaryUserOpt.isPresent()) {
             return createSecondaryUserFor(primaryUser, secondaryUserEmail);
         }
@@ -122,16 +133,17 @@ public class UserService {
 
         return secondaryUser;
     }
-    
-    
+
     /**
      * Creates the secondary user.
      *
-     * @param primaryUser the primary user
-     * @param secondaryUserEmail the secondary user email
+     * @param primaryUser
+     *            the primary user
+     * @param secondaryUserEmail
+     *            the secondary user email
      * @return the user
      */
-    private User createSecondaryUserFor(User primaryUser, String secondaryUserEmail){
+    private User createSecondaryUserFor(User primaryUser, String secondaryUserEmail) {
         User secondaryUser = new User();
         secondaryUser.setEmail(secondaryUserEmail);
         secondaryUser.setPrimaryUser(primaryUser);

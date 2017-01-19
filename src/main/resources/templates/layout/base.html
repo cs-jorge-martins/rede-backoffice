@@ -3,39 +3,39 @@
       xmlns:th="http://www.thymeleaf.org"
       th:fragment="page">
     <head th:fragment="head">
-		<meta charset="UTF-8" />
-		<title>Control Rede Backoffice | <th:block th:include="this :: title" /></title>
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:600" />
-		<link rel="stylesheet" href="http://fonts.googleapis.com/icon?family=Material+Icons" />
-		<link rel="stylesheet" href="/webjars/materializecss/0.97.7/css/materialize.min.css" />
-		<link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
-	</head>
+        <meta charset="UTF-8" />
+        <title>Control Rede Backoffice | <th:block th:include="this :: title" /></title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:600" />
+        <link rel="stylesheet" href="http://fonts.googleapis.com/icon?family=Material+Icons" />
+        <link rel="stylesheet" href="/webjars/materializecss/0.97.7/css/materialize.min.css" />
+        <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+    </head>
 
     <body>
-      	<header>
-		  <div class="navbar-fixed">
-		    <nav>
-		      <div class="nav-wrapper container">
-		        <a href="/" class="brand-logo">Control Rede | Backoffice</a>
-		        <ul class="right">
-		          <li><a href="/pv-permissions">Permissões de pvs</a></li>
-		        </ul>
-		      </div>
-		    </nav>
-		  </div>
-		</header>
+          <header>
+          <div class="navbar-fixed">
+            <nav>
+              <div class="nav-wrapper container">
+                <a href="/" class="brand-logo">Control Rede | Backoffice</a>
+                <ul class="right">
+                  <li><a href="/pv-permissions">Permissões de pvs</a></li>
+                </ul>
+              </div>
+            </nav>
+          </div>
+        </header>
         <main class="container">
-        	<th:block th:include="this :: content"/>
+            <th:block th:include="this :: content"/>
         </main>
         <footer></footer>
-        
+
         <script type="application/javascript" src="/webjars/jquery/3.1.1-1/jquery.min.js"></script>
-		<script type="application/javascript" src="/webjars/materializecss/0.97.7/js/materialize.min.js"></script>
-		<script>
-		  $(document).ready(function() {
-		    $('select').material_select();
-		  });
-		</script>
+        <script type="application/javascript" src="/webjars/materializecss/0.97.7/js/materialize.min.js"></script>
+        <script>
+          $(document).ready(function() {
+            $('select').material_select();
+          });
+        </script>
         <th:block th:include="this :: scripts"/>
     </body>
 </html>

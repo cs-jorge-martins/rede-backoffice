@@ -18,18 +18,21 @@ import com.google.common.collect.ImmutableList;
  * The Class PvBatch.
  */
 public class PvBatch {
-    
+
     /** The successful pvs. */
     private List<Pv> validPvs;
-    
+
     /** The failed pvs. */
     private List<Pv> invalidPvs;
-    
-    public PvBatch(){
+
+    /**
+     * Instantiates a new pv batch.
+     */
+    public PvBatch() {
         this.validPvs = new ArrayList<>();
         this.invalidPvs = new ArrayList<>();
     }
-    
+
     /**
      * Gets the successful pvs.
      *
@@ -38,16 +41,17 @@ public class PvBatch {
     public List<Pv> getValidPvs() {
         return ImmutableList.copyOf(validPvs);
     }
-    
+
     /**
      * Adds the successful pv.
      *
-     * @param pv the pv
+     * @param pv
+     *            the pv
      */
     public void addValidPv(Pv pv) {
         this.validPvs.add(pv);
     }
-    
+
     /**
      * Gets the failed pvs.
      *
@@ -56,11 +60,12 @@ public class PvBatch {
     public List<Pv> getInvalidPvs() {
         return ImmutableList.copyOf(invalidPvs);
     }
-    
+
     /**
      * Adds the failed pv.
      *
-     * @param pv the pv
+     * @param pv
+     *            the pv
      */
     public void addInvalidPv(Pv pv) {
         this.invalidPvs.add(pv);
