@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:include="layout/base :: page">
 
-    <th:block th:fragment="title">Acesso</th:block>
+    <th:block th:fragment="title">acesso</th:block>
 
     <th:block th:fragment="content">
         <div class="row">
@@ -13,29 +13,27 @@
                     <div class="divider"></div>
                     <h3>control rede</h3>
                     <h4>backoffice</h4>
-                    <p>sistema para gerenciar permissão de usuários</p>
+                    <p>sistema de gerenciamento de permissão de usuários</p>
                 </div>
             </div>
 
             <div class="col s10 offset-s1 m11 l6 teal lighten-5">
                 <div class="center-align">
                     <h3>acessar</h3>
-                    <p>entre suas credenciais para acessar sua conta</p>
+                    <p>informe suas credenciais para acessar sua conta</p>
                     <span class="red lighten-5 error-message" th:text="${errorMessage}" th:unless="${errorMessage == null}"></span>
                 </div>
 
                 <form class="col s12" th:action="@{/auth/login}" method="post">
                     <div class="row">
-
-
                         <div class="input-field col s10 offset-s1">
                             <input type="text" th:name="username" id="username"/>
-                            <label for="username">nome de usuário</label>
+                            <label for="username" class="active">nome de usuário</label>
                         </div>
 
                         <div class="input-field col s10 offset-s1">
                             <input type="password" th:name="password" id="password"/>
-                            <label for="password">senha</label>
+                            <label for="password" class="active">senha</label>
                         </div>
 
                         <div class="center-align">
