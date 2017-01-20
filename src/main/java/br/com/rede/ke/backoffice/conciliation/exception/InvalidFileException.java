@@ -15,6 +15,7 @@ import java.io.IOException;
 /**
  * The class InvalidFileException.
  */
+@SuppressWarnings("serial")
 public class InvalidFileException extends IOException {
 
     /**

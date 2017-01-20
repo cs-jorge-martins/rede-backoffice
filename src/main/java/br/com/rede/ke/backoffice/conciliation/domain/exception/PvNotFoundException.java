@@ -13,6 +13,7 @@ package br.com.rede.ke.backoffice.conciliation.domain.exception;
 /**
  * The PvNotFoundException class.
  */
+@SuppressWarnings("serial")
 public class PvNotFoundException extends DomainException {
     /**
      * The constructor.

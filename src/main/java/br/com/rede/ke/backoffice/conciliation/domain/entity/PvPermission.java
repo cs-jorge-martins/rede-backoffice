@@ -156,9 +156,9 @@ public class PvPermission {
         }
 
         PvPermission that = (PvPermission) o;
-        return Objects.equals(id, that.id) &&
-            Objects.equals(user, that.user) &&
-            Objects.equals(pv, that.pv);
+        return Objects.equals(id, that.id)
+            && Objects.equals(user, that.user)
+            && Objects.equals(pv, that.pv);
     }
 
     /* (non-Javadoc)

@@ -119,6 +119,8 @@ public class PvPermissionServiceIT {
 
     /**
      * Test save pv permissions for user.
+     *
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     @Test
     @Transactional

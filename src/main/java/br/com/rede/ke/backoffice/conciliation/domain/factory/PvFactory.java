@@ -24,20 +24,24 @@ import org.springframework.web.multipart.MultipartFile;
  * A factory for creating Pv objects.
  */
 public final class PvFactory {
-    
+
     /**
      * Instantiates a new pv factory.
      */
-    private PvFactory(){
+    private PvFactory() {
         // empty
     }
 
     /**
+     * From file and acquirer.
      *
      * @param file
+     *            the file
      * @param acquirer
-     * @return
+     *            the acquirer
+     * @return the list
      * @throws InvalidFileException
+     *             the invalid file exception
      */
     public static List<Pv> fromFileAndAcquirer(MultipartFile file, Acquirer acquirer) throws InvalidFileException {
         try {

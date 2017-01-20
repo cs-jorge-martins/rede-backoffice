@@ -21,6 +21,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+/**
+ * The Interface PvPermissionRepository.
+ */
 @Repository
 public interface PvPermissionRepository extends JpaRepository<PvPermission, PvPermissionId> {
 
@@ -34,7 +37,24 @@ public interface PvPermissionRepository extends JpaRepository<PvPermission, PvPe
      * @return the page
      */
     Page<PvPermission> findAll(Specification<PvPermission> specification, Pageable pageable);
+
+    /**
+     * Find by user.
+     *
+     * @param user
+     *            the user
+     * @return the list
+     */
     List<PvPermission> findByUser(User user);
 
+    /**
+     * Find by user and pv.
+     *
+     * @param user
+     *            the user
+     * @param pv
+     *            the pv
+     * @return the pv permission
+     */
     PvPermission findByUserAndPv(User user, Pv pv);
 }

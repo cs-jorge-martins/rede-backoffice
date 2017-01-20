@@ -21,8 +21,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specifications;
@@ -41,21 +39,31 @@ import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepo
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.util.Result;
 
-
 /**
  * The Class PvPermissionService.
  */
 @Service
 public class PvPermissionService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PvPermissionService.class);
-
     private PvRepository pvRepository;
     private PvService pvService;
     private PvPermissionRepository pvPermissionRepository;
     private UserService userService;
 
-    public PvPermissionService(PvPermissionRepository repository, PvService pvService, PvRepository pvRepository, UserService userService) {
+    /**
+     * Instantiates a new pv permission service.
+     *
+     * @param repository
+     *            the repository
+     * @param pvService
+     *            the pv service
+     * @param pvRepository
+     *            the pv repository
+     * @param userService
+     *            the user service
+     */
+    public PvPermissionService(PvPermissionRepository repository, PvService pvService, PvRepository pvRepository,
+        UserService userService) {
         this.pvPermissionRepository = repository;
         this.pvService = pvService;
         this.pvRepository = pvRepository;
@@ -65,10 +73,14 @@ public class PvPermissionService {
     /**
      * Find all by acquirer and code and email.
      *
-     * @param acquirer the acquirer
-     * @param code the code
-     * @param email the email
-     * @param pageable the pageable
+     * @param acquirer
+     *            the acquirer
+     * @param code
+     *            the code
+     * @param email
+     *            the email
+     * @param pageable
+     *            the pageable
      * @return the page
      */
     public Page<PvPermission> findAllByAcquirerAndCodeAndEmail(Acquirer acquirer, String code, String email,
@@ -90,6 +102,15 @@ public class PvPermissionService {
         return pvPermissionRepository.findAll(spec, pageable);
     }
 
+    /**
+     * Give user permission for headquarter.
+     *
+     * @param pvs
+     *            the pvs
+     * @param user
+     *            the user
+     * @return the pv batch
+     */
     public PvBatch giveUserPermissionForHeadquarter(List<Pv> pvs, User user) {
         PvBatch pvBatch = pvService.generatePvBatch(pvs);
         this.savePvPermissionsForUser(pvBatch, user);
@@ -98,23 +119,29 @@ public class PvPermissionService {
     }
 
     /**
-     * Creates for secondary User
-     * @param pvPermissionRequests list of pv permission request
+     * Creates for secondary User.
+     *
+     * @param pvPermissionRequests
+     *            list of pv permission request
      * @return the list of pv permission result
      */
-    public List<Result<PvPermission, String>> createForSecondaryUser(List<SecondaryUserPvPermissionRequest> pvPermissionRequests) {
+    public List<Result<PvPermission, String>> createForSecondaryUser(
+        List<SecondaryUserPvPermissionRequest> pvPermissionRequests) {
         return pvPermissionRequests.stream()
             .map(this::createForSecondaryUser)
             .collect(Collectors.toList());
     }
 
     /**
-     * Create pv permission for secondary user.
-     * @param request the secondary user pv permission request.
+     * Creates the for secondary user.
+     *
+     * @param request
+     *            the request
+     * @return the result
      */
     public Result<PvPermission, String> createForSecondaryUser(SecondaryUserPvPermissionRequest request) {
         User primaryUser = userService.getPrimaryUser(request.getRequesterUserEmail())
-                .orElseThrow(getUserNotFoundException(request.getRequesterUserEmail()));
+            .orElseThrow(getUserNotFoundException(request.getRequesterUserEmail()));
         User secondaryUser = userService.getOrCreateSecondaryUserFor(primaryUser, request.getToBePermittedUserEmail());
 
         if (!pvService.isValidPv(new Pv(request.getPvCode()))) {
@@ -141,17 +168,27 @@ public class PvPermissionService {
     }
 
     /**
-     * Gets user not found exception
-     * @param email the user email
+     * Gets user not found exception.
+     *
+     * @param email
+     *            the user email
      * @return the UserNotFoundException supplier
      */
     private Supplier<UserNotFoundException> getUserNotFoundException(String email) {
         return () -> new UserNotFoundException(String.format("Usuário com email '%s' não encontrado", email));
     }
 
+    /**
+     * Save pv permissions for user.
+     *
+     * @param pvBatch
+     *            the pv batch
+     * @param user
+     *            the user
+     */
     @Transactional(rollbackFor = Exception.class)
-    public void savePvPermissionsForUser(PvBatch pvBatch, User user){
-        for (Pv pv : pvBatch.getValidPvs()){
+    public void savePvPermissionsForUser(PvBatch pvBatch, User user) {
+        for (Pv pv : pvBatch.getValidPvs()) {
             Optional<Pv> pvFromDb = pvRepository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
 
             Pv savedPv = pvFromDb.orElseGet(() -> pvRepository.save(pv));

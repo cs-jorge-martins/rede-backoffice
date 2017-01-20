@@ -9,11 +9,11 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.*;
 
 /**
  * The UserTest class.

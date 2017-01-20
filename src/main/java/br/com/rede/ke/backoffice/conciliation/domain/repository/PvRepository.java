@@ -22,7 +22,33 @@ import java.util.Optional;
  */
 @Repository
 public interface PvRepository extends JpaRepository<Pv, Long> {
+
+    /**
+     * Find by code in.
+     *
+     * @param pvCodes
+     *            the pv codes
+     * @return the list
+     */
     List<Pv> findByCodeIn(List<String> pvCodes);
+
+    /**
+     * Find by code.
+     *
+     * @param pvCode
+     *            the pv code
+     * @return the pv
+     */
     Pv findByCode(String pvCode);
+
+    /**
+     * Find by code and acquirer id.
+     *
+     * @param pvCode
+     *            the pv code
+     * @param acquirerId
+     *            the acquirer id
+     * @return the optional
+     */
     Optional<Pv> findByCodeAndAcquirerId(String pvCode, Integer acquirerId);
 }

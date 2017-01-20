@@ -13,6 +13,7 @@ package br.com.rede.ke.backoffice.conciliation.domain.exception;
 /**
  * The DomainException class.
  */
+@SuppressWarnings("serial")
 public class DomainException extends RuntimeException {
 
     /**

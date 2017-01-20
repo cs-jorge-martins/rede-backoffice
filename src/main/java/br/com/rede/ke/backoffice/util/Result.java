@@ -18,32 +18,40 @@ import java.util.stream.Collectors;
 /**
  * Result<S, F> is the type used for returning and propagating errors
  *
- * Result can assume two types that represents either {@link Success} and {@link Failure}.
- * @param <S> type of success object.
- * @param <F> type of failure object.
+ * Result can assume two types that represents either {@link Success} and
+ * {@link Failure}.
+ *
+ * @param <S>
+ *            type of success object.
+ * @param <F>
+ *            type of failure object.
  */
 public interface Result<S, F> {
 
     /**
      * Check if is success result.
+     *
      * @return if is success result
      */
     boolean isSuccess();
 
     /**
      * Check if is failure result.
+     *
      * @return if is failure result
      */
     boolean isFailure();
 
     /**
      * Return on optional of success value.
+     *
      * @return An optional of success value
      */
     Optional<S> success();
 
     /**
      * Return on optional of failure value.
+     *
      * @return An optional of failure value
      */
     Optional<F> failure();
@@ -51,8 +59,10 @@ public interface Result<S, F> {
     /**
      * Map new result.
      *
-     * @param <U> success mapped type
-     * @param mapper the mapper function (Functor)
+     * @param <U>
+     *            success mapped type
+     * @param mapper
+     *            the mapper function (Functor)
      * @return new mapped Result
      * @see java.util.Optional#map(Function)
      */
@@ -61,8 +71,10 @@ public interface Result<S, F> {
     /**
      * Combine two results.
      *
-     * @param <U> success mapped type
-     * @param mapper the mapper function (Monad)
+     * @param <U>
+     *            success mapped type
+     * @param mapper
+     *            the mapper function (Monad)
      * @return new mapped Result
      * @see java.util.Optional#flatMap(Function)
      */
@@ -71,9 +83,12 @@ public interface Result<S, F> {
     /**
      * Create new success result.
      *
-     * @param <S> the success object type
-     * @param <F> the failure object type
-     * @param value the success value
+     * @param <S>
+     *            the success object type
+     * @param <F>
+     *            the failure object type
+     * @param value
+     *            the success value
      * @return new success result
      */
     static <S, F> Success<S, F> success(S value) {
@@ -83,9 +98,12 @@ public interface Result<S, F> {
     /**
      * Create new failure result.
      *
-     * @param <S> the success object type
-     * @param <F> the failure object type
-     * @param value the failure value
+     * @param <S>
+     *            the success object type
+     * @param <F>
+     *            the failure object type
+     * @param value
+     *            the failure value
      * @return new failure result
      */
     static <S, F> Failure<S, F> failure(F value) {
@@ -93,9 +111,50 @@ public interface Result<S, F> {
     }
 
     /**
+     * Gets the success values.
+     *
+     * @param <S>
+     *            the generic type
+     * @param <F>
+     *            the generic type
+     * @param results
+     *            the results
+     * @return the success values
+     */
+    static <S, F> List<S> getSuccessValues(List<Result<S, F>> results) {
+        return results.stream()
+            .map(result -> result.success())
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets the failure values.
+     *
+     * @param <S>
+     *            the generic type
+     * @param <F>
+     *            the generic type
+     * @param results
+     *            the results
+     * @return the failure values
+     */
+    static <S, F> List<F> getFailureValues(List<Result<S, F>> results) {
+        return results.stream()
+            .map(result -> result.failure())
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
+    }
+
+    /**
      * The Success<S, F> represents a successful computation.
-     * @param <S> the success object type
-     * @param <F> the failure object type
+     *
+     * @param <S>
+     *            the success object type
+     * @param <F>
+     *            the failure object type
      */
     class Success<S, F> implements Result<S, F> {
         /**
@@ -105,7 +164,9 @@ public interface Result<S, F> {
 
         /**
          * The success constructor.
-         * @param value the success value
+         *
+         * @param value
+         *            the success value
          */
         public Success(S value) {
             this.value = value;
@@ -113,13 +174,16 @@ public interface Result<S, F> {
 
         /**
          * Get success value.
+         *
          * @return success value
          */
         public S getValue() {
             return this.value;
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         *
          * @see br.com.rede.ke.backoffice.util.Result#isSuccess()
          */
         @Override
@@ -127,7 +191,9 @@ public interface Result<S, F> {
             return true;
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         *
          * @see br.com.rede.ke.backoffice.util.Result#isFailure()
          */
         @Override
@@ -135,7 +201,9 @@ public interface Result<S, F> {
             return false;
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         *
          * @see br.com.rede.ke.backoffice.util.Result#success()
          */
         @Override
@@ -143,7 +211,9 @@ public interface Result<S, F> {
             return Optional.of(this.value);
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         *
          * @see br.com.rede.ke.backoffice.util.Result#failure()
          */
         @Override
@@ -151,16 +221,23 @@ public interface Result<S, F> {
             return Optional.empty();
         }
 
-        /* (non-Javadoc)
-         * @see br.com.rede.ke.backoffice.util.Result#map(java.util.function.Function)
+        /*
+         * (non-Javadoc)
+         *
+         * @see br.com.rede.ke.backoffice.util.Result#map(java.util.function.
+         * Function)
          */
         @Override
         public <U> Result<U, F> map(Function<S, U> mapper) {
             return Result.success(mapper.apply(this.value));
         }
 
-        /* (non-Javadoc)
-         * @see br.com.rede.ke.backoffice.util.Result#flatMap(java.util.function.Function)
+        /*
+         * (non-Javadoc)
+         *
+         * @see
+         * br.com.rede.ke.backoffice.util.Result#flatMap(java.util.function.
+         * Function)
          */
         @Override
         public <U> Result<U, F> flatMap(Function<S, Result<U, F>> mapper) {
@@ -170,17 +247,22 @@ public interface Result<S, F> {
 
     /**
      * The Failure<S, F> represents a failed computation.
-     * @param <S> the success object type
-     * @param <F> the failure object type
+     *
+     * @param <S>
+     *            the success object type
+     * @param <F>
+     *            the failure object type
      */
     class Failure<S, F> implements Result<S, F> {
-        
+
         /** the failure value. */
         private final F value;
 
         /**
          * The Failure constructor.
-         * @param value the failure value
+         *
+         * @param value
+         *            the failure value
          */
         public Failure(F value) {
             this.value = value;
@@ -188,13 +270,16 @@ public interface Result<S, F> {
 
         /**
          * Get the failure value.
+         *
          * @return the failure value
          */
         public F getValue() {
             return this.value;
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         *
          * @see br.com.rede.ke.backoffice.util.Result#isSuccess()
          */
         @Override
@@ -202,7 +287,9 @@ public interface Result<S, F> {
             return false;
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         *
          * @see br.com.rede.ke.backoffice.util.Result#isFailure()
          */
         @Override
@@ -210,7 +297,9 @@ public interface Result<S, F> {
             return true;
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         *
          * @see br.com.rede.ke.backoffice.util.Result#success()
          */
         @Override
@@ -218,7 +307,9 @@ public interface Result<S, F> {
             return Optional.empty();
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         *
          * @see br.com.rede.ke.backoffice.util.Result#failure()
          */
         @Override
@@ -226,54 +317,27 @@ public interface Result<S, F> {
             return Optional.of(this.value);
         }
 
-        /* (non-Javadoc)
-         * @see br.com.rede.ke.backoffice.util.Result#map(java.util.function.Function)
+        /*
+         * (non-Javadoc)
+         *
+         * @see br.com.rede.ke.backoffice.util.Result#map(java.util.function.
+         * Function)
          */
         @Override
         public <U> Result<U, F> map(Function<S, U> mapper) {
             return Result.failure(this.value);
         }
 
-        /* (non-Javadoc)
-         * @see br.com.rede.ke.backoffice.util.Result#flatMap(java.util.function.Function)
+        /*
+         * (non-Javadoc)
+         *
+         * @see
+         * br.com.rede.ke.backoffice.util.Result#flatMap(java.util.function.
+         * Function)
          */
         @Override
         public <U> Result<U, F> flatMap(Function<S, Result<U, F>> mapper) {
             return Result.failure(this.value);
         }
-    }
-    
-    
-    /**
-     * Gets the success values.
-     *
-     * @param <S> the generic type
-     * @param <F> the generic type
-     * @param results the results
-     * @return the success values
-     */
-    public static <S, F> List<S> getSuccessValues(List<Result<S, F>> results) {
-        return results.stream()
-                .map(result -> result.success())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-    }
-    
-    
-    /**
-     * Gets the failure values.
-     *
-     * @param <S> the generic type
-     * @param <F> the generic type
-     * @param results the results
-     * @return the failure values
-     */
-    public static <S, F> List<F> getFailureValues(List<Result<S, F>> results) {
-        return results.stream()
-                .map(result -> result.failure())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
     }
 }

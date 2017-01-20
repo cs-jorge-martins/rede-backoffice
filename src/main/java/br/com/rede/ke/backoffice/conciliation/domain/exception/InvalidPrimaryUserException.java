@@ -15,11 +15,8 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 /**
  * The InvalidPrimaryUserException class.
  */
+@SuppressWarnings("serial")
 public class InvalidPrimaryUserException extends DomainException {
-    /**
-     * The user.
-     */
-    private User user;
 
     /**
      * Invalid primary user exception constructor.
@@ -27,6 +24,5 @@ public class InvalidPrimaryUserException extends DomainException {
      */
     public InvalidPrimaryUserException(User user) {
         super(String.format("O usuario '%s' é um usuario secundario ao invés de primario.", user.getEmail()));
-        this.user = user;
     }
 }

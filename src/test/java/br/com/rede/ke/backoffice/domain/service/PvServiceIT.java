@@ -39,11 +39,17 @@ import org.springframework.web.multipart.MultipartFile;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 public class PvServiceIT {
-    
+
     /** The pv service. */
     @Autowired
     private PvService pvService;
-    
+
+    /**
+     * Test pv batch validation.
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
     @Test
     @Transactional
     public void testPvBatchValidation() throws IOException {
@@ -54,7 +60,7 @@ public class PvServiceIT {
         List<Pv> pvList = PvFactory.fromFileAndAcquirer(multipartFile, Acquirer.CIELO);
 
         PvBatch pvBatch = pvService.generatePvBatch(pvList);
-        
+
         assertThat(pvBatch.getValidPvs().size(), equalTo(3));
         assertThat(pvBatch.getInvalidPvs().size(), equalTo(2));
     }

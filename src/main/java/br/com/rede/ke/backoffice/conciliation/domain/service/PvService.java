@@ -23,31 +23,40 @@ import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
  */
 @Service
 public class PvService {
-    
+
     /** The repository. */
     private PvRepository repository;
-    
+
     /**
      * Instantiates a new pv service.
      *
-     * @param pvRepository the pv repository
+     * @param pvRepository
+     *            the pv repository
      */
-    public PvService(PvRepository pvRepository){
+    public PvService(PvRepository pvRepository) {
         this.repository = pvRepository;
     }
-    
+
     /**
      * Checks if is valid pv format.
      *
-     * @param pv the pv
+     * @param pv
+     *            the pv
      * @return true, if is valid pv format
      */
     public boolean isValidPvFormat(Pv pv) {
         return pv.getCode().matches("[0-9]{1,20}");
     }
 
+    /**
+     * Checks if is valid pv.
+     *
+     * @param pv
+     *            the pv
+     * @return true, if is valid pv
+     */
     public boolean isValidPv(Pv pv) {
-        if (!isValidPvFormat(pv)){
+        if (!isValidPvFormat(pv)) {
             return false;
         }
         Optional<Pv> resultPv = repository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
@@ -57,20 +66,21 @@ public class PvService {
     /**
      * Generate pv batch.
      *
-     * @param pvs the pvs
+     * @param pvs
+     *            the pvs
      * @return the pv batch
      */
-    public PvBatch generatePvBatch(List<Pv> pvs){
+    public PvBatch generatePvBatch(List<Pv> pvs) {
         PvBatch pvBatch = new PvBatch();
 
-        for (Pv pv: pvs) {
+        for (Pv pv : pvs) {
             if (isValidPv(pv)) {
                 pvBatch.addValidPv(pv);
             } else {
                 pvBatch.addInvalidPv(pv);
             }
         }
-        
+
         return pvBatch;
     }
 }

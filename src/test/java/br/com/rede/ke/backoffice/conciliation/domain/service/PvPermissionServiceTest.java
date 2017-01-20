@@ -40,6 +40,15 @@ import br.com.rede.ke.backoffice.util.Result;
 @RunWith(MockitoJUnitRunner.class)
 public class PvPermissionServiceTest {
 
+    /** The primary user email constant */
+    private static final String PRIMARY_USER_EMAIL = "primary_user@email.com";
+
+    /** The secondary user email constant */
+    private static final String SECONDARY_USER_EMAIL = "secondary_user@email.com";
+
+    /** The pv code constant */
+    private static final String PV_CODE = "pvcode";
+
     /** The pv permission service */
     @InjectMocks
     private PvPermissionService pvPermissionService;
@@ -51,7 +60,7 @@ public class PvPermissionServiceTest {
     /** The pv service */
     @Mock
     private PvService pvService;
-    
+
     /** The pv repository */
     @Mock
     private PvRepository pvRepository;
@@ -59,15 +68,6 @@ public class PvPermissionServiceTest {
     /** The pv permission repository */
     @Mock
     private PvPermissionRepository pvPermissionRepository;
-
-    /** The primary user email constant */
-    private static final String PRIMARY_USER_EMAIL = "primary_user@email.com";
-
-    /** The secondary user email constant */
-    private static final String SECONDARY_USER_EMAIL = "secondary_user@email.com";
-
-    /** The pv code constant */
-    private static final String PV_CODE = "pvcode";
 
     /** The primary user */
     private User primaryUser;
@@ -82,12 +82,12 @@ public class PvPermissionServiceTest {
     private SecondaryUserPvPermissionRequest pvPermissionRequest;
 
     /**
-     * The setUp
+     * Sets the up.
      */
     @Before
     public void setUp() {
         this.pvPermissionRequest = new SecondaryUserPvPermissionRequest(
-                PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE, Acquirer.CIELO);
+            PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE, Acquirer.CIELO);
 
         primaryUser = new User();
         when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
@@ -99,7 +99,7 @@ public class PvPermissionServiceTest {
 
         pv = new Pv();
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, pvPermissionRequest.getAcquirer().ordinal()))
-                .thenReturn(Optional.of(pv));
+            .thenReturn(Optional.of(pv));
     }
 
     /**
@@ -109,7 +109,8 @@ public class PvPermissionServiceTest {
     public void testCreateForSecondaryUser() {
         when(userService.hasAccess(primaryUser, pv)).thenReturn(true);
 
-        Result<PvPermission, String> pvPermissionResult = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
+        Result<PvPermission, String> pvPermissionResult = pvPermissionService
+            .createForSecondaryUser(pvPermissionRequest);
 
         PvPermissionId id = new PvPermissionId(secondaryUser.getId(), pv.getId());
         PvPermission pvPermission = new PvPermission(id, secondaryUser, pv);
@@ -119,7 +120,8 @@ public class PvPermissionServiceTest {
     }
 
     /**
-     * Test create for secondary user when requester user has no pv permission access
+     * Test create for secondary user when requester user has no pv permission
+     * access.
      */
     @Test
     public void testCreateForSecondaryUserWhenRequesterUserHasNoPvPermissionAccess() {
@@ -136,7 +138,7 @@ public class PvPermissionServiceTest {
     @Test
     public void testCreateForSecondaryUserWhenPvDoNotExists() {
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, pvPermissionRequest.getAcquirer().ordinal()))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
 
@@ -152,14 +154,14 @@ public class PvPermissionServiceTest {
         when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.empty());
         pvPermissionService.createForSecondaryUser(pvPermissionRequest);
     }
-    
+
     /**
      * Test create for secondary user when pv has invalid format.
      */
     @Test
     public void testCreateForSecondaryUserWhenPvHasInvalidFormat() {
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, pvPermissionRequest.getAcquirer().ordinal()))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         when(pvService.isValidPv(Mockito.any())).thenReturn(false);
 
         Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
