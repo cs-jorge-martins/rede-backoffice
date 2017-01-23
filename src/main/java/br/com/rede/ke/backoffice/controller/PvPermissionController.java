@@ -19,7 +19,6 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.DomainException;
 import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
-import br.com.rede.ke.backoffice.conciliation.domain.service.UserService;
 import br.com.rede.ke.backoffice.conciliation.exception.InvalidFileException;
 import br.com.rede.ke.backoffice.util.Result;
 import org.springframework.data.domain.Page;
@@ -42,20 +41,15 @@ public class PvPermissionController {
     /** The pv permission service. */
     private PvPermissionService pvPermissionService;
 
-    /** The user service. */
-    private UserService userService;
-
     /**
      * Constructor.
      *
      * @param pvPermissionService
      *            pvPermissionService.
-     * @param userService
-     *            userService.
      */
-    public PvPermissionController(PvPermissionService pvPermissionService, UserService userService) {
+    @SuppressWarnings("unused")
+    public PvPermissionController(PvPermissionService pvPermissionService) {
         this.pvPermissionService = pvPermissionService;
-        this.userService = userService;
     }
 
     /**
