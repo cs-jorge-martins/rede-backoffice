@@ -48,11 +48,11 @@
                 Operação realizada com sucesso! Os seguintes Pv's foram cadastrados:
             </span>
             <ul th:unless="${#lists.isEmpty(validPvs)}">
-                <li th:each="pv : ${validPvs}" th:text="${pv.code}"></li>
+                <li th:each="pvPermission : ${validPvs}" th:text="${pvPermission.pv.code}"></li>
             </ul>
             <p th:unless="${#lists.isEmpty(invalidPvs)}">Os pv's abaixo não puderam ser cadastrados:</p>
             <ul th:unless="${#lists.isEmpty(invalidPvs)}">
-                <li th:each="pv : ${invalidPvs}" th:text="${pv.code}"></li>
+                <li th:each="message : ${invalidPvs}" th:text="${message}"></li>
             </ul>
         </div>
     </th:block>
