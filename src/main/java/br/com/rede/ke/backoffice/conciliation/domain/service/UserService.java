@@ -73,10 +73,7 @@ public class UserService {
             return Optional.empty();
         }
 
-        User primaryUser = primaryUserOpt.get();
-        if (!primaryUser.isPrimary()) {
-            throw new InvalidPrimaryUserException(primaryUser);
-        }
+        checkMustBePrimary(primaryUserOpt.get());
         return primaryUserOpt;
     }
 
@@ -91,9 +88,7 @@ public class UserService {
         Optional<User> primaryUserOpt = userRepository.findByEmail(email);
 
         return primaryUserOpt.map(user -> {
-            if (!user.isPrimary()) {
-                throw new InvalidPrimaryUserException(user);
-            }
+            checkMustBePrimary(user);
             return user;
         }).orElseGet(() -> {
             User primaryUser = new User();
@@ -114,9 +109,7 @@ public class UserService {
     public User getOrCreateSecondaryUserFor(User primaryUser, String secondaryUserEmail) {
         Optional<User> secondaryUserOpt = userRepository.findByEmail(secondaryUserEmail);
 
-        if (!primaryUser.isPrimary()) {
-            throw new InvalidPrimaryUserException(primaryUser);
-        }
+        checkMustBePrimary(primaryUser);
 
         if (!secondaryUserOpt.isPresent()) {
             return createSecondaryUserFor(primaryUser, secondaryUserEmail);
@@ -148,5 +141,15 @@ public class UserService {
         secondaryUser.setEmail(secondaryUserEmail);
         secondaryUser.setPrimaryUser(primaryUser);
         return userRepository.save(secondaryUser);
+    }
+
+    /**
+     * Checks if user is primary, otherwise throw exception.
+     * @param user user to be checked.
+     */
+    private void checkMustBePrimary(User user) {
+        if (!user.isPrimary()) {
+            throw new InvalidPrimaryUserException(user);
+        }
     }
 }

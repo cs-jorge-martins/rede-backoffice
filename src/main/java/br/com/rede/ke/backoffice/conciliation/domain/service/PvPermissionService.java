@@ -109,7 +109,8 @@ public class PvPermissionService {
      * @return List of processing results.
      */
     @Transactional(rollbackFor = Exception.class)
-    public List<Result<PvPermission, String>> createForPrimaryUser(List<PrimaryUserPvPermissionRequest> pvPermissionRequests) {
+    public List<Result<PvPermission, String>> createForPrimaryUser(
+        List<PrimaryUserPvPermissionRequest> pvPermissionRequests) {
         return pvPermissionRequests.stream()
             .map(this::createForPrimaryUser)
             .collect(Collectors.toList());
@@ -122,8 +123,7 @@ public class PvPermissionService {
      * @return A processing result.
      */
     public Result<PvPermission, String> createForPrimaryUser(PrimaryUserPvPermissionRequest request) {
-        User primaryUser = userService.getPrimaryUser(request.getRequesterUserEmail())
-            .orElseThrow(getUserNotFoundException(request.getRequesterUserEmail()));
+        User primaryUser = userService.getOrCreatePrimaryUser(request.getRequesterUserEmail());
 
         if (!pvService.isValidPv(new Pv(request.getPvCode()))) {
             return Result.failure(String.format("Pv '%s' com formato invalido", request.getPvCode()));
