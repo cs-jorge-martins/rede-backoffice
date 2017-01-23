@@ -9,27 +9,21 @@
  */
 package br.com.rede.ke.backoffice.domain.service;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import java.util.Optional;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.List;
-
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.service.PvService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
-import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
-import br.com.rede.ke.backoffice.conciliation.domain.service.PvService;
-import org.springframework.web.multipart.MultipartFile;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * The Class PvServiceTest.
@@ -46,10 +40,10 @@ public class PvServiceTest {
     private PvRepository pvRepository;
 
     /**
-     * Test valid pv.
+     * Test is valid pv format when code is numbers with size less or equal 20.
      */
     @Test
-    public void testValidPv() {
+    public void testIsValidPvFormatWhenCodeIsNumbersWithSizeLessOrEqual20() {
         Pv pv = new Pv();
         pv.setCode("1000201314");
 
@@ -57,10 +51,10 @@ public class PvServiceTest {
     }
 
     /**
-     * Test pv invalid length.
+     * Test is valid pv format when code has invalid length.
      */
     @Test
-    public void testPvInvalidLength() {
+    public void testIsValidPvFormatWhenCodeHasInvalidLength() {
         Pv pv = new Pv();
         pv.setCode("100020131419817181781781718");
 
@@ -68,10 +62,10 @@ public class PvServiceTest {
     }
 
     /**
-     * Test invalid characters pv.
+     * Test is valid pv format when code has invalid characters.
      */
     @Test
-    public void testInvalidCharactersPv() {
+    public void testIsValidPvFormatWhenCodeHasInvalidCharacters() {
         Pv pv = new Pv();
         pv.setCode("ABC5367");
 
@@ -79,18 +73,46 @@ public class PvServiceTest {
     }
 
     /**
-     * Test read pvsfrom string.
-     *
-     * @throws IOException Signals that an I/O exception has occurred.
+     * Test is valid when pv does not exist.
      */
     @Test
-    public void testReadPvsfromString() throws IOException {
-        String pvs = "1000201314\n1014766629\n1000201330\n1005867493\n";
-        MultipartFile multipartFile = mock(MultipartFile.class);
-        when(multipartFile.getInputStream()).thenReturn(new ByteArrayInputStream(pvs.getBytes()));
+    public void testIsValidWhenPvDoesNotExist() {
+        String code = "12345678";
+        Acquirer acquirer = Acquirer.CIELO;
 
-        List<Pv> pvList = PvFactory.fromFileAndAcquirer(multipartFile, Acquirer.CIELO);
+        when(pvRepository.findByCodeAndAcquirerId(code, acquirer.ordinal())).thenReturn(Optional.empty());
 
-        assertThat(pvList.size(), equalTo(4));
+        assertThat(pvService.isValidPv(new Pv(code, acquirer)), equalTo(true));
+    }
+
+    /**
+     * Test is valid when pv exists and is headquarter.
+     */
+    @Test
+    public void testIsValidWhenPvExistsAndIsHeadquarter() {
+        String code = "12345678";
+        Acquirer acquirer = Acquirer.CIELO;
+
+        Pv headquarterPv = new Pv(code, acquirer);
+
+        when(pvRepository.findByCodeAndAcquirerId(code, acquirer.ordinal())).thenReturn(Optional.of(headquarterPv));
+
+        assertThat(pvService.isValidPv(headquarterPv), equalTo(true));
+    }
+
+    /**
+     * Test is valid when pv exists but is not headquarter.
+     */
+    @Test
+    public void testIsValidWhenPvExistsButIsNotHeadquarter() {
+        String code = "12345678";
+        Acquirer acquirer = Acquirer.CIELO;
+
+        Pv branchPv = new Pv(code, acquirer);
+        branchPv.setHeadquarter(new Pv());
+
+        when(pvRepository.findByCodeAndAcquirerId(code, acquirer.ordinal())).thenReturn(Optional.of(branchPv));
+
+        assertThat(pvService.isValidPv(branchPv), equalTo(false));
     }
 }

@@ -10,6 +10,7 @@
 package br.com.rede.ke.backoffice.conciliation.domain.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
@@ -54,7 +55,7 @@ public interface PvPermissionRepository extends JpaRepository<PvPermission, PvPe
      *            the user
      * @param pv
      *            the pv
-     * @return the pv permission
+     * @return the optional of a pv permission
      */
-    PvPermission findByUserAndPv(User user, Pv pv);
+    Optional<PvPermission> findByUserAndPv(User user, Pv pv);
 }

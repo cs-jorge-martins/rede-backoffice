@@ -15,36 +15,19 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 /**
  * Secondary user pv permission request.
  */
-public class SecondaryUserPvPermissionRequest {
+public class SecondaryUserPvPermissionRequest extends PrimaryUserPvPermissionRequest{
 
-    private String requesterUserEmail;
+    /** To be permitted user email */
     private String toBePermittedUserEmail;
-    private String pvCode;
-    private Acquirer acquirer;
 
     /**
-     * Instantiates a new secondary user pv permission request.
+     * Constructor.
      *
-     * @param requesterUserEmail the requester user email
-     * @param toBePermittedUserEmail the to be permitted user email
-     * @param pvCode the pv code
-     * @param acquirer the acquirer
+     * @param toBePermittedUserEmail child user email param
      */
-    public SecondaryUserPvPermissionRequest(String requesterUserEmail, String toBePermittedUserEmail, String pvCode,
-        Acquirer acquirer) {
-        this.requesterUserEmail = requesterUserEmail;
+    public SecondaryUserPvPermissionRequest(String requesterUserEmail, String toBePermittedUserEmail, String pvCode, Acquirer acquirer) {
+        super(requesterUserEmail, pvCode, acquirer);
         this.toBePermittedUserEmail = toBePermittedUserEmail;
-        this.pvCode = pvCode;
-        this.acquirer = acquirer;
-    }
-
-    /**
-     * Gets the requester user email.
-     *
-     * @return the requester user email
-     */
-    public String getRequesterUserEmail() {
-        return requesterUserEmail;
     }
 
     /**
@@ -54,23 +37,5 @@ public class SecondaryUserPvPermissionRequest {
      */
     public String getToBePermittedUserEmail() {
         return toBePermittedUserEmail;
-    }
-
-    /**
-     * Gets the pv code.
-     *
-     * @return the pv code
-     */
-    public String getPvCode() {
-        return pvCode;
-    }
-
-    /**
-     * Gets acquirer.
-     *
-     * @return the acquirer
-     */
-    public Acquirer getAcquirer() {
-        return acquirer;
     }
 }
