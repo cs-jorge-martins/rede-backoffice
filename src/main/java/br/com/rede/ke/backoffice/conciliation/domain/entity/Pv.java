@@ -9,6 +9,7 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -69,6 +70,7 @@ public class Pv {
      * Instantiates a new pv.
      */
     public Pv() {
+        this.branches = new ArrayList<>();
     }
 
     /**
@@ -78,6 +80,7 @@ public class Pv {
      *            the code
      */
     public Pv(String code) {
+        this();
         this.code = code;
     }
 
@@ -90,6 +93,7 @@ public class Pv {
      *            the acquirer
      */
     public Pv(String code, Acquirer acquirer) {
+        this();
         this.code = code;
         this.acquirerId = acquirer.ordinal();
     }
@@ -245,7 +249,6 @@ public class Pv {
         return Objects.equals(id, pv.id)
             && Objects.equals(code, pv.code)
             && Objects.equals(headquarter, pv.headquarter)
-            && Objects.equals(branches, pv.branches)
             && Objects.equals(acquirerId, pv.acquirerId);
     }
 
@@ -256,6 +259,6 @@ public class Pv {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(id, code, headquarter, branches, acquirerId);
+        return Objects.hash(id, code, headquarter, acquirerId);
     }
 }

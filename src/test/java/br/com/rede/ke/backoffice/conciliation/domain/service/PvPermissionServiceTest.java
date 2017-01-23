@@ -9,7 +9,12 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
-import java.util.Optional;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.*;
 
 import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
@@ -81,6 +86,12 @@ public class PvPermissionServiceTest {
     /** The primary user pv permission request */
     private PrimaryUserPvPermissionRequest primaryUserPvPermissionRequest;
 
+    /** The primary user pv permission */
+    private PvPermission primaryUserPvPermission;
+
+    /** The secondary user pv permission */
+    private PvPermission secondaryUserPvPermission;
+
     /** The secondary user pv permission request */
     private SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest;
 
@@ -106,6 +117,9 @@ public class PvPermissionServiceTest {
         pv = new Pv();
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, secondaryUserPvPermissionRequest.getAcquirer().ordinal()))
             .thenReturn(Optional.of(pv));
+
+        primaryUserPvPermission = new PvPermission(primaryUser, pv);
+        secondaryUserPvPermission = new PvPermission(secondaryUser, pv);
     }
 
     /**
@@ -177,5 +191,53 @@ public class PvPermissionServiceTest {
 
         assertThat(result.isFailure(), equalTo(true));
         assertThat(result.failure().get(), equalTo(String.format("Pv '%s' com formato invalido", PV_CODE)));
+    }
+
+    /**
+     * Test delete pv permission from primary user.
+     */
+    @Test
+    public void testDeletePvPermissionFromPrimaryUser() {
+        List<PvPermission> permissions = Arrays.asList(primaryUserPvPermission, secondaryUserPvPermission);
+        when(pvPermissionRepository.findAllByPv(pv)).thenReturn(permissions);
+
+        pvPermissionService.delete(primaryUserPvPermission);
+
+        verify(pvPermissionRepository).delete(permissions);
+    }
+
+    /**
+     *  Test delete pv permission from secondary user.
+     */
+    @Test
+    public void testDeletePvPermissionFromSecondaryUser() {
+        List<PvPermission> permissions = Arrays.asList(primaryUserPvPermission, secondaryUserPvPermission);
+        when(pvPermissionRepository.findAllByPv(pv)).thenReturn(permissions);
+
+        pvPermissionService.delete(secondaryUserPvPermission);
+
+        verify(pvPermissionRepository).delete(secondaryUserPvPermission);
+    }
+
+    /**
+     * Test delete pv permission from primary user when secondary user has pv permission to branch pv.
+     */
+    @Test
+    public void testDeletePvPermissionFromPrimaryUserWhenSecondaryUserHasPvPermissionToBranchPv() {
+        Pv branchPv = new Pv();
+        branchPv.setHeadquarter(pv);
+        pv.setBranches(Arrays.asList(branchPv));
+
+        secondaryUserPvPermission = new PvPermission(secondaryUser, branchPv);
+
+        when(pvPermissionRepository.findAllByPv(pv))
+                .thenReturn(Arrays.asList(primaryUserPvPermission));
+
+        when(pvPermissionRepository.findAllByPvIn(pv.getBranches()))
+                .thenReturn(Arrays.asList(secondaryUserPvPermission));
+
+        pvPermissionService.delete(primaryUserPvPermission);
+
+        verify(pvPermissionRepository).delete(Arrays.asList(primaryUserPvPermission, secondaryUserPvPermission));
     }
 }
