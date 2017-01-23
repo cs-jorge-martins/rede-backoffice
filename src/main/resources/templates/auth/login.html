@@ -21,8 +21,8 @@
                 <div class="center-align">
                     <h3>acessar</h3>
                     <p>informe suas credenciais para acessar sua conta</p>
-                    <span class="green info-message" th:text="${infoMessage}" th:unless="${infoMessage == null}"></span>
-                    <span class="red error-message" th:text="${errorMessage}" th:unless="${errorMessage == null}"></span>
+                    <span class="green message info-message" th:text="${infoMessage}" th:unless="${infoMessage == null}"></span>
+                    <span class="red message error-message" th:text="${errorMessage}" th:unless="${errorMessage == null}"></span>
                 </div>
 
                 <form id="login-form" th:action="@{/auth/login}" method="post">

@@ -37,18 +37,18 @@ td, th {
 }
 
 .message {
-	padding: 5px 10px;
+    padding: 5px 10px;
 }
 
 #login-panel {
-	margin: 20% auto 0;
+    margin: 20% auto 0;
 }
 
 #logout-btn {
-	background-color: transparent;
-	font-size: 1rem;
-	border: 0;
-	padding: 0 15px;
+    background-color: transparent;
+    font-size: 1rem;
+    border: 0;
+    padding: 0 15px;
     transition: background-color .3s;
 }
 #logout-btn:hover {
