@@ -1,12 +1,11 @@
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
-      th:include="layout/base :: page">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:include="layout/login :: page">
 
-    <th:block th:fragment="title">Acesso</th:block>
+    <th:block th:fragment="title">acesso</th:block>
 
     <th:block th:fragment="content">
-        <div class="row">
-            <div class="col s10 offset-s1 m11 l6 z-depth-1 white">
+        <div id="login-panel" class="card row">
+            <div class="col s10 offset-s1 m11 l6">
                 <div class="center-align">
                     <br/><br />
                     <i class="large material-icons">lock_open</i>
@@ -14,29 +13,28 @@
                     <div class="divider"></div>
                     <h3>control rede</h3>
                     <h4>backoffice</h4>
-                    <p>sistema para gerenciar permissão de usuários</p>
+                    <p>sistema de gerenciamento de permissão de usuários</p>
                 </div>
             </div>
 
             <div class="col s10 offset-s1 m11 l6 teal lighten-5">
                 <div class="center-align">
                     <h3>acessar</h3>
-                    <p>entre suas credenciais para acessar sua conta</p>
-                    <span class="red lighten-5 error-message" th:text="${errorMessage}" th:unless="${errorMessage == null}"></span>
+                    <p>informe suas credenciais para acessar sua conta</p>
+                    <span class="green message info-message" th:text="${infoMessage}" th:unless="${infoMessage == null}"></span>
+                    <span class="red message error-message" th:text="${errorMessage}" th:unless="${errorMessage == null}"></span>
                 </div>
 
-                <form class="col s12" th:action="@{/auth/login}" method="post">
+                <form id="login-form" th:action="@{/auth/login}" method="post">
                     <div class="row">
-
-
-                        <div class="input-field col s10 offset-s1">
+                        <div class="col s10 offset-s1">
+                            <label for="username" class="active">nome de usuário</label>
                             <input type="text" th:name="username" id="username"/>
-                            <label for="username">nome de usuário</label>
                         </div>
 
-                        <div class="input-field col s10 offset-s1">
+                        <div class="col s10 offset-s1">
+                            <label for="password" class="active">senha</label>
                             <input type="password" th:name="password" id="password"/>
-                            <label for="password">senha</label>
                         </div>
 
                         <div class="center-align">

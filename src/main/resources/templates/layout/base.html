@@ -1,10 +1,8 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
-      th:fragment="page">
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="page">
     <head th:fragment="head">
         <meta charset="UTF-8" />
-        <title>Control Rede Backoffice | <th:block th:include="this :: title" /></title>
+        <title>control rede backoffice | <th:block th:include="this :: title" /></title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:600" />
         <link rel="stylesheet" href="http://fonts.googleapis.com/icon?family=Material+Icons" />
         <link rel="stylesheet" href="/webjars/materializecss/0.97.7/css/materialize.min.css" />
@@ -12,13 +10,27 @@
     </head>
 
     <body>
-          <header>
+        <header>
           <div class="navbar-fixed">
             <nav>
               <div class="nav-wrapper container">
-                <a href="/" class="brand-logo">Control Rede | Backoffice</a>
+                <a href="/" class="brand-logo">control rede backoffice</a>
                 <ul class="right">
-                  <li><a href="/pv-permissions">Permissões de pvs</a></li>
+                  <li>
+                    <a class='dropdown-button' href='/pv-permissions/'
+                        data-beloworigin="true"
+                        data-constrainwidth="false"
+                        data-activates='dropdown-pv-permissions'>permissão de pvs</a>
+                    <ul id='dropdown-pv-permissions' class='dropdown-content'>
+                      <li><a href="/pv-permissions/primary">usuários primários</a></li>
+                      <li><a href="/pv-permissions/secondary">usuários secundários</a></li>
+                    </ul>
+                  </li>
+                  <li>
+                  <form th:action="@{/logout}" method="post">
+                    <button id="logout-btn" type="submit">logout</button>
+                  </form>
+                  </li>
                 </ul>
               </div>
             </nav>
@@ -34,6 +46,7 @@
         <script>
           $(document).ready(function() {
             $('select').material_select();
+            Materialize.updateTextFields();
           });
         </script>
         <th:block th:include="this :: scripts"/>

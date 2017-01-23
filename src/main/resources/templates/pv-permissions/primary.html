@@ -1,11 +1,10 @@
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
-      th:include="layout/base :: page">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:include="layout/base :: page">
 
-    <th:block th:fragment="title">Permissão de pvs para usuários primários</th:block>
+    <th:block th:fragment="title">permissão de pvs para usuários primários</th:block>
 
     <th:block th:fragment="content">
-        <h1>Permissão de PVs para usuários primários</h1>
+        <h4 class="header">permissão de pvs para usuários primários</h4>
         <div class="row">
             <form th:action="@{/pv-permissions/primary}" method="post" enctype="multipart/form-data" class="col s12">
                 <div class="row">
