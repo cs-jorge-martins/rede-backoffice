@@ -86,15 +86,8 @@ public class UserService {
      */
     public User getOrCreatePrimaryUser(final String email) {
         Optional<User> primaryUserOpt = userRepository.findByEmail(email);
-
-        return primaryUserOpt.map(user -> {
-            checkMustBePrimary(user);
-            return user;
-        }).orElseGet(() -> {
-            User primaryUser = new User();
-            primaryUser.setEmail(email);
-            return userRepository.save(primaryUser);
-        });
+        primaryUserOpt.ifPresent(this::checkMustBePrimary);
+        return primaryUserOpt.orElseGet(() -> createPrimaryUser(email));
     }
 
     /**
@@ -151,5 +144,11 @@ public class UserService {
         if (!user.isPrimary()) {
             throw new InvalidPrimaryUserException(user);
         }
+    }
+
+    private User createPrimaryUser(String email) {
+        User primaryUser = new User();
+        primaryUser.setEmail(email);
+        return userRepository.save(primaryUser);
     }
 }

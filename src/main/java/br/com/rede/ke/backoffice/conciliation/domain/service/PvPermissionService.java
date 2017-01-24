@@ -19,7 +19,6 @@ import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRe
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
@@ -134,8 +133,7 @@ public class PvPermissionService {
         Pv pv = pvOpt.orElseGet(() -> pvRepository.save(new Pv(request.getPvCode(), request.getAcquirer())));
 
         return Result.success(pvPermissionRepository.findByUserAndPv(primaryUser, pv).orElseGet(() -> {
-            PvPermissionId pvPermissionId = new PvPermissionId(primaryUser.getId(), pv.getId());
-            PvPermission pvPermission = new PvPermission(pvPermissionId, primaryUser, pv);
+            PvPermission pvPermission = new PvPermission(primaryUser, pv);
             return pvPermissionRepository.save(pvPermission);
         }));
     }
