@@ -9,20 +9,9 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
-
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
+import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
@@ -33,6 +22,17 @@ import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundExcep
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.util.Result;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * The Class PvPermissionServiceTest.
@@ -78,15 +78,21 @@ public class PvPermissionServiceTest {
     /** The pv */
     private Pv pv;
 
+    /** The primary user pv permission request */
+    private PrimaryUserPvPermissionRequest primaryUserPvPermissionRequest;
+
     /** The secondary user pv permission request */
-    private SecondaryUserPvPermissionRequest pvPermissionRequest;
+    private SecondaryUserPvPermissionRequest secondaryUserPvPermissionRequest;
 
     /**
      * Sets the up.
      */
     @Before
     public void setUp() {
-        this.pvPermissionRequest = new SecondaryUserPvPermissionRequest(
+        this.primaryUserPvPermissionRequest = new PrimaryUserPvPermissionRequest(
+            PRIMARY_USER_EMAIL, PV_CODE, Acquirer.CIELO);
+
+        this.secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
             PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE, Acquirer.CIELO);
 
         primaryUser = new User();
@@ -98,7 +104,7 @@ public class PvPermissionServiceTest {
         when(userService.getOrCreateSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(secondaryUser);
 
         pv = new Pv();
-        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, pvPermissionRequest.getAcquirer().ordinal()))
+        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, secondaryUserPvPermissionRequest.getAcquirer().ordinal()))
             .thenReturn(Optional.of(pv));
     }
 
@@ -110,7 +116,7 @@ public class PvPermissionServiceTest {
         when(userService.hasAccess(primaryUser, pv)).thenReturn(true);
 
         Result<PvPermission, String> pvPermissionResult = pvPermissionService
-            .createForSecondaryUser(pvPermissionRequest);
+            .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
         PvPermissionId id = new PvPermissionId(secondaryUser.getId(), pv.getId());
         PvPermission pvPermission = new PvPermission(id, secondaryUser, pv);
@@ -127,7 +133,8 @@ public class PvPermissionServiceTest {
     public void testCreateForSecondaryUserWhenRequesterUserHasNoPvPermissionAccess() {
         when(userService.hasAccess(primaryUser, pv)).thenReturn(false);
 
-        Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
+        Result<PvPermission, String> result = pvPermissionService
+            .createForSecondaryUser(secondaryUserPvPermissionRequest);
         assertThat(result.isFailure(), equalTo(true));
         assertThat(result.failure().get(), equalTo("Usuário 'null' não tem acesso ao Pv 'null'"));
     }
@@ -137,10 +144,11 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForSecondaryUserWhenPvDoNotExists() {
-        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, pvPermissionRequest.getAcquirer().ordinal()))
+        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, secondaryUserPvPermissionRequest.getAcquirer().ordinal()))
             .thenReturn(Optional.empty());
 
-        Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
+        Result<PvPermission, String> result = pvPermissionService
+            .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
         assertThat(result.isFailure(), equalTo(true));
         assertThat(result.failure().get(), equalTo(String.format("Pv '%s' não existe", PV_CODE)));
@@ -152,7 +160,7 @@ public class PvPermissionServiceTest {
     @Test(expected = UserNotFoundException.class)
     public void testCreateForSecondaryUserWhenPrimaryUserNotExists() {
         when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.empty());
-        pvPermissionService.createForSecondaryUser(pvPermissionRequest);
+        pvPermissionService.createForSecondaryUser(secondaryUserPvPermissionRequest);
     }
 
     /**
@@ -160,11 +168,12 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForSecondaryUserWhenPvHasInvalidFormat() {
-        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, pvPermissionRequest.getAcquirer().ordinal()))
-            .thenReturn(Optional.empty());
+        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, secondaryUserPvPermissionRequest.getAcquirer().ordinal()))
+                .thenReturn(Optional.empty());
         when(pvService.isValidPv(Mockito.any())).thenReturn(false);
 
-        Result<PvPermission, String> result = pvPermissionService.createForSecondaryUser(pvPermissionRequest);
+        Result<PvPermission, String> result = pvPermissionService
+            .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
         assertThat(result.isFailure(), equalTo(true));
         assertThat(result.failure().get(), equalTo(String.format("Pv '%s' com formato invalido", PV_CODE)));
