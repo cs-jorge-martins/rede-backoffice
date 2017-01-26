@@ -32,7 +32,7 @@
                 <p th:unless="${pvPermissions.totalPages > 0}">nenhum resultado encontrado</p>
                 <form th:action="@{/pv-permissions}" method="post">
                     <input type="hidden" name="_method" value="delete" />
-                    <table class="striped" th:unless="${pvPermissions.totalPages == 0}">
+                    <table id="pv-permissions-table" class="striped" th:unless="${pvPermissions.totalPages == 0}">
                         <thead>
                             <tr>
                                 <th></th>
@@ -57,7 +57,7 @@
                     </table>
                     <div class="input-field row">
                         <div class="col right">
-                            <button class="btn waves-effect waves-light" data-target="modal-remove-pv-permissions" type="button">
+                            <button id="submit-btn" class="btn waves-effect waves-light" data-target="modal-remove-pv-permissions" type="button">
                                 remover permissões
                             </button>
                         </div>
@@ -84,12 +84,45 @@
                             <h4>confirmar lançamentos?</h4>
                         </div>
                         <div class="modal-footer">
-                            <button class="modal-action modal-close waves-effect waves-green btn-flat" type="button">não, cancelar seleção</button>
-                            <button class="modal-action waves-effect waves-green btn-flat" type="submit">sim, confirmar lançamentos</button>
+                            <div class="col">
+                                <button class="modal-action modal-close waves-effect waves-green grey darken-3 btn white-text" type="button">não, cancelar seleção</button>
+                            </div>
+                            <div class="col">
+                                <button class="modal-action waves-effect waves-green btn" type="submit">sim, remover permissões</button>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
+    </th:block>
+    <th:block th:fragment="scripts">
+        <script>
+            (function($) {
+                var $checkboxes = $("#pv-permissions-table"),
+                    $submitButton = $("#submit-btn");
+                
+                var checkedPermissions = function() {
+                    return $checkboxes.find("input:checked");
+                };
+                
+                var submitButtonText = function(count){
+                    var text = "remover " + (count || '') + " permissões";
+                    return (count === 1) ? text.replace("ões", "ão") : text;
+                };
+
+                $('.modal').modal({
+                    complete: function() {
+                    	checkedPermissions().prop("checked", false);
+                    }
+                });
+                
+                $checkboxes.on("change", function(e) {
+                    var count = checkedPermissions().length;
+
+                    $submitButton.text(submitButtonText(count));
+                });
+            })(jQuery);
+        </script>
     </th:block>
 </html>
