@@ -85,7 +85,7 @@
                         </div>
                         <div class="modal-footer">
                             <div class="col">
-                                <button class="modal-action modal-close waves-effect waves-green grey darken-3 btn white-text" type="button">não, cancelar seleção</button>
+                                <button class="modal-action modal-close waves-effect waves-green grey darken-3 btn white-text cancel" type="button">não, cancelar seleção</button>
                             </div>
                             <div class="col">
                                 <button class="modal-action waves-effect waves-green btn" type="submit">sim, remover permissões</button>
@@ -100,28 +100,30 @@
         <script>
             (function($) {
                 var $checkboxes = $("#pv-permissions-table"),
-                    $submitButton = $("#submit-btn");
+                    $submitButton = $("#submit-btn"),
+                    $modal = $(".modal").modal();
                 
                 var checkedPermissions = function() {
                     return $checkboxes.find("input:checked");
                 };
                 
-                var submitButtonText = function(count){
+                var submitButtonText = function(count) {
                     var text = "remover " + (count || '') + " permissões";
                     return (count === 1) ? text.replace("ões", "ão") : text;
                 };
-
-                $('.modal').modal({
-                    complete: function() {
-                    	checkedPermissions().prop("checked", false);
-                    }
-                });
                 
-                $checkboxes.on("change", function(e) {
+                var updateSubmitButton = function() {
                     var count = checkedPermissions().length;
-
                     $submitButton.text(submitButtonText(count));
+                };
+                
+                $modal.find(".btn.cancel").on("click", function() {
+                    checkedPermissions().prop("checked", false);
+                    updateSubmitButton();
                 });
+
+                $checkboxes.on("change", updateSubmitButton);
+
             })(jQuery);
         </script>
     </th:block>
