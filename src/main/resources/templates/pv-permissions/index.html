@@ -57,7 +57,7 @@
                     </table>
                     <div class="input-field row">
                         <div class="col right">
-                            <button id="submit-btn" class="btn waves-effect waves-light" data-target="modal-remove-pv-permissions" type="button">
+                            <button id="submit-btn" class="btn waves-effect waves-light disabled" type="button">
                                 remover permissões
                             </button>
                         </div>
@@ -98,34 +98,6 @@
         </div>
     </th:block>
     <th:block th:fragment="scripts">
-        <script>
-            (function($) {
-                var $checkboxes = $("#pv-permissions-table"),
-                    $submitButton = $("#submit-btn"),
-                    $modal = $(".modal").modal();
-                
-                var checkedPermissions = function() {
-                    return $checkboxes.find("input:checked");
-                };
-                
-                var submitButtonText = function(count) {
-                    var text = "remover " + (count || '') + " permissões";
-                    return (count === 1) ? text.replace("ões", "ão") : text;
-                };
-                
-                var updateSubmitButton = function() {
-                    var count = checkedPermissions().length;
-                    $submitButton.text(submitButtonText(count));
-                };
-                
-                $modal.find(".btn.cancel").on("click", function() {
-                    checkedPermissions().prop("checked", false);
-                    updateSubmitButton();
-                });
-
-                $checkboxes.on("change", updateSubmitButton);
-
-            })(jQuery);
-        </script>
+        <script type="application/javascript" th:src="@{/js/pv-permissions.js}"></script>
     </th:block>
 </html>
