@@ -5,7 +5,7 @@
         <title>control rede backoffice | <th:block th:include="this :: title" /></title>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:600" />
         <link rel="stylesheet" href="http://fonts.googleapis.com/icon?family=Material+Icons" />
-        <link rel="stylesheet" href="/webjars/materializecss/0.97.7/css/materialize.min.css" />
+        <link rel="stylesheet" type="text/css" th:href="@{/css/materialize.min.0.98.0.css}" />
         <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
     </head>
 
@@ -42,13 +42,13 @@
         <footer></footer>
 
         <script type="application/javascript" src="/webjars/jquery/3.1.1-1/jquery.min.js"></script>
-        <script type="application/javascript" src="/webjars/materializecss/0.97.7/js/materialize.min.js"></script>
-        <script>
-          $(document).ready(function() {
-            $('select').material_select();
-            Materialize.updateTextFields();
-          });
-        </script>
+        <script type="application/javascript" th:src="@{/js/materialize.min.0.98.0.js}"></script>
         <th:block th:include="this :: scripts"/>
+        <script>
+            (function($) {
+                $('select').material_select();
+                $('.modal').modal({});
+            })(jQuery);
+        </script>
     </body>
 </html>

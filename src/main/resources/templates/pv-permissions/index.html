@@ -57,7 +57,7 @@
                     </table>
                     <div class="input-field row">
                         <div class="col right">
-                            <button class="btn waves-effect waves-light" type="submit">
+                            <button class="btn waves-effect waves-light" data-target="modal-remove-pv-permissions" type="button">
                                 remover permissões
                             </button>
                         </div>
@@ -77,6 +77,16 @@
                                 <a th:href="${pvPermissions.isLast()} ? 'javascript:void(0);' : @{${'/'}(page=${pvPermissions.number+1}, size=${pvPermissions.size}, code=${code}, acquirer=${acquirer})}" class="material-icons">chevron_right</a>
                             </li>
                         </ul>
+                    </div>
+                    <!-- Modal Structure -->
+                    <div id="modal-remove-pv-permissions" class="modal">
+                        <div class="modal-content">
+                            <h4>confirmar lançamentos?</h4>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="modal-action modal-close waves-effect waves-green btn-flat" type="button">não, cancelar seleção</button>
+                            <button class="modal-action waves-effect waves-green btn-flat" type="submit">sim, confirmar lançamentos</button>
+                        </div>
                     </div>
                 </form>
             </div>
