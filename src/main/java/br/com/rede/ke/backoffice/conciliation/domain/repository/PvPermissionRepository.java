@@ -58,4 +58,22 @@ public interface PvPermissionRepository extends JpaRepository<PvPermission, PvPe
      * @return the optional of a pv permission
      */
     Optional<PvPermission> findByUserAndPv(User user, Pv pv);
+
+    /**
+     * Find all by pv.
+     *
+     * @param pv
+     *           the pv
+     * @return the list
+     */
+    List<PvPermission> findAllByPv(Pv pv);
+
+    /**
+     * Find all by pv in.
+     *
+     * @param pvs
+     *            the pv list
+     * @return the list
+     */
+    List<PvPermission> findAllByPvIn(Iterable<Pv> pvs);
 }

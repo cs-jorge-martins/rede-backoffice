@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
@@ -196,5 +197,36 @@ public class PvPermissionService {
      */
     private Supplier<UserNotFoundException> getUserNotFoundException(String email) {
         return () -> new UserNotFoundException(String.format("Usuário com email '%s' não encontrado", email));
+    }
+
+    /**
+     *  Delete pv permission.
+     *
+     * @param pvPermission to be deleted
+     */
+    public void delete(PvPermission pvPermission) {
+        if (pvPermission.getUser().isPrimary()) {
+            Pv headquarterPv = pvPermission.getPv();
+            pvPermissionRepository.delete(getAllRelatedPvPermissions(headquarterPv));
+        } else {
+            pvPermissionRepository.delete(pvPermission);
+        }
+
+    }
+
+    /**
+     * Gets all related pv permissions.
+     *
+     * @param headquarterPv the headquarter pv
+     * @return the pv permission list
+     */
+    private List<PvPermission> getAllRelatedPvPermissions(Pv headquarterPv) {
+        List<Pv> branches = headquarterPv.getBranches();
+
+        Stream<PvPermission> headquarterPvPermissions = pvPermissionRepository.findAllByPv(headquarterPv).stream();
+        Stream<PvPermission> branchesPvPermissions = pvPermissionRepository.findAllByPvIn(branches).stream();
+
+        return Stream.concat(headquarterPvPermissions, branchesPvPermissions)
+            .collect(Collectors.toList());
     }
 }
