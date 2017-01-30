@@ -127,6 +127,23 @@ public class PvPermissionServiceTest {
         when(pvPermissionRepository.findByUserAndPv(primaryUser, pv)).thenReturn(Optional.empty());
     }
 
+    @Test
+    public void testCreateForPrimaryUserWhenPvIsBranch() throws Exception {
+        String branchPvCode = "branchcode";
+        Pv branch = new Pv();
+        branch.setHeadquarter(pv);
+        branch.setCode(branchPvCode);
+        when(pvRepository.findByCodeAndAcquirerId(branchPvCode, CIELO.ordinal())).thenReturn(Optional.of(branch));
+
+        PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest
+            (PRIMARY_USER_EMAIL, branchPvCode, CIELO);
+
+        Result<PvPermission, String> result = pvPermissionService.createForPrimaryUser(pvPermissionRequest);
+
+        assertThat(result.failure().isPresent(), equalTo(true));
+        assertThat(result.failure().get(), equalTo("Pv 'branchcode' já está cadastrado como filial"));
+    }
+
     /**
      * Test create for primary user when pv code is not valid.
      */

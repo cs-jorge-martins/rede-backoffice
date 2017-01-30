@@ -131,6 +131,9 @@ public class PvPermissionService {
         }
 
         Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(request.getPvCode(), request.getAcquirer().ordinal());
+        if (pvOpt.isPresent() && !pvOpt.get().isHeadquarter()) {
+            return Result.failure(String.format("Pv '%s' já está cadastrado como filial", request.getPvCode()));
+        }
 
         final Pv headquarter = pvOpt.orElseGet(() -> pvRepository.save(new Pv(request.getPvCode(), request.getAcquirer())));
 
