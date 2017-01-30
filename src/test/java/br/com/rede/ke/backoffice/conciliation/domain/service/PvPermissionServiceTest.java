@@ -10,6 +10,7 @@
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -121,6 +122,9 @@ public class PvPermissionServiceTest {
 
         primaryUserPvPermission = new PvPermission(primaryUser, pv);
         secondaryUserPvPermission = new PvPermission(secondaryUser, pv);
+
+        when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.emptyList());
+        when(pvPermissionRepository.findByUserAndPv(primaryUser, pv)).thenReturn(Optional.empty());
     }
 
     /**
@@ -144,7 +148,6 @@ public class PvPermissionServiceTest {
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, primaryUserPvPermissionRequest.getAcquirer().ordinal()))
             .thenReturn(Optional.empty());
         when(pvRepository.save(any(Pv.class))).thenReturn(pv);
-        when(pvPermissionRepository.findByUserAndPv(primaryUser, pv)).thenReturn(Optional.empty());
         PvPermission pvPermission = new PvPermission(primaryUser, pv);
         when(pvPermissionRepository.save(Mockito.any(PvPermission.class))).thenReturn(pvPermission);
 
@@ -159,7 +162,6 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForPrimaryUserWhenPvPermissionDoesNotExist() {
-        when(pvPermissionRepository.findByUserAndPv(primaryUser, pv)).thenReturn(Optional.empty());
         PvPermission pvPermission = new PvPermission(primaryUser, pv);
         when(pvPermissionRepository.save(Mockito.any(PvPermission.class))).thenReturn(pvPermission);
 
@@ -170,11 +172,31 @@ public class PvPermissionServiceTest {
     }
 
     /**
+     * Test create for primary user when headquarter already permitted to another primary user.
+     */
+    @Test
+    public void testCreateForPrimaryUserWhenHeadquarterAlreadyPermittedToAnotherPrimaryUser() {
+        PvPermission pvPermission = new PvPermission(primaryUser, pv);
+        when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
+
+        PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest =
+            new PrimaryUserPvPermissionRequest("another_primary@email.com", PV_CODE, CIELO);
+
+        Result<PvPermission, String> result = pvPermissionService
+            .createForPrimaryUser(anotherPrimaryUserPvPermissionRequest);
+
+        assertThat(result.failure().isPresent(), equalTo(true));
+        assertThat(result.failure().get(),
+            equalTo("Já existe uma permissão para o PV: 'pvcode' para outro usuário primário."));
+    }
+
+    /**
      * Test create for primary user.
      */
     @Test
     public void testCreateForPrimaryUser() {
         PvPermission pvPermission = new PvPermission(primaryUser, pv);
+        when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
         when(pvPermissionRepository.findByUserAndPv(primaryUser, pv)).thenReturn(Optional.of(pvPermission));
 
         Result<PvPermission, String> result = pvPermissionService.createForPrimaryUser(primaryUserPvPermissionRequest);

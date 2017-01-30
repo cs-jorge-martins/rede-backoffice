@@ -21,6 +21,7 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.HeadquarterPermittedToMoreThanOnePrimayUserException;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
@@ -123,7 +124,7 @@ public class PvPermissionService {
      * @return A processing result.
      */
     public Result<PvPermission, String> createForPrimaryUser(PrimaryUserPvPermissionRequest request) {
-        User primaryUser = userService.getOrCreatePrimaryUser(request.getRequesterUserEmail());
+        final User primaryUser = userService.getOrCreatePrimaryUser(request.getRequesterUserEmail());
 
         if (!pvService.isValidPv(new Pv(request.getPvCode()))) {
             return Result.failure(String.format("Pv '%s' com formato invalido", request.getPvCode()));
@@ -131,12 +132,36 @@ public class PvPermissionService {
 
         Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(request.getPvCode(), request.getAcquirer().ordinal());
 
-        Pv pv = pvOpt.orElseGet(() -> pvRepository.save(new Pv(request.getPvCode(), request.getAcquirer())));
+        final Pv headquarter = pvOpt.orElseGet(() -> pvRepository.save(new Pv(request.getPvCode(), request.getAcquirer())));
 
-        return Result.success(pvPermissionRepository.findByUserAndPv(primaryUser, pv).orElseGet(() -> {
-            PvPermission pvPermission = new PvPermission(primaryUser, pv);
+        Optional<User> userFromPermission = getPrimaryUserPermittedToHeadquarter(headquarter);
+        if (userFromPermission.isPresent() && !userFromPermission.get().equals(primaryUser)) {
+            return Result.failure(
+                String.format("Já existe uma permissão para o PV: '%s' para outro usuário primário.",
+                request.getPvCode()));
+        }
+
+        return Result.success(getOrCreatePvPermission(primaryUser, headquarter));
+    }
+
+    private Optional<User> getPrimaryUserPermittedToHeadquarter(Pv headquarter) {
+        List<User> usersPermittedToHeadquarter = pvPermissionRepository.findAllByPv(headquarter).stream()
+            .map(PvPermission::getUser)
+            .filter(User::isPrimary)
+            .collect(Collectors.toList());
+
+        if (usersPermittedToHeadquarter.size() > 1) {
+            throw new HeadquarterPermittedToMoreThanOnePrimayUserException(headquarter, usersPermittedToHeadquarter);
+        }
+
+        return usersPermittedToHeadquarter.stream().findFirst();
+    }
+
+    private PvPermission getOrCreatePvPermission(User primaryUser, Pv headquarter) {
+        return pvPermissionRepository.findByUserAndPv(primaryUser, headquarter).orElseGet(() -> {
+            PvPermission pvPermission = new PvPermission(primaryUser, headquarter);
             return pvPermissionRepository.save(pvPermission);
-        }));
+        });
     }
 
     /**
