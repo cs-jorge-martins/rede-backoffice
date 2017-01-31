@@ -68,12 +68,7 @@ public class UserService {
      */
     public Optional<User> getPrimaryUser(String email) {
         Optional<User> primaryUserOpt = userRepository.findByEmail(email);
-
-        if (!primaryUserOpt.isPresent()) {
-            return Optional.empty();
-        }
-
-        checkMustBePrimary(primaryUserOpt.get());
+        primaryUserOpt.ifPresent(this::checkMustBePrimary);
         return primaryUserOpt;
     }
 
@@ -85,9 +80,7 @@ public class UserService {
      * @return the primary user created or from database.
      */
     public User getOrCreatePrimaryUser(final String email) {
-        Optional<User> primaryUserOpt = userRepository.findByEmail(email);
-        primaryUserOpt.ifPresent(this::checkMustBePrimary);
-        return primaryUserOpt.orElseGet(() -> createPrimaryUser(email));
+        return getPrimaryUser(email).orElseGet(() -> createPrimaryUser(email));
     }
 
     /**
