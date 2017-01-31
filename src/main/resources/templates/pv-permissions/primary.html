@@ -4,6 +4,9 @@
     <th:block th:fragment="title">permissão de pvs para usuários primários</th:block>
 
     <th:block th:fragment="content">
+        <div class="row">
+          <a class="grey-text" href="/"><i class="material-icons left">arrow_back</i>voltar para a página principal</a>
+        </div>
         <h4 class="header">permissão de pvs para usuários primários</h4>
         <div class="row">
             <form th:action="@{/pv-permissions/primary}" method="post" enctype="multipart/form-data" class="col s12">
