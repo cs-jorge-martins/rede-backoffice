@@ -128,7 +128,7 @@ public class PvPermissionService {
         final User primaryUser = userService.getOrCreatePrimaryUser(request.getRequesterUserEmail());
 
         if (!pvService.isValidPv(new Pv(request.getPvCode()))) {
-            return Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e 20 caracteres, somente números)", request.getPvCode()));
+            return Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e 10 caracteres, somente números)", request.getPvCode()));
         }
 
         Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(request.getPvCode(), request.getAcquirer().ordinal());
@@ -195,7 +195,7 @@ public class PvPermissionService {
         User secondaryUser = userService.getOrCreateSecondaryUserFor(primaryUser, request.getToBePermittedUserEmail());
 
         if (!pvService.isValidPv(new Pv(request.getPvCode()))) {
-            return Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e 20 caracteres, somente números)", request.getPvCode()));
+            return Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e 10 caracteres, somente números)", request.getPvCode()));
         }
 
         Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(request.getPvCode(), request.getAcquirer().ordinal());

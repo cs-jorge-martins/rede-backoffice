@@ -291,7 +291,7 @@ public class PvPermissionServiceTest {
             .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
         assertThat(result.isFailure(), equalTo(true));
-        assertThat(result.failure().get(), equalTo(String.format("O pv 'pvcode' está no formato inválido (entre 1 e 20 caracteres, somente números)", PV_CODE)));
+        assertThat(result.failure().get(), equalTo(String.format("O pv 'pvcode' está no formato inválido (entre 1 e 10 caracteres, somente números)", PV_CODE)));
     }
 
     /**

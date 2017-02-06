@@ -292,9 +292,9 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem O pv '***invalid_pv_code***' está no formato inválido (entre 1 e 20 caracteres, somente números)"
+        expect: "mensagem O pv '***invalid_pv_code***' está no formato inválido (entre 1 e 10 caracteres, somente números)"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("O pv '***invalid_pv_code***' está no formato inválido (entre 1 e 20 caracteres, somente números)"))
+        assert(messages.text().contains("O pv '***invalid_pv_code***' está no formato inválido (entre 1 e 10 caracteres, somente números)"))
     }
 
     def "Dar permissão de PV quando o usuario primario não tem permissão"() {
