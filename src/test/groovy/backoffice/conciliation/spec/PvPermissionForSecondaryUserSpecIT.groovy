@@ -9,21 +9,21 @@
  */
 package backoffice.conciliation.spec
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ContextConfiguration
+
 import backoffice.conciliation.page.LoginPage
 import backoffice.conciliation.page.PvPermissionSecondaryPage
 import br.com.rede.ke.backoffice.Application
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository
 import geb.spock.GebSpec
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ContextConfiguration
 
 
 @ContextConfiguration
@@ -292,9 +292,9 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem 'Pv '***invalid_pv_code***' com formato invalido' deve aparecer"
+        expect: "mensagem O pv '***invalid_pv_code***' está no formato inválido (entre 1 e 10 caracteres, somente números)"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("Pv '***invalid_pv_code***' com formato invalido"))
+        assert(messages.text().contains("O pv '***invalid_pv_code***' está no formato inválido (entre 1 e 10 caracteres, somente números)"))
     }
 
     def "Dar permissão de PV quando o usuario primario não tem permissão"() {
@@ -319,9 +319,9 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem 'Usuário 'usuario_primario_8@email.com' não tem acesso ao Pv '88888888'' deve aparecer"
+        expect: "mensagem 'Usuário 'usuario_primario_8@email.com' não tem acesso ao pv '88888888' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("Usuário 'usuario_primario_8@email.com' não tem acesso ao Pv '88888888'"))
+        assert(messages.text().contains("Usuário 'usuario_primario_8@email.com' não tem acesso ao pv '88888888'"))
     }
 
     def "Pv não existente"() {
@@ -343,8 +343,8 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem 'Pv '99999999' não existe' deve aparecer"
+        expect: "mensagem 'O pv '99999999' não existe' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("Pv '99999999' não existe"))
+        assert(messages.text().contains("O pv '99999999' não existe"))
     }
 }
