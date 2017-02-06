@@ -9,10 +9,24 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
@@ -24,19 +38,6 @@ import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundExcep
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.util.Result;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * The Class PvPermissionServiceTest.
@@ -141,7 +142,7 @@ public class PvPermissionServiceTest {
         Result<PvPermission, String> result = pvPermissionService.createForPrimaryUser(pvPermissionRequest);
 
         assertThat(result.failure().isPresent(), equalTo(true));
-        assertThat(result.failure().get(), equalTo("Pv 'branchcode' já está cadastrado como filial"));
+        assertThat(result.failure().get(), equalTo("O pv 'branchcode' já está cadastrado como um pv filial"));
     }
 
     /**
@@ -204,7 +205,7 @@ public class PvPermissionServiceTest {
 
         assertThat(result.failure().isPresent(), equalTo(true));
         assertThat(result.failure().get(),
-            equalTo("Já existe uma permissão para o PV: 'pvcode' para outro usuário primário."));
+            equalTo("Já existe uma permissão para o pv: 'pvcode' para outro usuário primário."));
     }
 
     /**
@@ -250,7 +251,7 @@ public class PvPermissionServiceTest {
             .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
         assertThat(result.isFailure(), equalTo(true));
-        assertThat(result.failure().get(), equalTo("Usuário 'null' não tem acesso ao Pv 'null'"));
+        assertThat(result.failure().get(), equalTo("Usuário 'null' não tem acesso ao pv 'null'"));
     }
 
     /**
@@ -265,7 +266,7 @@ public class PvPermissionServiceTest {
             .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
         assertThat(result.isFailure(), equalTo(true));
-        assertThat(result.failure().get(), equalTo(String.format("Pv '%s' não existe", PV_CODE)));
+        assertThat(result.failure().get(), equalTo(String.format("O pv '%s' não existe", PV_CODE)));
     }
 
     /**
@@ -290,7 +291,7 @@ public class PvPermissionServiceTest {
             .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
         assertThat(result.isFailure(), equalTo(true));
-        assertThat(result.failure().get(), equalTo(String.format("Pv '%s' com formato invalido", PV_CODE)));
+        assertThat(result.failure().get(), equalTo(String.format("O pv 'pvcode' está no formato inválido (entre 1 e 20 caracteres, somente números)", PV_CODE)));
     }
 
     /**
