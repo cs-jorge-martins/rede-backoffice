@@ -13,6 +13,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
+import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
+import br.com.rede.ke.backoffice.conciliation.domain.exception.DomainException;
+import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
+import br.com.rede.ke.backoffice.conciliation.exception.InvalidFileException;
+import br.com.rede.ke.backoffice.util.Result;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -26,19 +37,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
-import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
-import br.com.rede.ke.backoffice.conciliation.domain.exception.DomainException;
-import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
-import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
-import br.com.rede.ke.backoffice.conciliation.domain.service.UserService;
-import br.com.rede.ke.backoffice.conciliation.exception.InvalidFileException;
-import br.com.rede.ke.backoffice.util.Result;
-
 /**
  * The Class PvPermissionController.
  */
@@ -48,9 +46,6 @@ public class PvPermissionController {
     /** The pv permission service. */
     private PvPermissionService pvPermissionService;
 
-    /** The user service. */
-    private UserService userService;
-
     /** The pv permission repository. */
     private PvPermissionRepository pvPermissionRepository;
 
@@ -58,14 +53,12 @@ public class PvPermissionController {
      * Instantiates a new pv permission controller.
      *
      * @param pvPermissionService the pv permission service
-     * @param userService the user service
      * @param pvPermissionRepository the pv permission repository
      */
     @SuppressWarnings("unused")
-    public PvPermissionController(PvPermissionService pvPermissionService, UserService userService,
-            PvPermissionRepository pvPermissionRepository) {
+    public PvPermissionController(PvPermissionService pvPermissionService,
+        PvPermissionRepository pvPermissionRepository) {
         this.pvPermissionService = pvPermissionService;
-        this.userService = userService;
         this.pvPermissionRepository = pvPermissionRepository;
     }
 
@@ -205,7 +198,7 @@ public class PvPermissionController {
         model.addAttribute("acquirers", Controllers.acquirersWithoutRede());
         return "pv-permissions/secondary";
     }
-    
+
     /**
      * Delete.
      *
@@ -215,9 +208,9 @@ public class PvPermissionController {
      * @return the string
      */
     @DeleteMapping("/pv-permissions")
-    public String delete(Model model, 
-            @RequestParam(required = false) List<PvPermissionId> pvPermissionIds,
-            RedirectAttributes redirectAttrs) {
+    public String delete(Model model,
+        @RequestParam(required = false) List<PvPermissionId> pvPermissionIds,
+        RedirectAttributes redirectAttrs) {
         if (Objects.isNull(pvPermissionIds)){
             redirectAttrs.addFlashAttribute("message", "selecione pelo menos uma permissão para remover.");
             return "redirect:/pv-permissions";
