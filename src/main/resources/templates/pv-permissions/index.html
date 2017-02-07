@@ -32,14 +32,15 @@
                 <p th:unless="${pvPermissions.totalPages > 0}">nenhum resultado encontrado</p>
                 <form th:action="@{/pv-permissions}" method="post">
                     <input type="hidden" name="_method" value="delete" />
-                    <table id="pv-permissions-table" class="striped" th:unless="${pvPermissions.totalPages == 0}">
+                    <table id="pv-permissions-table" class="bordered" th:unless="${pvPermissions.totalPages == 0}">
                         <thead>
                             <tr>
                                 <th></th>
                                 <th>e-mail</th>
+                                <th>usuário</th>
                                 <th>adquirente</th>
                                 <th>código do PV</th>
-                                <th></th>
+                                <th>tipo PV</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -49,9 +50,13 @@
                                     <label th:attr="for=${id}"></label>
                                 </td>
                                 <td th:text="${permission.user.email}"></td>
+                                <td th:class="${permission.user.isPrimary()} ? 'turquoise-text' : 'grey-text'">
+                                  <span th:text="${permission.user.isPrimary()} ? 'primário' : 'secundário'" th:remove="tag"></span>
+                                  <i th:unless="${permission.user.isPrimary()}" class="material-icons right tooltipped" data-position="bottom" data-delay="50" th:attr="data-tooltip='usuário primário &lt;br/&gt;' + ${permission.user.primaryUser.email}">info_outline</i>
+                                </td>
                                 <td th:text="#{'option.acquirer.' + ${permission.pv.acquirer}}"></td>
                                 <td th:text="${permission.pv.code}"></td>
-                                <td><div th:if="${permission.pv.isHeadquarter()}" class="chip">matriz</div></td>
+                                <td th:text="${permission.pv.isHeadquarter()} ? 'matriz' : 'filial'" th:class="${permission.pv.isHeadquarter()} ? 'turquoise-text' : 'grey-text'"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -99,5 +104,10 @@
     </th:block>
     <th:block th:fragment="scripts">
         <script type="application/javascript" th:src="@{/js/pv-permissions.js}"></script>
+        <script>
+        $(document).ready(function(){
+          $('.tooltipped').tooltip({html: true});
+        });
+        </script>
     </th:block>
 </html>
