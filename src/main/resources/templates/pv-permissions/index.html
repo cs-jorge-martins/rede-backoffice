@@ -52,7 +52,7 @@
                                 <td th:text="${permission.user.email}"></td>
                                 <td th:class="${permission.user.isPrimary()} ? 'turquoise-text' : 'grey-text'">
                                   <span th:text="${permission.user.isPrimary()} ? 'primário' : 'secundário'" th:remove="tag"></span>
-                                  <i th:unless="${permission.user.isPrimary()}" class="material-icons right tooltipped" data-position="bottom" data-delay="50" th:attr="data-tooltip='usuário primário &lt;br/&gt;' + ${permission.user.primaryUser.email}">info_outline</i>
+                                  <i th:unless="${permission.user.isPrimary()}" id="info-outline-icon" class="material-icons right tooltipped turquoise-text" data-position="bottom" data-delay="50" th:attr="data-tooltip='&lt;span class=grey-text &gt;usuário primário&lt;/span&gt; &lt;br/&gt;' + ${permission.user.primaryUser.email}">info_outline</i>
                                 </td>
                                 <td th:text="#{'option.acquirer.' + ${permission.pv.acquirer}}"></td>
                                 <td th:text="${permission.pv.code}"></td>

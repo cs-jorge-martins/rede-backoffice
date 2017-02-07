@@ -66,3 +66,17 @@ td, th {
 table.bordered>thead>tr {
   border-bottom-color: #4a4a4a;
 }
+
+#info-outline-icon {
+  margin-left: 0px;
+}
+
+.backdrop{
+  background-color: #ffffff;
+}
+
+.material-tooltip {
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.3);
+  color: #00b8b6;
+  text-align: left;
+}
