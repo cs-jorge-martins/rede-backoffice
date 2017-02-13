@@ -112,21 +112,20 @@ public class PvPermissionService {
     @Transactional(rollbackFor = Exception.class)
     public List<Result<PvPermission, String>> createForPrimaryUser(
         final PrimaryUserPvPermissionRequest pvPermissionRequest) {
+        final User primaryUser = userService.getOrCreatePrimaryUser(pvPermissionRequest.getRequesterUserEmail());
         return pvPermissionRequest.getPvs().stream()
-            .map(pv -> createForPrimaryUser(pvPermissionRequest.getRequesterUserEmail(), pv))
+            .map(pv -> createForPrimaryUser(primaryUser, pv))
             .collect(Collectors.toList());
     }
 
     /**
      * Create permission for primary user.
      *
-     * @param requesterUserEmail requester user email.
+     * @param primaryUser requester user.
      * @param pv pv.
      * @return A processing result.
      */
-    private Result<PvPermission, String> createForPrimaryUser(String requesterUserEmail, Pv pv) {
-        final User primaryUser = userService.getOrCreatePrimaryUser(requesterUserEmail);
-
+    private Result<PvPermission, String> createForPrimaryUser(User primaryUser, Pv pv) {
         if (!pvService.isValidPv(pv)) {
             return Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e 10 caracteres, somente números)", pv.getCode()));
         }
@@ -177,29 +176,28 @@ public class PvPermissionService {
      */
     public List<Result<PvPermission, String>> createForSecondaryUser(
         final SecondaryUserPvPermissionRequest pvPermissionRequest) {
+
+        String requesterUserEmail = pvPermissionRequest.getRequesterUserEmail();
+        User primaryUser = userService.getPrimaryUser(requesterUserEmail)
+            .orElseThrow(getUserNotFoundException(requesterUserEmail));
+
+        User secondaryUser = userService.getOrCreateSecondaryUserFor(primaryUser,
+            pvPermissionRequest.getToBePermittedUserEmail());
+
         return pvPermissionRequest.getPvs().stream()
-            .map((pv) -> createForSecondaryUser(pvPermissionRequest.getRequesterUserEmail(),
-                                                pvPermissionRequest.getToBePermittedUserEmail(),
-                                                pv))
+            .map((pv) -> createForSecondaryUser(primaryUser, secondaryUser, pv))
             .collect(Collectors.toList());
     }
 
     /**
      * Creates the for secondary user.
      *
-     * @param requesterUserEmail requester user email.
-     * @param permittedUserEmail permitted user email.
+     * @param primaryUser requester user.
+     * @param secondaryUser permitted user.
      * @param pv pv.
      * @return the result.
      */
-    private Result<PvPermission, String> createForSecondaryUser(String requesterUserEmail,
-        String permittedUserEmail,
-        Pv pv) {
-
-        User primaryUser = userService.getPrimaryUser(requesterUserEmail)
-            .orElseThrow(getUserNotFoundException(requesterUserEmail));
-        User secondaryUser = userService.getOrCreateSecondaryUserFor(primaryUser, permittedUserEmail);
-
+    private Result<PvPermission, String> createForSecondaryUser(User primaryUser, User secondaryUser, Pv pv) {
         if (!pvService.isValidPv(pv)) {
             return Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e 10 caracteres, somente números)", pv.getCode()));
         }
