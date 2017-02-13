@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.DomainException;
@@ -129,12 +130,10 @@ public class PvPermissionController {
         @RequestParam String email) {
 
         try {
-            List<PrimaryUserPvPermissionRequest> pvPermissionRequests = PvFactory.fromFileAndAcquirer(file, acquirer)
-                .stream()
-                .map(pv -> new PrimaryUserPvPermissionRequest(email, pv.getCode(), acquirer))
-                .collect(Collectors.toList());
+            List<Pv> pvs = PvFactory.fromFileAndAcquirer(file, acquirer);
+            PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(email, pvs);
 
-            List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(pvPermissionRequests);
+            List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(pvPermissionRequest);
 
             model.addAttribute("validPvs", Result.getSuccessValues(results));
             model.addAttribute("invalidPvs", Result.getFailureValues(results));
@@ -181,13 +180,13 @@ public class PvPermissionController {
         @RequestParam String secondaryEmail) {
 
         try {
+            List<Pv> pvs = PvFactory.fromFileAndAcquirer(file, acquirer);
+            SecondaryUserPvPermissionRequest pvPermissionRequests =
+                new SecondaryUserPvPermissionRequest(primaryEmail, secondaryEmail, pvs);
 
-            List<SecondaryUserPvPermissionRequest> pvPermissionRequests = PvFactory.fromFileAndAcquirer(file, acquirer)
-                .stream()
-                .map(pv -> new SecondaryUserPvPermissionRequest(primaryEmail, secondaryEmail, pv.getCode(), acquirer))
-                .collect(Collectors.toList());
             List<Result<PvPermission, String>> results = pvPermissionService
                 .createForSecondaryUser(pvPermissionRequests);
+
             model.addAttribute("validPvs", Result.getSuccessValues(results));
             model.addAttribute("invalidPvs", Result.getFailureValues(results));
         } catch (DomainException | InvalidFileException e) {

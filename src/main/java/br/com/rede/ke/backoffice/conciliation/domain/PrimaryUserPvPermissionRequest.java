@@ -9,7 +9,9 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain;
 
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import java.util.List;
+
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 
 /**
  * Class PrimaryUserPvPermissionRequest.
@@ -18,23 +20,18 @@ public class PrimaryUserPvPermissionRequest {
     /** Requester user email */
     private String requesterUserEmail;
 
-    /** Pv code */
-    private String pvCode;
-
-    /** Acquirer */
-    private Acquirer acquirer;
+    /** List of Pvs */
+    private List<Pv> pvs;
 
     /**
      * Constructor.
      *
-     * @param requesterUserEmail user user email param
-     * @param pvCode pv code
-     * @param acquirer acquirer
+     * @param requesterUserEmail user email param
+     * @param pvs list of pvs
      */
-    public PrimaryUserPvPermissionRequest(String requesterUserEmail, String pvCode, Acquirer acquirer) {
+    public PrimaryUserPvPermissionRequest(String requesterUserEmail, List<Pv> pvs) {
         this.requesterUserEmail = requesterUserEmail;
-        this.pvCode = pvCode;
-        this.acquirer = acquirer;
+        this.pvs = pvs;
     }
 
     /**
@@ -47,20 +44,11 @@ public class PrimaryUserPvPermissionRequest {
     }
 
     /**
-     * Gets the pv code.
+     * Gets the pv list.
      *
-     * @return the pv code
+     * @return the pv list
      */
-    public String getPvCode() {
-        return pvCode;
-    }
-
-    /**
-     * Gets acquirer.
-     *
-     * @return the acquirer
-     */
-    public Acquirer getAcquirer() {
-        return acquirer;
+    public List<Pv> getPvs() {
+        return pvs;
     }
 }
