@@ -120,6 +120,7 @@ public class PvPermissionServiceTest {
 
         pv = new Pv(PV_CODE, Acquirer.CIELO);
         when(pvService.existsAsHeadquarter(pv)).thenReturn(Result.success(pv));
+        when(pvService.getOrCreatePv(PV_CODE, Acquirer.CIELO)).thenReturn(pv);
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal())).thenReturn(Optional.of(pv));
 
         primaryUserPvPermission = new PvPermission(primaryUser, pv);
@@ -127,22 +128,6 @@ public class PvPermissionServiceTest {
 
         when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.emptyList());
         when(pvPermissionRepository.findByUserAndPv(primaryUser, pv)).thenReturn(Optional.empty());
-    }
-
-    /**
-     * Test create for primary user when pv is invalid.
-     */
-    @Test
-    public void testCreateForPrimaryUserWhenPvIsInvalid() {
-        PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, Collections.singletonList(new Pv()));
-
-        when(pvService.existsAsHeadquarter(any())).thenReturn(Result.failure(""));
-
-        List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(pvPermissionRequest);
-
-        verify(pvRepository, times(0)).findByCodeAndAcquirerId(any(), any());
-        assertThat(getFirstResult(results).isFailure(), equalTo(true));
     }
 
     /**
@@ -163,6 +148,22 @@ public class PvPermissionServiceTest {
         Result<PvPermission, String> firstResult = getFirstResult(results);
         assertThat(firstResult.success().isPresent(), equalTo(true));
         assertThat(firstResult.success().get(), equalTo(pvPermission));
+    }
+
+    /**
+     * Test create for primary user when pv is invalid.
+     */
+    @Test
+    public void testCreateForPrimaryUserWhenPvIsInvalid() {
+        PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(
+            PRIMARY_USER_EMAIL, Collections.singletonList(new Pv()));
+
+        when(pvService.existsAsHeadquarter(any())).thenReturn(Result.failure(""));
+
+        List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(pvPermissionRequest);
+
+        verify(pvRepository, times(0)).findByCodeAndAcquirerId(any(), any());
+        assertThat(getFirstResult(results).isFailure(), equalTo(true));
     }
 
     /**

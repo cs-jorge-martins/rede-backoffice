@@ -25,6 +25,7 @@ import br.com.rede.ke.backoffice.conciliation.domain.exception.HeadquarterPermit
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.validation.Validation;
 import br.com.rede.ke.backoffice.util.Result;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -131,27 +132,34 @@ public class PvPermissionService {
             return getFailure(pvValidationResult);
         }
 
-        // TODO geisly substituir por findOrCreateHeadquarter no PvService
-        Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
+        final Pv headquarter = pvService.getOrCreatePv(pv.getCode(), pv.getAcquirer());
 
-        final Pv headquarter = pvOpt.orElseGet(() -> pvRepository.save(pv));
-
-        Optional<User> userFromPermission = getPrimaryUserPermittedToHeadquarter(headquarter);
-        if (userFromPermission.isPresent() && !userFromPermission.get().equals(primaryUser)) {
-            return Result.failure(
-                String.format("Já existe uma permissão para o pv: '%s' para outro usuário primário.",
-                pv.getCode()));
+        Result<Pv, String> permissionValidationResult = isAnotherPrimaryUserAlreadyPermittedToHeadquarter(headquarter,
+            primaryUser);
+        if (permissionValidationResult.isFailure()) {
+            return getFailure(permissionValidationResult);
         }
 
         return Result.success(getOrCreatePvPermission(primaryUser, headquarter));
     }
 
-    private<T> Result<PvPermission, String> getFailure(Result<T, String> result) {
-        String message = result.failure().get();
-        return Result.failure(message);
+    protected Result<Pv, String> isAnotherPrimaryUserAlreadyPermittedToHeadquarter(Pv headquarter, User primaryUser) {
+        return isAnotherPrimaryUserAlreadyPermittedToHeadquarter(primaryUser).validate(headquarter);
     }
 
-    private Optional<User> getPrimaryUserPermittedToHeadquarter(Pv headquarter) {
+    protected Validation<Pv> isAnotherPrimaryUserAlreadyPermittedToHeadquarter(User primaryUser) {
+        return headquarter -> {
+            Optional<User> userFromPermission = getPrimaryUserPermittedToHeadquarter(headquarter);
+            if (userFromPermission.isPresent() && !userFromPermission.get().equals(primaryUser)) {
+                return Result.failure(
+                    String.format("Já existe uma permissão para o pv: '%s' para outro usuário primário.",
+                        headquarter.getCode()));
+            }
+            return Result.success(headquarter);
+        };
+    }
+
+    protected Optional<User> getPrimaryUserPermittedToHeadquarter(Pv headquarter) {
         List<User> usersPermittedToHeadquarter = pvPermissionRepository.findAllByPv(headquarter).stream()
             .map(PvPermission::getUser)
             .filter(User::isPrimary)
@@ -249,6 +257,11 @@ public class PvPermissionService {
             pvPermissionRepository.delete(pvPermission);
         }
 
+    }
+
+    private<T> Result<PvPermission, String> getFailure(Result<T, String> result) {
+        String message = result.failure().get();
+        return Result.failure(message);
     }
 
     /**

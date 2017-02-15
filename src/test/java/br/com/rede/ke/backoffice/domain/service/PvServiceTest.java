@@ -21,12 +21,15 @@ import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -118,6 +121,24 @@ public class PvServiceTest {
         when(pvRepository.findByCodeAndAcquirerId(code, acquirer.ordinal())).thenReturn(Optional.of(branchPv));
 
         assertThat(pvService.isValidPv(branchPv), equalTo(false));
+    }
+
+    @Test
+    public void testGetOrCreatePvWhenPvDoesNotExists() {
+        Pv pv = new Pv("code", Acquirer.CIELO);
+        when(pvRepository.findByCodeAndAcquirerId(Matchers.any(), Matchers.any())).thenReturn(Optional.empty());
+        when(pvRepository.save(pv)).thenReturn(pv);
+
+        assertThat(pvService.getOrCreatePv("code", Acquirer.CIELO), equalTo(pv));
+    }
+
+    @Test
+    public void testGetOrCreatePvWhenPvAlreadyExists() {
+        Pv pv = new Pv("code", Acquirer.CIELO);
+        when(pvRepository.findByCodeAndAcquirerId(Matchers.any(), Matchers.any())).thenReturn(Optional.of(pv));
+
+        assertThat(pvService.getOrCreatePv("code", Acquirer.CIELO), equalTo(pv));
+        verify(pvRepository, times(0)).save(pv);
     }
 
     @Test

@@ -11,6 +11,7 @@ package br.com.rede.ke.backoffice.conciliation.domain.service;
 
 import java.util.Optional;
 
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.validation.PvFormat;
@@ -64,6 +65,11 @@ public class PvService {
         }
         Optional<Pv> resultPv = repository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
         return resultPv.map(Pv::isHeadquarter).orElse(true);
+    }
+
+    public Pv getOrCreatePv(String code, Acquirer acquirer) {
+        Optional<Pv> pvOpt = repository.findByCodeAndAcquirerId(code, acquirer.ordinal());
+        return pvOpt.orElseGet(() -> repository.save(new Pv(code, acquirer)));
     }
 
     public Validation<Pv> isValidSize(int size) {
