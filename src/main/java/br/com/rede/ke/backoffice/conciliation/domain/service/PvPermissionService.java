@@ -134,8 +134,7 @@ public class PvPermissionService {
 
         final Pv headquarter = pvService.getOrCreatePv(pv.getCode(), pv.getAcquirer());
 
-        Result<Pv, String> permissionValidationResult = isAnotherPrimaryUserAlreadyPermittedToHeadquarter(headquarter,
-            primaryUser);
+        Result<Pv, String> permissionValidationResult = canUserBePermittedForHeadquarter(primaryUser).validate(headquarter);
         if (permissionValidationResult.isFailure()) {
             return getFailure(permissionValidationResult);
         }
@@ -143,11 +142,7 @@ public class PvPermissionService {
         return Result.success(getOrCreatePvPermission(primaryUser, headquarter));
     }
 
-    protected Result<Pv, String> isAnotherPrimaryUserAlreadyPermittedToHeadquarter(Pv headquarter, User primaryUser) {
-        return isAnotherPrimaryUserAlreadyPermittedToHeadquarter(primaryUser).validate(headquarter);
-    }
-
-    protected Validation<Pv> isAnotherPrimaryUserAlreadyPermittedToHeadquarter(User primaryUser) {
+    protected Validation<Pv> canUserBePermittedForHeadquarter(User primaryUser) {
         return headquarter -> {
             Optional<User> userFromPermission = getPrimaryUserPermittedToHeadquarter(headquarter);
             if (userFromPermission.isPresent() && !userFromPermission.get().equals(primaryUser)) {
