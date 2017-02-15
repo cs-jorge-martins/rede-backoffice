@@ -126,14 +126,13 @@ public class PvPermissionService {
      * @return A processing result.
      */
     private Result<PvPermission, String> createForPrimaryUser(User primaryUser, Pv pv) {
-        if (!pvService.isValidPv(pv)) {
-            return Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e 10 caracteres, somente números)", pv.getCode()));
+        Result<Pv, String> pvValidationResult = pvService.existsAsHeadquarter(pv);
+        if (pvValidationResult.isFailure()) {
+            return getFailure(pvValidationResult);
         }
 
+        // TODO geisly substituir por findOrCreateHeadquarter no PvService
         Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
-        if (pvOpt.isPresent() && !pvOpt.get().isHeadquarter()) {
-            return Result.failure(String.format("O pv '%s' já está cadastrado como um pv filial", pv.getCode()));
-        }
 
         final Pv headquarter = pvOpt.orElseGet(() -> pvRepository.save(pv));
 
@@ -145,6 +144,11 @@ public class PvPermissionService {
         }
 
         return Result.success(getOrCreatePvPermission(primaryUser, headquarter));
+    }
+
+    private<T> Result<PvPermission, String> getFailure(Result<T, String> result) {
+        String message = result.failure().get();
+        return Result.failure(message);
     }
 
     private Optional<User> getPrimaryUserPermittedToHeadquarter(Pv headquarter) {

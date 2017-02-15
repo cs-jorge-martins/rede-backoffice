@@ -13,6 +13,9 @@ import java.util.Optional;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.validation.PvFormat;
+import br.com.rede.ke.backoffice.conciliation.domain.validation.Validation;
+import br.com.rede.ke.backoffice.util.Result;
 import org.springframework.stereotype.Service;
 
 /**
@@ -62,4 +65,37 @@ public class PvService {
         Optional<Pv> resultPv = repository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
         return resultPv.map(Pv::isHeadquarter).orElse(true);
     }
+
+    public Validation<Pv> isValidSize(int size) {
+        return pv -> Optional.of(pv)
+            .filter(pv1 -> pv1.getCode().length() <= size)
+            .map(pv1 -> Result.<Pv, String>success(pv))
+            .orElseGet(()-> Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e %s caracteres)", pv.getCode(), size)));
+    }
+
+    public Validation<Pv> isValidFormat(String formatRegex) {
+        return pv -> Optional.of(pv)
+            .filter(pv1 -> pv1.getCode().matches(formatRegex))
+            .map(pv1 -> Result.<Pv, String>success(pv))
+            .orElseGet(()-> Result.failure(String.format("O pv '%s' está no formato inválido (somente números)", pv.getCode())));
+    }
+
+    public Validation<Pv> existsAsHeadquarter() {
+        return pv -> {
+            Optional<Pv> pvOpt = repository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
+            if (pvOpt.isPresent() && !pvOpt.get().isHeadquarter()) {
+                return Result.failure(String.format("O pv '%s' já está cadastrado como um pv filial", pv.getCode()));
+            }
+            return Result.success(pv);
+        };
+    }
+
+    public Result<Pv, String> existsAsHeadquarter(Pv pv) {
+        PvFormat pvFormat = new PvFormat(10, "[0-9]{1,10}");
+        return isValidSize(pvFormat.getSize())
+            .and(isValidFormat(pvFormat.getFormatRegex()))
+            .and(existsAsHeadquarter())
+            .validate(pv);
+    }
+
 }

@@ -35,6 +35,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -117,7 +118,8 @@ public class PvPermissionServiceTest {
         secondaryUser.setPrimaryUser(primaryUser);
         when(userService.getOrCreateSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(secondaryUser);
 
-        pv = new Pv();
+        pv = new Pv(PV_CODE, Acquirer.CIELO);
+        when(pvService.existsAsHeadquarter(pv)).thenReturn(Result.success(pv));
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal())).thenReturn(Optional.of(pv));
 
         primaryUserPvPermission = new PvPermission(primaryUser, pv);
@@ -128,40 +130,19 @@ public class PvPermissionServiceTest {
     }
 
     /**
-     * Test create for primary user when pv is branch.
+     * Test create for primary user when pv is invalid.
      */
     @Test
-    public void testCreateForPrimaryUserWhenPvIsBranch() {
-        String branchPvCode = "branchcode";
-
-        Pv branch = new Pv();
-        branch.setHeadquarter(pv);
-        branch.setCode(branchPvCode);
-
-        when(pvRepository.findByCodeAndAcquirerId(branchPvCode, CIELO.ordinal())).thenReturn(Optional.of(branch));
-
+    public void testCreateForPrimaryUserWhenPvIsInvalid() {
         PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, Collections.singletonList(new Pv(branchPvCode, CIELO)));
+            PRIMARY_USER_EMAIL, Collections.singletonList(new Pv()));
+
+        when(pvService.existsAsHeadquarter(any())).thenReturn(Result.failure(""));
 
         List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(pvPermissionRequest);
 
-        Result<PvPermission, String> firstResult = getFirstResult(results);
-        assertThat(firstResult.failure().isPresent(), equalTo(true));
-        assertThat(firstResult.failure().get(), equalTo("O pv 'branchcode' já está cadastrado como um pv filial"));
-    }
-
-    /**
-     * Test create for primary user when pv code is not valid.
-     */
-    @Test
-    public void testCreateForPrimaryUserWhenPvCodeIsNotValid() {
-        when(pvService.isValidPv(Mockito.any(Pv.class))).thenReturn(false);
-
-        List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(
-            primaryUserPvPermissionRequest);
-
-        Result<PvPermission, String> result = getFirstResult(results);
-        assertThat(result.failure().isPresent(), equalTo(true));
+        verify(pvRepository, times(0)).findByCodeAndAcquirerId(any(), any());
+        assertThat(getFirstResult(results).isFailure(), equalTo(true));
     }
 
     /**
@@ -169,16 +150,16 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForPrimaryUserWhenPvDoesNotExist() {
+        PvPermission pvPermission = new PvPermission(primaryUser, pv);
+
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal()))
             .thenReturn(Optional.empty());
         when(pvRepository.save(any(Pv.class))).thenReturn(pv);
-        PvPermission pvPermission = new PvPermission(primaryUser, pv);
         when(pvPermissionRepository.save(Mockito.any(PvPermission.class))).thenReturn(pvPermission);
 
         List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(
             primaryUserPvPermissionRequest);
 
-//        Optional<PvPermission> success = getFirstSuccess(results);
         Result<PvPermission, String> firstResult = getFirstResult(results);
         assertThat(firstResult.success().isPresent(), equalTo(true));
         assertThat(firstResult.success().get(), equalTo(pvPermission));
@@ -269,7 +250,7 @@ public class PvPermissionServiceTest {
 
         Result<PvPermission, String> result1 = getFirstResult(results);
         assertThat(result1.isFailure(), equalTo(true));
-        assertThat(result1.failure().get(), equalTo("Usuário 'null' não tem acesso ao pv 'null'"));
+        assertThat(result1.failure().get(), equalTo("Usuário 'null' não tem acesso ao pv 'pvcode'"));
     }
 
     /**
