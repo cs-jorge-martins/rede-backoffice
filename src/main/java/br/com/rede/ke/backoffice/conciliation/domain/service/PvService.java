@@ -52,17 +52,6 @@ public class PvService {
         return pv.getCode().matches(PV_FORMAT_REGEX_VALIDATION);
     }
 
-    /**
-     * Checks if is valid pv.
-     *
-     * @param pv
-     *            the pv
-     * @return true, if is valid pv
-     */
-    public boolean isValidPv(Pv pv) {
-        return isValidPvFormat(pv);
-    }
-
     public Pv getOrCreatePv(String code, Acquirer acquirer) {
         Optional<Pv> pvOpt = repository.findByCodeAndAcquirerId(code, acquirer.ordinal());
         return pvOpt.orElseGet(() -> repository.save(new Pv(code, acquirer)));
@@ -90,6 +79,13 @@ public class PvService {
             }
             return Result.success(pv);
         };
+    }
+
+    public Result<Pv, String> isValidFormat(Pv pv) {
+        PvFormat pvFormat = new PvFormat(10, "[0-9]{1,10}");
+        return isValidSize(pvFormat.getSize())
+            .and(isValidFormat(pvFormat.getFormatRegex()))
+            .validate(pv);
     }
 
     public Result<Pv, String> existsAsHeadquarter(Pv pv) {

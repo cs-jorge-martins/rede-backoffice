@@ -205,8 +205,9 @@ public class PvPermissionService {
      * @return the result.
      */
     private Result<PvPermission, String> createForSecondaryUser(User primaryUser, User secondaryUser, Pv pv) {
-        if (!pvService.isValidPv(pv)) {
-            return Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e 10 caracteres, somente números)", pv.getCode()));
+        Result<Pv, String> pvValidationResult = pvService.isValidFormat(pv);
+        if (pvValidationResult.isFailure()) {
+            return getFailure(pvValidationResult);
         }
 
         Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());

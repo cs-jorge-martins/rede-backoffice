@@ -79,34 +79,6 @@ public class PvServiceTest {
         assertThat(pvService.isValidPvFormat(pv), equalTo(false));
     }
 
-    /**
-     * Test is valid when pv does not exist.
-     */
-    @Test
-    public void testIsValidWhenPvDoesNotExist() {
-        String code = "12345678";
-        Acquirer acquirer = Acquirer.CIELO;
-
-        when(pvRepository.findByCodeAndAcquirerId(code, acquirer.ordinal())).thenReturn(Optional.empty());
-
-        assertThat(pvService.isValidPv(new Pv(code, acquirer)), equalTo(true));
-    }
-
-    /**
-     * Test is valid when pv exists and is headquarter.
-     */
-    @Test
-    public void testIsValidWhenPvExistsAndIsHeadquarter() {
-        String code = "12345678";
-        Acquirer acquirer = Acquirer.CIELO;
-
-        Pv headquarterPv = new Pv(code, acquirer);
-
-        when(pvRepository.findByCodeAndAcquirerId(code, acquirer.ordinal())).thenReturn(Optional.of(headquarterPv));
-
-        assertThat(pvService.isValidPv(headquarterPv), equalTo(true));
-    }
-
     @Test
     public void testGetOrCreatePvWhenPvDoesNotExists() {
         Pv pv = new Pv("code", Acquirer.CIELO);

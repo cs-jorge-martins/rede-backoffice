@@ -112,7 +112,6 @@ public class PvPermissionServiceTest {
         primaryUser = new User();
         when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
         when(userService.getOrCreatePrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(primaryUser);
-        when(pvService.isValidPv(Mockito.any())).thenReturn(true);
 
         secondaryUser = new User();
         secondaryUser.setPrimaryUser(primaryUser);
@@ -120,6 +119,7 @@ public class PvPermissionServiceTest {
 
         pv = new Pv(PV_CODE, Acquirer.CIELO);
         when(pvService.existsAsHeadquarter(pv)).thenReturn(Result.success(pv));
+        when(pvService.isValidFormat(pv)).thenReturn(Result.success(pv));
         when(pvService.getOrCreatePv(PV_CODE, Acquirer.CIELO)).thenReturn(pv);
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal())).thenReturn(Optional.of(pv));
 
@@ -283,17 +283,16 @@ public class PvPermissionServiceTest {
      * Test create for secondary user when pv has invalid format.
      */
     @Test
-    public void testCreateForSecondaryUserWhenPvHasInvalidFormat() {
+    public void testCreateForSecondaryUserWhenPvIsInvalid() {
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal()))
                 .thenReturn(Optional.empty());
-        when(pvService.isValidPv(Mockito.any())).thenReturn(false);
+        when(pvService.isValidFormat(pv)).thenReturn(Result.failure(""));
 
         List<Result<PvPermission, String>> results = pvPermissionService
             .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
         Result<PvPermission, String> result1 = getFirstResult(results);
         assertThat(result1.isFailure(), equalTo(true));
-        assertThat(result1.failure().get(), equalTo(String.format("O pv '%s' está no formato inválido (entre 1 e 10 caracteres, somente números)", PV_CODE)));
     }
 
     /**
