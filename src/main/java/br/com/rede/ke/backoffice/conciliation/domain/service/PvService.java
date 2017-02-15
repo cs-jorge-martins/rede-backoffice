@@ -60,11 +60,7 @@ public class PvService {
      * @return true, if is valid pv
      */
     public boolean isValidPv(Pv pv) {
-        if (!isValidPvFormat(pv)) {
-            return false;
-        }
-        Optional<Pv> resultPv = repository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
-        return resultPv.map(Pv::isHeadquarter).orElse(true);
+        return isValidPvFormat(pv);
     }
 
     public Pv getOrCreatePv(String code, Acquirer acquirer) {

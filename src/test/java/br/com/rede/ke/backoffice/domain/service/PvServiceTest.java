@@ -107,22 +107,6 @@ public class PvServiceTest {
         assertThat(pvService.isValidPv(headquarterPv), equalTo(true));
     }
 
-    /**
-     * Test is valid when pv exists but is not headquarter.
-     */
-    @Test
-    public void testIsValidWhenPvExistsButIsNotHeadquarter() {
-        String code = "12345678";
-        Acquirer acquirer = Acquirer.CIELO;
-
-        Pv branchPv = new Pv(code, acquirer);
-        branchPv.setHeadquarter(new Pv());
-
-        when(pvRepository.findByCodeAndAcquirerId(code, acquirer.ordinal())).thenReturn(Optional.of(branchPv));
-
-        assertThat(pvService.isValidPv(branchPv), equalTo(false));
-    }
-
     @Test
     public void testGetOrCreatePvWhenPvDoesNotExists() {
         Pv pv = new Pv("code", Acquirer.CIELO);
