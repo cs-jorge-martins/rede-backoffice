@@ -205,27 +205,22 @@ public class PvPermissionService {
      * @return the result.
      */
     private Result<PvPermission, String> createForSecondaryUser(User primaryUser, User secondaryUser, Pv pv) {
-        Result<Pv, String> pvValidationResult = pvService.isValidFormat(pv);
+        Result<Pv, String> pvValidationResult = pvService.exists(pv);
         if (pvValidationResult.isFailure()) {
             return getFailure(pvValidationResult);
         }
 
         Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
-
-        if (!pvOpt.isPresent()) {
-            return Result.failure(String.format("O pv '%s' não existe", pv.getCode()));
-        }
-
         Pv existingPv = pvOpt.get();
 
-        if (!userService.hasAccess(primaryUser, existingPv)) {
-            return Result.failure(String.format("Usuário '%s' não tem acesso ao pv '%s'",
-                primaryUser.getEmail(), existingPv.getCode()));
+        Result<User, String> userValidationResult = userService.hasAccess(primaryUser, existingPv);
+        if (userValidationResult.isFailure()) {
+            return getFailure(userValidationResult);
         }
 
         PvPermission pvPermission = new PvPermission(secondaryUser, existingPv);
-
         pvPermissionRepository.save(pvPermission);
+
         return Result.success(pvPermission);
     }
 

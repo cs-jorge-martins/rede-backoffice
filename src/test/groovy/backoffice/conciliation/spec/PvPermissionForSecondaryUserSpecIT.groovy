@@ -25,7 +25,6 @@ import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository
 import geb.spock.GebSpec
 
-
 @ContextConfiguration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
         classes = Application,
@@ -292,9 +291,9 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem O pv '***invalid_pv_code***' está no formato inválido (entre 1 e 10 caracteres, somente números)"
+        expect: "mensagem 'O pv 'invalidpv' está no formato inválido (somente números)' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("O pv '***invalid_pv_code***' está no formato inválido (entre 1 e 10 caracteres, somente números)"))
+        assert(messages.text().contains("O pv 'invalidpv' está no formato inválido (somente números)"))
     }
 
     def "Dar permissão de PV quando o usuario primario não tem permissão"() {

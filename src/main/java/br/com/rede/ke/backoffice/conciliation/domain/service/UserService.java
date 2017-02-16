@@ -11,14 +11,16 @@ package br.com.rede.ke.backoffice.conciliation.domain.service;
 
 import java.util.Optional;
 
-import org.springframework.stereotype.Service;
-
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidPrimaryUserException;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.InvalidSecondaryUserException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.UserRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.validation.Validation;
+import br.com.rede.ke.backoffice.util.Result;
+import org.springframework.stereotype.Service;
 
 /**
  * The UserService class.
@@ -45,18 +47,18 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Verify if user has access to pv.
-     *
-     * @param user
-     *            user.
-     * @param pv
-     *            pv.
-     * @return if has access.
-     */
-    public boolean hasAccess(User user, Pv pv) {
-        return pvPermissionRepository.findByUser(user).stream()
-            .anyMatch(permission -> permission.permitAccess(pv));
+    public Result<User, String> hasAccess(User user, Pv pv) {
+        Validation<User> hasAccess = (user1) -> {
+            return pvPermissionRepository.findByUser(user1).stream()
+                .filter(permission -> permission.permitAccess(pv))
+                .findAny()
+                .map(PvPermission::getUser)
+                .map(Result::<User, String>success)
+                .orElseGet(() ->
+                    Result.failure(String.format("Usuário '%s' não tem acesso ao pv '%s'",
+                    user1.getEmail(), pv.getCode())));
+        };
+        return hasAccess.validate(user);
     }
 
     /**

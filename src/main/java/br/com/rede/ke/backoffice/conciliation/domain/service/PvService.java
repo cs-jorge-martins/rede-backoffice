@@ -81,10 +81,21 @@ public class PvService {
         };
     }
 
-    public Result<Pv, String> isValidFormat(Pv pv) {
+    public Validation<Pv> exists() {
+        return pv -> {
+            Optional<Pv> pvOpt = repository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
+            if (!pvOpt.isPresent()) {
+                return Result.failure(String.format("O pv '%s' não existe", pv.getCode()));
+            }
+            return Result.success(pv);
+        };
+    }
+
+    public Result<Pv, String> exists(Pv pv) {
         PvFormat pvFormat = new PvFormat(10, "[0-9]{1,10}");
         return isValidSize(pvFormat.getSize())
             .and(isValidFormat(pvFormat.getFormatRegex()))
+            .and(exists())
             .validate(pv);
     }
 
@@ -95,5 +106,4 @@ public class PvService {
             .and(existsAsHeadquarter())
             .validate(pv);
     }
-
 }

@@ -119,7 +119,8 @@ public class PvPermissionServiceTest {
 
         pv = new Pv(PV_CODE, Acquirer.CIELO);
         when(pvService.existsAsHeadquarter(pv)).thenReturn(Result.success(pv));
-        when(pvService.isValidFormat(pv)).thenReturn(Result.success(pv));
+        when(pvService.exists(pv)).thenReturn(Result.success(pv));
+
         when(pvService.getOrCreatePv(PV_CODE, Acquirer.CIELO)).thenReturn(pv);
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal())).thenReturn(Optional.of(pv));
 
@@ -225,7 +226,7 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForSecondaryUser() {
-        when(userService.hasAccess(primaryUser, pv)).thenReturn(true);
+        when(userService.hasAccess(primaryUser, pv)).thenReturn(Result.success(primaryUser));
 
         List<Result<PvPermission, String>> pvPermissionResults = pvPermissionService
             .createForSecondaryUser(secondaryUserPvPermissionRequest);
@@ -244,30 +245,13 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForSecondaryUserWhenRequesterUserHasNoPvPermissionAccess() {
-        when(userService.hasAccess(primaryUser, pv)).thenReturn(false);
+        when(userService.hasAccess(primaryUser, pv)).thenReturn(Result.failure(""));
 
         List<Result<PvPermission, String>> results = pvPermissionService
             .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
         Result<PvPermission, String> result1 = getFirstResult(results);
         assertThat(result1.isFailure(), equalTo(true));
-        assertThat(result1.failure().get(), equalTo("Usuário 'null' não tem acesso ao pv 'pvcode'"));
-    }
-
-    /**
-     * Test create for secondary user when pv do not exists.
-     */
-    @Test
-    public void testCreateForSecondaryUserWhenPvDoNotExists() {
-        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal()))
-            .thenReturn(Optional.empty());
-
-        List<Result<PvPermission, String>> results = pvPermissionService
-            .createForSecondaryUser(secondaryUserPvPermissionRequest);
-
-        Result<PvPermission, String> result1 = getFirstResult(results);
-        assertThat(result1.isFailure(), equalTo(true));
-        assertThat(result1.failure().get(), equalTo(String.format("O pv '%s' não existe", PV_CODE)));
     }
 
     /**
@@ -286,7 +270,7 @@ public class PvPermissionServiceTest {
     public void testCreateForSecondaryUserWhenPvIsInvalid() {
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal()))
                 .thenReturn(Optional.empty());
-        when(pvService.isValidFormat(pv)).thenReturn(Result.failure(""));
+        when(pvService.exists(pv)).thenReturn(Result.failure(""));
 
         List<Result<PvPermission, String>> results = pvPermissionService
             .createForSecondaryUser(secondaryUserPvPermissionRequest);
