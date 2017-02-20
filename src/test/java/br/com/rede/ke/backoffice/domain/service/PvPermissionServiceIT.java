@@ -82,7 +82,7 @@ public class PvPermissionServiceIT {
     @Test
     @Transactional
     public void testFindAllByAcquirerAndCodeAndEmail() {
-        String code = "92315670";
+        String code = "0092315670";
         String email = "bar@foo.com";
         Page<PvPermission> searchResults = pvPermissionService.findAllByAcquirerAndCodeAndEmail(Acquirer.CIELO, code,
             email, pageable);

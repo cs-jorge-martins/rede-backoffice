@@ -23,9 +23,10 @@ public class SecondaryUserPvPermissionRequest extends PrimaryUserPvPermissionReq
     private String toBePermittedUserEmail;
 
     /**
-     * Constructor.
-     *
-     * @param toBePermittedUserEmail child user email param
+     * Contructor.
+     * @param requesterUserEmail requester user email.
+     * @param toBePermittedUserEmail child user email param.
+     * @param pvs pvs.
      */
     public SecondaryUserPvPermissionRequest(String requesterUserEmail, String toBePermittedUserEmail, List<Pv> pvs) {
         super(requesterUserEmail, pvs);

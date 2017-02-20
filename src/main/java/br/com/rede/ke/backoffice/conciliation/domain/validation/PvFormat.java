@@ -15,10 +15,18 @@ package br.com.rede.ke.backoffice.conciliation.domain.validation;
 public class PvFormat {
     private int size;
     private String formatRegex;
+    private String leftPaddingRegex;
 
-    public PvFormat(int size, String formatRegex) {
+    /**
+     * Constructor.
+     * @param size size.
+     * @param formatRegex format regex.
+     * @param leftPaddingRegex left padding regex.
+     */
+    public PvFormat(int size, String formatRegex, String leftPaddingRegex) {
         this.size = size;
         this.formatRegex = formatRegex;
+        this.leftPaddingRegex = leftPaddingRegex;
     }
 
     public int getSize() {
@@ -27,5 +35,9 @@ public class PvFormat {
 
     public String getFormatRegex() {
         return formatRegex;
+    }
+
+    public String getLeftPaddingRegex() {
+        return leftPaddingRegex;
     }
 }

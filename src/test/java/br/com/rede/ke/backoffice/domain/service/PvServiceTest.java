@@ -79,6 +79,9 @@ public class PvServiceTest {
         assertThat(pvService.isValidPvFormat(pv), equalTo(false));
     }
 
+    /**
+     * Test get or create pv when pv does not exists.
+     */
     @Test
     public void testGetOrCreatePvWhenPvDoesNotExists() {
         Pv pv = new Pv("code", Acquirer.CIELO);
@@ -88,6 +91,9 @@ public class PvServiceTest {
         assertThat(pvService.getOrCreatePv("code", Acquirer.CIELO), equalTo(pv));
     }
 
+    /**
+     * Test get or create pv when pv already exists.
+     */
     @Test
     public void testGetOrCreatePvWhenPvAlreadyExists() {
         Pv pv = new Pv("code", Acquirer.CIELO);
@@ -97,48 +103,9 @@ public class PvServiceTest {
         verify(pvRepository, times(0)).save(pv);
     }
 
-    @Test
-    public void testIsValidSizeWhenSizeIsInvalid() {
-        Validation<Pv> validSize = pvService.isValidSize(10);
-
-        Result<Pv, String> result = validSize.validate(new Pv("12345678901"));
-
-        MatcherAssert.assertThat(result.isFailure(), is(true));
-        MatcherAssert.assertThat(result.failure().get(), is("O pv '12345678901' está no formato inválido (entre 1 e 10 caracteres)"));
-    }
-
-    @Test
-    public void testIsValidSizeWhenSizeIsValid() {
-        Validation<Pv> validSize = pvService.isValidSize(10);
-        Pv pv = new Pv("1234567890");
-
-        Result<Pv, String> result = validSize.validate(pv);
-
-        MatcherAssert.assertThat(result.isSuccess(), is(true));
-        MatcherAssert.assertThat(result.success().get(), is(pv));
-    }
-
-    @Test
-    public void testIsValidFormatWhenFormatDoesNotMatchRegex() {
-        Validation<Pv> validFormat = pvService.isValidFormat("[0-9]{1,10}");
-
-        Result<Pv, String> result = validFormat.validate(new Pv("a234567890"));
-
-        MatcherAssert.assertThat(result.isFailure(), is(true));
-        MatcherAssert.assertThat(result.failure().get(), is("O pv 'a234567890' está no formato inválido (somente números)"));
-    }
-
-    @Test
-    public void testIsValidFormatWhenFormatMatchesRegex() {
-        Validation<Pv> validFormat = pvService.isValidFormat("[0-9]{1,10}");
-
-        Pv pv = new Pv("12345678");
-        Result<Pv, String> result = validFormat.validate(pv);
-
-        MatcherAssert.assertThat(result.isSuccess(), is(true));
-        MatcherAssert.assertThat(result.success().get(), is(pv));
-    }
-
+    /**
+     * Test exists as headquarter when pv does not exist.
+     */
     @Test
     public void testExistsAsHeadquarterWhenPvDoesNotExist() {
         when(pvRepository.findByCodeAndAcquirerId("code", Acquirer.CIELO.ordinal()))
@@ -153,6 +120,9 @@ public class PvServiceTest {
         MatcherAssert.assertThat(result.success().get(), is(pv));
     }
 
+    /**
+     * Test exists as headquarter when pv exists as headquarter.
+     */
     @Test
     public void testExistsAsHeadquarterWhenPvExistsAsHeadquarter() {
         Pv headquarter = new Pv("code", Acquirer.CIELO);
@@ -166,6 +136,9 @@ public class PvServiceTest {
         MatcherAssert.assertThat(result.success().get(), is(headquarter));
     }
 
+    /**
+     * Test exists as headquarter when pv exists as a branch.
+     */
     @Test
     public void testExistsAsHeadquarterWhenPvExistsAsABranch() {
         Pv headquarter = new Pv("code1", Acquirer.CIELO);
