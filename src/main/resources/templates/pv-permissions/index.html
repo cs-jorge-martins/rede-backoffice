@@ -85,17 +85,17 @@
                     </div>
                     <!-- Modal Structure -->
                     <div id="modal-remove-pv-permissions" class="modal">
-                        <a class="btn-flat right modal-close"><i class="material-icons">highlight_off</i></a>
                         <div class="modal-content">
-                            <h4>confirmar lançamentos?</h4>
+                            <i class="material-icons right modal-close grey-text" id="modal-close-icon">clear</i>
+                            <h4 class="turquoise-text">remover permissões?</h4>
+                            <div class="modal-text">
+                                <div class="grey-text">Não será possível recuperar as permissões removidas.</div>
+                                <div class="grey-text">Quando uma permissão for removida por engano, ela deverá ser adicionada via <b>permissão de PVs.</b></div>
+                            </div>
                         </div>
                         <div class="modal-footer">
-                            <div class="col">
-                                <button class="modal-action modal-close waves-effect waves-green grey darken-3 btn white-text cancel" type="button">não, cancelar seleção</button>
-                            </div>
-                            <div class="col">
-                                <button class="modal-action waves-effect waves-green btn" type="submit">sim, remover permissões</button>
-                            </div>
+                            <button class="modal-action modal-close waves-effect waves-light btn grey darken-3 white-text" type="button">não, cancelar seleção</button>
+                            <button class="modal-action waves-effect waves-light btn" type="submit">sim, remover permissões</button>
                         </div>
                     </div>
                 </form>

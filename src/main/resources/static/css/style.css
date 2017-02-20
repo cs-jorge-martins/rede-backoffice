@@ -4,6 +4,7 @@ html {
 
 body {
   font-size: 16px;
+  font-weight: 600;
 }
 
 .container {
@@ -22,6 +23,7 @@ nav .brand-logo {
   background-color: #f9e000;
   color: #000;
   text-transform: none;
+  height: 44px;
 }
 
 .btn:hover {
@@ -79,4 +81,38 @@ table.bordered>thead>tr {
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.3);
   color: #00b8b6;
   text-align: left;
+}
+
+.modal {
+  padding: 30px;
+  width: 626px;
+}
+
+.modal .modal-content {
+  padding: 0px;
+}
+
+.modal-text {
+  font-weight: 400;
+  padding: 30px 0;
+}
+
+.modal .modal-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 0px;
+}
+
+.modal .modal-footer .btn, .modal .modal-footer .btn-large, .modal .modal-footer .btn-flat {
+  float: none;
+  min-width: 265px;
+}
+
+.modal h4 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+#modal-close-icon {
+  font-size: 28px;
 }
