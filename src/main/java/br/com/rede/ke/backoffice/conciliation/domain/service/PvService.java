@@ -14,7 +14,6 @@ import java.util.Optional;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
-import br.com.rede.ke.backoffice.conciliation.domain.validation.PvFormat;
 import br.com.rede.ke.backoffice.conciliation.domain.validation.Validation;
 import br.com.rede.ke.backoffice.util.Result;
 import org.springframework.stereotype.Service;
@@ -57,20 +56,6 @@ public class PvService {
         return pvOpt.orElseGet(() -> repository.save(new Pv(code, acquirer)));
     }
 
-    public Validation<Pv> isValidSize(int size) {
-        return pv -> Optional.of(pv)
-            .filter(pv1 -> pv1.getCode().length() <= size)
-            .map(pv1 -> Result.<Pv, String>success(pv))
-            .orElseGet(()-> Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e %s caracteres)", pv.getCode(), size)));
-    }
-
-    public Validation<Pv> isValidFormat(String formatRegex) {
-        return pv -> Optional.of(pv)
-            .filter(pv1 -> pv1.getCode().matches(formatRegex))
-            .map(pv1 -> Result.<Pv, String>success(pv))
-            .orElseGet(()-> Result.failure(String.format("O pv '%s' está no formato inválido (somente números)", pv.getCode())));
-    }
-
     public Validation<Pv> existsAsHeadquarter() {
         return pv -> {
             Optional<Pv> pvOpt = repository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
@@ -92,18 +77,10 @@ public class PvService {
     }
 
     public Result<Pv, String> exists(Pv pv) {
-        PvFormat pvFormat = new PvFormat(10, "[0-9]{1,10}");
-        return isValidSize(pvFormat.getSize())
-            .and(isValidFormat(pvFormat.getFormatRegex()))
-            .and(exists())
-            .validate(pv);
+        return exists().validate(pv);
     }
 
     public Result<Pv, String> existsAsHeadquarter(Pv pv) {
-        PvFormat pvFormat = new PvFormat(10, "[0-9]{1,10}");
-        return isValidSize(pvFormat.getSize())
-            .and(isValidFormat(pvFormat.getFormatRegex()))
-            .and(existsAsHeadquarter())
-            .validate(pv);
+        return existsAsHeadquarter().validate(pv);
     }
 }

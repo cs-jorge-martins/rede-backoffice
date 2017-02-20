@@ -80,7 +80,7 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
 
     def "Dar permissão de PV a um Usuário secundário"() {
         setup: "o pv matriz existe no banco"
-        def pv = createPv("11111111", Acquirer.CIELO)
+        def pv = createPv("0011111111", Acquirer.CIELO)
 
         and: "o usuario requisitante é primario"
         def primaryUser = createPrimaryUser("usuario_primario_1@email.com")
@@ -113,7 +113,7 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
     def "Dar permissão de PV a um Usuário secundário inexistente"() {
         setup: "o pv matriz existe no banco"
         def secondaryUserEmail = "usuario_secundario_2@email.com"
-        def pv = createPv("22222222", Acquirer.CIELO)
+        def pv = createPv("0022222222", Acquirer.CIELO)
 
         and: "o usuario requisitante é primario"
         def primaryUser = createPrimaryUser("usuario_primario_2@email.com")
@@ -143,8 +143,8 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
     def "Dar permissão para um PV filial existente a um Usuário secundário"() {
         setup: "o pv filial existe no banco"
         def secondaryUserEmail = "usuario_secundario_3@email.com"
-        def headquarterPv = createPv("33333333", Acquirer.CIELO)
-        createBranchPvFor(headquarterPv, "33333334")
+        def headquarterPv = createPv("0033333333", Acquirer.CIELO)
+        createBranchPvFor(headquarterPv, "0033333334")
 
         and: "o usuario requisitante é primario"
         def primaryUser = createPrimaryUser("usuario_primario_3@email.com")
@@ -299,7 +299,7 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
     def "Dar permissão de PV quando o usuario primario não tem permissão"() {
         setup: "o pv matriz existe no banco"
         def secondaryUserEmail = "usuario_secundario_8@email.com"
-        createPv("88888888", Acquirer.CIELO)
+        createPv("0088888888", Acquirer.CIELO)
 
         and: "o usuario requisitante é primario"
         def primaryUser = createPrimaryUser("usuario_primario_8@email.com")
@@ -318,9 +318,9 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem 'Usuário 'usuario_primario_8@email.com' não tem acesso ao pv '88888888' deve aparecer"
+        expect: "mensagem 'Usuário 'usuario_primario_8@email.com' não tem acesso ao pv '0088888888' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("Usuário 'usuario_primario_8@email.com' não tem acesso ao pv '88888888'"))
+        assert(messages.text().contains("Usuário 'usuario_primario_8@email.com' não tem acesso ao pv '0088888888'"))
     }
 
     def "Pv não existente"() {
@@ -342,8 +342,8 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem 'O pv '99999999' não existe' deve aparecer"
+        expect: "mensagem 'O pv '0099999999' não existe' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("O pv '99999999' não existe"))
+        assert(messages.text().contains("O pv '0099999999' não existe"))
     }
 }

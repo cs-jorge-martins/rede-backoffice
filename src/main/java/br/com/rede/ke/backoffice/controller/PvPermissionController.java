@@ -11,7 +11,6 @@ package br.com.rede.ke.backoffice.controller;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
@@ -130,13 +129,20 @@ public class PvPermissionController {
         @RequestParam String email) {
 
         try {
-            List<Pv> pvs = PvFactory.fromFileAndAcquirer(file, acquirer);
+            List<Result<Pv, String>> formatResults = PvFactory.fromFileAndAcquirer(file, acquirer);
+            List<Pv> pvs = Result.getSuccessValues(formatResults);
+
             PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(email, pvs);
 
             List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(pvPermissionRequest);
 
+            List<String> formatFailures = Result.getFailureValues(formatResults);
+
+            List<String> failureMessages = Result.getFailureValues(results);
+            failureMessages.addAll(formatFailures);
+
             model.addAttribute("validPvs", Result.getSuccessValues(results));
-            model.addAttribute("invalidPvs", Result.getFailureValues(results));
+            model.addAttribute("invalidPvs", failureMessages);
         } catch (DomainException | InvalidFileException e) {
             model.addAttribute("errorMessage", e.getMessage());
         }
@@ -180,15 +186,22 @@ public class PvPermissionController {
         @RequestParam String secondaryEmail) {
 
         try {
-            List<Pv> pvs = PvFactory.fromFileAndAcquirer(file, acquirer);
+            List<Result<Pv, String>> formatResults = PvFactory.fromFileAndAcquirer(file, acquirer);
+            List<Pv> pvs = Result.getSuccessValues(formatResults);
+
             SecondaryUserPvPermissionRequest pvPermissionRequests =
                 new SecondaryUserPvPermissionRequest(primaryEmail, secondaryEmail, pvs);
+
+            List<String> formatFailures = Result.getFailureValues(formatResults);
 
             List<Result<PvPermission, String>> results = pvPermissionService
                 .createForSecondaryUser(pvPermissionRequests);
 
+            List<String> failureMessages = Result.getFailureValues(results);
+            failureMessages.addAll(formatFailures);
+
             model.addAttribute("validPvs", Result.getSuccessValues(results));
-            model.addAttribute("invalidPvs", Result.getFailureValues(results));
+            model.addAttribute("invalidPvs", failureMessages);
         } catch (DomainException | InvalidFileException e) {
             model.addAttribute("errorMessage", e.getMessage());
         }

@@ -98,48 +98,6 @@ public class PvServiceTest {
     }
 
     @Test
-    public void testIsValidSizeWhenSizeIsInvalid() {
-        Validation<Pv> validSize = pvService.isValidSize(10);
-
-        Result<Pv, String> result = validSize.validate(new Pv("12345678901"));
-
-        MatcherAssert.assertThat(result.isFailure(), is(true));
-        MatcherAssert.assertThat(result.failure().get(), is("O pv '12345678901' está no formato inválido (entre 1 e 10 caracteres)"));
-    }
-
-    @Test
-    public void testIsValidSizeWhenSizeIsValid() {
-        Validation<Pv> validSize = pvService.isValidSize(10);
-        Pv pv = new Pv("1234567890");
-
-        Result<Pv, String> result = validSize.validate(pv);
-
-        MatcherAssert.assertThat(result.isSuccess(), is(true));
-        MatcherAssert.assertThat(result.success().get(), is(pv));
-    }
-
-    @Test
-    public void testIsValidFormatWhenFormatDoesNotMatchRegex() {
-        Validation<Pv> validFormat = pvService.isValidFormat("[0-9]{1,10}");
-
-        Result<Pv, String> result = validFormat.validate(new Pv("a234567890"));
-
-        MatcherAssert.assertThat(result.isFailure(), is(true));
-        MatcherAssert.assertThat(result.failure().get(), is("O pv 'a234567890' está no formato inválido (somente números)"));
-    }
-
-    @Test
-    public void testIsValidFormatWhenFormatMatchesRegex() {
-        Validation<Pv> validFormat = pvService.isValidFormat("[0-9]{1,10}");
-
-        Pv pv = new Pv("12345678");
-        Result<Pv, String> result = validFormat.validate(pv);
-
-        MatcherAssert.assertThat(result.isSuccess(), is(true));
-        MatcherAssert.assertThat(result.success().get(), is(pv));
-    }
-
-    @Test
     public void testExistsAsHeadquarterWhenPvDoesNotExist() {
         when(pvRepository.findByCodeAndAcquirerId("code", Acquirer.CIELO.ordinal()))
             .thenReturn(Optional.empty());
