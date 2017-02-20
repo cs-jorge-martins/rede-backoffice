@@ -49,6 +49,9 @@ public class PvPermissionController {
     /** The pv permission repository. */
     private PvPermissionRepository pvPermissionRepository;
 
+    /** The pv factory. */
+    private PvFactory pvFactory;
+
     /**
      * Instantiates a new pv permission controller.
      *
@@ -56,10 +59,13 @@ public class PvPermissionController {
      * @param pvPermissionRepository the pv permission repository
      */
     @SuppressWarnings("unused")
-    public PvPermissionController(PvPermissionService pvPermissionService,
-        PvPermissionRepository pvPermissionRepository) {
+    public PvPermissionController(
+        PvPermissionService pvPermissionService,
+        PvPermissionRepository pvPermissionRepository,
+        PvFactory pvFactory) {
         this.pvPermissionService = pvPermissionService;
         this.pvPermissionRepository = pvPermissionRepository;
+        this.pvFactory = pvFactory;
     }
 
     /**
@@ -129,7 +135,7 @@ public class PvPermissionController {
         @RequestParam String email) {
 
         try {
-            List<Result<Pv, String>> formatResults = PvFactory.fromFileAndAcquirer(file, acquirer);
+            List<Result<Pv, String>> formatResults = pvFactory.fromFileAndAcquirer(file, acquirer);
             List<Pv> pvs = Result.getSuccessValues(formatResults);
 
             PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(email, pvs);
@@ -186,7 +192,7 @@ public class PvPermissionController {
         @RequestParam String secondaryEmail) {
 
         try {
-            List<Result<Pv, String>> formatResults = PvFactory.fromFileAndAcquirer(file, acquirer);
+            List<Result<Pv, String>> formatResults = pvFactory.fromFileAndAcquirer(file, acquirer);
             List<Pv> pvs = Result.getSuccessValues(formatResults);
 
             SecondaryUserPvPermissionRequest pvPermissionRequests =
