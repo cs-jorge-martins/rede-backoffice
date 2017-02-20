@@ -10,7 +10,9 @@
 
 package br.com.rede.ke.backoffice.conciliation.domain;
 
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import java.util.List;
+
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 
 /**
  * Secondary user pv permission request.
@@ -25,8 +27,8 @@ public class SecondaryUserPvPermissionRequest extends PrimaryUserPvPermissionReq
      *
      * @param toBePermittedUserEmail child user email param
      */
-    public SecondaryUserPvPermissionRequest(String requesterUserEmail, String toBePermittedUserEmail, String pvCode, Acquirer acquirer) {
-        super(requesterUserEmail, pvCode, acquirer);
+    public SecondaryUserPvPermissionRequest(String requesterUserEmail, String toBePermittedUserEmail, List<Pv> pvs) {
+        super(requesterUserEmail, pvs);
         this.toBePermittedUserEmail = toBePermittedUserEmail;
     }
 

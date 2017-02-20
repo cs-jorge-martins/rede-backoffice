@@ -9,24 +9,10 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
@@ -38,6 +24,20 @@ import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundExcep
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
 import br.com.rede.ke.backoffice.util.Result;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * The Class PvPermissionServiceTest.
@@ -104,21 +104,24 @@ public class PvPermissionServiceTest {
     @Before
     public void setUp() {
         this.primaryUserPvPermissionRequest = new PrimaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, PV_CODE, CIELO);
+            PRIMARY_USER_EMAIL, Collections.singletonList(new Pv(PV_CODE, CIELO)));
 
         this.secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, PV_CODE, CIELO);
+            PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, Collections.singletonList(new Pv(PV_CODE, CIELO)));
 
         primaryUser = new User();
         when(userService.getPrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(Optional.of(primaryUser));
         when(userService.getOrCreatePrimaryUser(PRIMARY_USER_EMAIL)).thenReturn(primaryUser);
-        when(pvService.isValidPv(Mockito.any())).thenReturn(true);
 
         secondaryUser = new User();
         secondaryUser.setPrimaryUser(primaryUser);
         when(userService.getOrCreateSecondaryUserFor(primaryUser, SECONDARY_USER_EMAIL)).thenReturn(secondaryUser);
 
-        pv = new Pv();
+        pv = new Pv(PV_CODE, Acquirer.CIELO);
+        when(pvService.existsAsHeadquarter(pv)).thenReturn(Result.success(pv));
+        when(pvService.exists(pv)).thenReturn(Result.success(pv));
+
+        when(pvService.getOrCreatePv(PV_CODE, Acquirer.CIELO)).thenReturn(pv);
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal())).thenReturn(Optional.of(pv));
 
         primaryUserPvPermission = new PvPermission(primaryUser, pv);
@@ -128,51 +131,40 @@ public class PvPermissionServiceTest {
         when(pvPermissionRepository.findByUserAndPv(primaryUser, pv)).thenReturn(Optional.empty());
     }
 
-    @Test
-    public void testCreateForPrimaryUserWhenPvIsBranch() throws Exception {
-        String branchPvCode = "branchcode";
-        Pv branch = new Pv();
-        branch.setHeadquarter(pv);
-        branch.setCode(branchPvCode);
-        when(pvRepository.findByCodeAndAcquirerId(branchPvCode, CIELO.ordinal())).thenReturn(Optional.of(branch));
-
-        PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest
-            (PRIMARY_USER_EMAIL, branchPvCode, CIELO);
-
-        Result<PvPermission, String> result = pvPermissionService.createForPrimaryUser(pvPermissionRequest);
-
-        assertThat(result.failure().isPresent(), equalTo(true));
-        assertThat(result.failure().get(), equalTo("O pv 'branchcode' já está cadastrado como um pv filial"));
-    }
-
-    /**
-     * Test create for primary user when pv code is not valid.
-     */
-    @Test
-    public void testCreateForPrimaryUserWhenPvCodeIsNotValid() {
-        when(pvService.isValidPv(Mockito.any(Pv.class))).thenReturn(false);
-
-        Result<PvPermission, String> result = pvPermissionService.createForPrimaryUser(primaryUserPvPermissionRequest);
-        Optional<String> failure = result.failure();
-
-        assertThat(failure.isPresent(), equalTo(true));
-    }
-
     /**
      * Test create for primary user when pv does not exist.
      */
     @Test
     public void testCreateForPrimaryUserWhenPvDoesNotExist() {
-        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, primaryUserPvPermissionRequest.getAcquirer().ordinal()))
+        PvPermission pvPermission = new PvPermission(primaryUser, pv);
+
+        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal()))
             .thenReturn(Optional.empty());
         when(pvRepository.save(any(Pv.class))).thenReturn(pv);
-        PvPermission pvPermission = new PvPermission(primaryUser, pv);
         when(pvPermissionRepository.save(Mockito.any(PvPermission.class))).thenReturn(pvPermission);
 
-        Result<PvPermission, String> result = pvPermissionService.createForPrimaryUser(primaryUserPvPermissionRequest);
+        List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(
+            primaryUserPvPermissionRequest);
 
-        assertThat(result.success().isPresent(), equalTo(true));
-        assertThat(result.success().get(), equalTo(pvPermission));
+        Result<PvPermission, String> firstResult = getFirstResult(results);
+        assertThat(firstResult.success().isPresent(), equalTo(true));
+        assertThat(firstResult.success().get(), equalTo(pvPermission));
+    }
+
+    /**
+     * Test create for primary user when pv is invalid.
+     */
+    @Test
+    public void testCreateForPrimaryUserWhenPvIsInvalid() {
+        PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(
+            PRIMARY_USER_EMAIL, Collections.singletonList(new Pv()));
+
+        when(pvService.existsAsHeadquarter(any())).thenReturn(Result.failure(""));
+
+        List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(pvPermissionRequest);
+
+        verify(pvRepository, times(0)).findByCodeAndAcquirerId(any(), any());
+        assertThat(getFirstResult(results).isFailure(), equalTo(true));
     }
 
     /**
@@ -183,10 +175,12 @@ public class PvPermissionServiceTest {
         PvPermission pvPermission = new PvPermission(primaryUser, pv);
         when(pvPermissionRepository.save(Mockito.any(PvPermission.class))).thenReturn(pvPermission);
 
-        Result<PvPermission, String> result = pvPermissionService.createForPrimaryUser(primaryUserPvPermissionRequest);
+        List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(
+            primaryUserPvPermissionRequest);
 
-        assertThat(result.success().isPresent(), equalTo(true));
-        assertThat(result.success().get(), equalTo(pvPermission));
+        Result<PvPermission, String> firstResult = getFirstResult(results);
+        assertThat(firstResult.success().isPresent(), equalTo(true));
+        assertThat(firstResult.success().get(), equalTo(pvPermission));
     }
 
     /**
@@ -197,14 +191,16 @@ public class PvPermissionServiceTest {
         PvPermission pvPermission = new PvPermission(primaryUser, pv);
         when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
 
+        List<Pv> pvs = Collections.singletonList(new Pv(PV_CODE, CIELO));
         PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest =
-            new PrimaryUserPvPermissionRequest("another_primary@email.com", PV_CODE, CIELO);
+            new PrimaryUserPvPermissionRequest("another_primary@email.com", pvs);
 
-        Result<PvPermission, String> result = pvPermissionService
+        List<Result<PvPermission, String>> results = pvPermissionService
             .createForPrimaryUser(anotherPrimaryUserPvPermissionRequest);
 
-        assertThat(result.failure().isPresent(), equalTo(true));
-        assertThat(result.failure().get(),
+        Result<PvPermission, String> firstResult = getFirstResult(results);
+        assertThat(firstResult.failure().isPresent(), equalTo(true));
+        assertThat(firstResult.failure().get(),
             equalTo("Já existe uma permissão para o pv: 'pvcode' para outro usuário primário."));
     }
 
@@ -217,10 +213,12 @@ public class PvPermissionServiceTest {
         when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
         when(pvPermissionRepository.findByUserAndPv(primaryUser, pv)).thenReturn(Optional.of(pvPermission));
 
-        Result<PvPermission, String> result = pvPermissionService.createForPrimaryUser(primaryUserPvPermissionRequest);
+        List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(
+            primaryUserPvPermissionRequest);
 
-        assertThat(result.success().isPresent(), equalTo(true));
-        assertThat(result.success().get(), equalTo(pvPermission));
+        Result<PvPermission, String> firstResult = getFirstResult(results);
+        assertThat(firstResult.success().isPresent(), equalTo(true));
+        assertThat(firstResult.success().get(), equalTo(pvPermission));
     }
 
     /**
@@ -228,15 +226,17 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForSecondaryUser() {
-        when(userService.hasAccess(primaryUser, pv)).thenReturn(true);
+        when(userService.hasAccess(primaryUser, pv)).thenReturn(Result.success(primaryUser));
 
-        Result<PvPermission, String> pvPermissionResult = pvPermissionService
+        List<Result<PvPermission, String>> pvPermissionResults = pvPermissionService
             .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
         PvPermission pvPermission = new PvPermission(secondaryUser, pv);
 
-        assertThat(pvPermissionResult.isSuccess(), equalTo(true));
-        assertThat(pvPermissionResult.success().get(), equalTo(pvPermission));
+        Result<PvPermission, String> result = getFirstResult(pvPermissionResults);
+
+        assertThat(result.isSuccess(), equalTo(true));
+        assertThat(result.success().get(), equalTo(pvPermission));
     }
 
     /**
@@ -245,28 +245,13 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForSecondaryUserWhenRequesterUserHasNoPvPermissionAccess() {
-        when(userService.hasAccess(primaryUser, pv)).thenReturn(false);
+        when(userService.hasAccess(primaryUser, pv)).thenReturn(Result.failure(""));
 
-        Result<PvPermission, String> result = pvPermissionService
+        List<Result<PvPermission, String>> results = pvPermissionService
             .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
-        assertThat(result.isFailure(), equalTo(true));
-        assertThat(result.failure().get(), equalTo("Usuário 'null' não tem acesso ao pv 'null'"));
-    }
-
-    /**
-     * Test create for secondary user when pv do not exists.
-     */
-    @Test
-    public void testCreateForSecondaryUserWhenPvDoNotExists() {
-        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, secondaryUserPvPermissionRequest.getAcquirer().ordinal()))
-            .thenReturn(Optional.empty());
-
-        Result<PvPermission, String> result = pvPermissionService
-            .createForSecondaryUser(secondaryUserPvPermissionRequest);
-
-        assertThat(result.isFailure(), equalTo(true));
-        assertThat(result.failure().get(), equalTo(String.format("O pv '%s' não existe", PV_CODE)));
+        Result<PvPermission, String> result1 = getFirstResult(results);
+        assertThat(result1.isFailure(), equalTo(true));
     }
 
     /**
@@ -282,16 +267,16 @@ public class PvPermissionServiceTest {
      * Test create for secondary user when pv has invalid format.
      */
     @Test
-    public void testCreateForSecondaryUserWhenPvHasInvalidFormat() {
-        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, secondaryUserPvPermissionRequest.getAcquirer().ordinal()))
+    public void testCreateForSecondaryUserWhenPvIsInvalid() {
+        when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal()))
                 .thenReturn(Optional.empty());
-        when(pvService.isValidPv(Mockito.any())).thenReturn(false);
+        when(pvService.exists(pv)).thenReturn(Result.failure(""));
 
-        Result<PvPermission, String> result = pvPermissionService
+        List<Result<PvPermission, String>> results = pvPermissionService
             .createForSecondaryUser(secondaryUserPvPermissionRequest);
 
-        assertThat(result.isFailure(), equalTo(true));
-        assertThat(result.failure().get(), equalTo(String.format("O pv 'pvcode' está no formato inválido (entre 1 e 10 caracteres, somente números)", PV_CODE)));
+        Result<PvPermission, String> result1 = getFirstResult(results);
+        assertThat(result1.isFailure(), equalTo(true));
     }
 
     /**
@@ -327,18 +312,22 @@ public class PvPermissionServiceTest {
     public void testDeletePvPermissionFromPrimaryUserWhenSecondaryUserHasPvPermissionToBranchPv() {
         Pv branchPv = new Pv();
         branchPv.setHeadquarter(pv);
-        pv.setBranches(Arrays.asList(branchPv));
+        pv.setBranches(Collections.singletonList(branchPv));
 
         secondaryUserPvPermission = new PvPermission(secondaryUser, branchPv);
 
         when(pvPermissionRepository.findAllByPv(pv))
-                .thenReturn(Arrays.asList(primaryUserPvPermission));
+                .thenReturn(Collections.singletonList(primaryUserPvPermission));
 
         when(pvPermissionRepository.findAllByPvIn(pv.getBranches()))
-                .thenReturn(Arrays.asList(secondaryUserPvPermission));
+                .thenReturn(Collections.singletonList(secondaryUserPvPermission));
 
         pvPermissionService.delete(primaryUserPvPermission);
 
         verify(pvPermissionRepository).delete(Arrays.asList(primaryUserPvPermission, secondaryUserPvPermission));
+    }
+
+    private <T> Result<T, String> getFirstResult(List<Result<T, String>> results) {
+        return results.stream().findFirst().get();
     }
 }

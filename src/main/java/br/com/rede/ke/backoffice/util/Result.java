@@ -89,9 +89,9 @@ public interface Result<S, F> {
      *            the failure object type
      * @param value
      *            the success value
-     * @return new success result
+     * @return new result
      */
-    static <S, F> Success<S, F> success(S value) {
+    static <S, F> Result<S, F> success(S value) {
         return new Success<>(value);
     }
 
@@ -104,9 +104,9 @@ public interface Result<S, F> {
      *            the failure object type
      * @param value
      *            the failure value
-     * @return new failure result
+     * @return new result
      */
-    static <S, F> Failure<S, F> failure(F value) {
+    static <S, F> Result<S, F> failure(F value) {
         return new Failure<>(value);
     }
 

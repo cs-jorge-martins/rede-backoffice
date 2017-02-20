@@ -9,24 +9,11 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
-import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvAcquirerEqualTo;
-import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvCodeContains;
-import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.userEmailContains;
-import static org.springframework.data.jpa.domain.Specifications.not;
-import static org.springframework.data.jpa.domain.Specifications.where;
-import static org.springframework.util.StringUtils.isEmpty;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specifications;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
@@ -38,7 +25,20 @@ import br.com.rede.ke.backoffice.conciliation.domain.exception.HeadquarterPermit
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.validation.Validation;
 import br.com.rede.ke.backoffice.util.Result;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specifications;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvAcquirerEqualTo;
+import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvCodeContains;
+import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.userEmailContains;
+import static org.springframework.data.jpa.domain.Specifications.not;
+import static org.springframework.data.jpa.domain.Specifications.where;
+import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * The Class PvPermissionService.
@@ -106,49 +106,55 @@ public class PvPermissionService {
     /**
      * Create permission for primary user.
      *
-     * @param pvPermissionRequests
-     *            list of pv permission requests.
+     * @param pvPermissionRequest
+     *            pv permission request.
      * @return List of processing results.
      */
     @Transactional(rollbackFor = Exception.class)
     public List<Result<PvPermission, String>> createForPrimaryUser(
-        List<PrimaryUserPvPermissionRequest> pvPermissionRequests) {
-        return pvPermissionRequests.stream()
-            .map(this::createForPrimaryUser)
+        final PrimaryUserPvPermissionRequest pvPermissionRequest) {
+        final User primaryUser = userService.getOrCreatePrimaryUser(pvPermissionRequest.getRequesterUserEmail());
+        return pvPermissionRequest.getPvs().stream()
+            .map(pv -> createForPrimaryUser(primaryUser, pv))
             .collect(Collectors.toList());
     }
 
     /**
      * Create permission for primary user.
      *
-     * @param request a pv permission request
+     * @param primaryUser requester user.
+     * @param pv pv.
      * @return A processing result.
      */
-    public Result<PvPermission, String> createForPrimaryUser(PrimaryUserPvPermissionRequest request) {
-        final User primaryUser = userService.getOrCreatePrimaryUser(request.getRequesterUserEmail());
-
-        if (!pvService.isValidPv(new Pv(request.getPvCode()))) {
-            return Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e 10 caracteres, somente números)", request.getPvCode()));
+    private Result<PvPermission, String> createForPrimaryUser(User primaryUser, Pv pv) {
+        Result<Pv, String> pvValidationResult = pvService.existsAsHeadquarter(pv);
+        if (pvValidationResult.isFailure()) {
+            return getFailure(pvValidationResult);
         }
 
-        Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(request.getPvCode(), request.getAcquirer().ordinal());
-        if (pvOpt.isPresent() && !pvOpt.get().isHeadquarter()) {
-            return Result.failure(String.format("O pv '%s' já está cadastrado como um pv filial", request.getPvCode()));
-        }
+        final Pv headquarter = pvService.getOrCreatePv(pv.getCode(), pv.getAcquirer());
 
-        final Pv headquarter = pvOpt.orElseGet(() -> pvRepository.save(new Pv(request.getPvCode(), request.getAcquirer())));
-
-        Optional<User> userFromPermission = getPrimaryUserPermittedToHeadquarter(headquarter);
-        if (userFromPermission.isPresent() && !userFromPermission.get().equals(primaryUser)) {
-            return Result.failure(
-                String.format("Já existe uma permissão para o pv: '%s' para outro usuário primário.",
-                request.getPvCode()));
+        Result<Pv, String> permissionValidationResult = canUserBePermittedForHeadquarter(primaryUser).validate(headquarter);
+        if (permissionValidationResult.isFailure()) {
+            return getFailure(permissionValidationResult);
         }
 
         return Result.success(getOrCreatePvPermission(primaryUser, headquarter));
     }
 
-    private Optional<User> getPrimaryUserPermittedToHeadquarter(Pv headquarter) {
+    protected Validation<Pv> canUserBePermittedForHeadquarter(User primaryUser) {
+        return headquarter -> {
+            Optional<User> userFromPermission = getPrimaryUserPermittedToHeadquarter(headquarter);
+            if (userFromPermission.isPresent() && !userFromPermission.get().equals(primaryUser)) {
+                return Result.failure(
+                    String.format("Já existe uma permissão para o pv: '%s' para outro usuário primário.",
+                        headquarter.getCode()));
+            }
+            return Result.success(headquarter);
+        };
+    }
+
+    protected Optional<User> getPrimaryUserPermittedToHeadquarter(Pv headquarter) {
         List<User> usersPermittedToHeadquarter = pvPermissionRepository.findAllByPv(headquarter).stream()
             .map(PvPermission::getUser)
             .filter(User::isPrimary)
@@ -171,49 +177,50 @@ public class PvPermissionService {
     /**
      * Creates for secondary User.
      *
-     * @param pvPermissionRequests
-     *            list of pv permission request
+     * @param pvPermissionRequest
+     *            pv permission request
      * @return the list of pv permission result
      */
     public List<Result<PvPermission, String>> createForSecondaryUser(
-        List<SecondaryUserPvPermissionRequest> pvPermissionRequests) {
-        return pvPermissionRequests.stream()
-            .map(this::createForSecondaryUser)
+        final SecondaryUserPvPermissionRequest pvPermissionRequest) {
+
+        String requesterUserEmail = pvPermissionRequest.getRequesterUserEmail();
+        User primaryUser = userService.getPrimaryUser(requesterUserEmail)
+            .orElseThrow(getUserNotFoundException(requesterUserEmail));
+
+        User secondaryUser = userService.getOrCreateSecondaryUserFor(primaryUser,
+            pvPermissionRequest.getToBePermittedUserEmail());
+
+        return pvPermissionRequest.getPvs().stream()
+            .map((pv) -> createForSecondaryUser(primaryUser, secondaryUser, pv))
             .collect(Collectors.toList());
     }
 
     /**
      * Creates the for secondary user.
      *
-     * @param request
-     *            the request
-     * @return the result
+     * @param primaryUser requester user.
+     * @param secondaryUser permitted user.
+     * @param pv pv.
+     * @return the result.
      */
-    public Result<PvPermission, String> createForSecondaryUser(SecondaryUserPvPermissionRequest request) {
-        User primaryUser = userService.getPrimaryUser(request.getRequesterUserEmail())
-            .orElseThrow(getUserNotFoundException(request.getRequesterUserEmail()));
-        User secondaryUser = userService.getOrCreateSecondaryUserFor(primaryUser, request.getToBePermittedUserEmail());
-
-        if (!pvService.isValidPv(new Pv(request.getPvCode()))) {
-            return Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e 10 caracteres, somente números)", request.getPvCode()));
+    private Result<PvPermission, String> createForSecondaryUser(User primaryUser, User secondaryUser, Pv pv) {
+        Result<Pv, String> pvValidationResult = pvService.exists(pv);
+        if (pvValidationResult.isFailure()) {
+            return getFailure(pvValidationResult);
         }
 
-        Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(request.getPvCode(), request.getAcquirer().ordinal());
+        Optional<Pv> pvOpt = pvRepository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
+        Pv existingPv = pvOpt.get();
 
-        if (!pvOpt.isPresent()) {
-            return Result.failure(String.format("O pv '%s' não existe", request.getPvCode()));
+        Result<User, String> userValidationResult = userService.hasAccess(primaryUser, existingPv);
+        if (userValidationResult.isFailure()) {
+            return getFailure(userValidationResult);
         }
 
-        Pv pv = pvOpt.get();
-
-        if (!userService.hasAccess(primaryUser, pv)) {
-            return Result.failure(String.format("Usuário '%s' não tem acesso ao pv '%s'",
-                primaryUser.getEmail(), pv.getCode()));
-        }
-
-        PvPermission pvPermission = new PvPermission(secondaryUser, pv);
-
+        PvPermission pvPermission = new PvPermission(secondaryUser, existingPv);
         pvPermissionRepository.save(pvPermission);
+
         return Result.success(pvPermission);
     }
 
@@ -241,6 +248,11 @@ public class PvPermissionService {
             pvPermissionRepository.delete(pvPermission);
         }
 
+    }
+
+    private<T> Result<PvPermission, String> getFailure(Result<T, String> result) {
+        String message = result.failure().get();
+        return Result.failure(message);
     }
 
     /**
