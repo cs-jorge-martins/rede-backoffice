@@ -47,6 +47,12 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Verifies if user has access.
+     * @param user user.
+     * @param pv pv.
+     * @return Result.
+     */
     public Result<User, String> hasAccess(User user, Pv pv) {
         Validation<User> hasAccess = (user1) -> {
             return pvPermissionRepository.findByUser(user1).stream()

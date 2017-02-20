@@ -79,6 +79,9 @@ public class PvServiceTest {
         assertThat(pvService.isValidPvFormat(pv), equalTo(false));
     }
 
+    /**
+     * Test get or create pv when pv does not exists.
+     */
     @Test
     public void testGetOrCreatePvWhenPvDoesNotExists() {
         Pv pv = new Pv("code", Acquirer.CIELO);
@@ -88,6 +91,9 @@ public class PvServiceTest {
         assertThat(pvService.getOrCreatePv("code", Acquirer.CIELO), equalTo(pv));
     }
 
+    /**
+     * Test get or create pv when pv already exists.
+     */
     @Test
     public void testGetOrCreatePvWhenPvAlreadyExists() {
         Pv pv = new Pv("code", Acquirer.CIELO);
@@ -97,6 +103,9 @@ public class PvServiceTest {
         verify(pvRepository, times(0)).save(pv);
     }
 
+    /**
+     * Test exists as headquarter when pv does not exist.
+     */
     @Test
     public void testExistsAsHeadquarterWhenPvDoesNotExist() {
         when(pvRepository.findByCodeAndAcquirerId("code", Acquirer.CIELO.ordinal()))
@@ -111,6 +120,9 @@ public class PvServiceTest {
         MatcherAssert.assertThat(result.success().get(), is(pv));
     }
 
+    /**
+     * Test exists as headquarter when pv exists as headquarter.
+     */
     @Test
     public void testExistsAsHeadquarterWhenPvExistsAsHeadquarter() {
         Pv headquarter = new Pv("code", Acquirer.CIELO);
@@ -124,6 +136,9 @@ public class PvServiceTest {
         MatcherAssert.assertThat(result.success().get(), is(headquarter));
     }
 
+    /**
+     * Test exists as headquarter when pv exists as a branch.
+     */
     @Test
     public void testExistsAsHeadquarterWhenPvExistsAsABranch() {
         Pv headquarter = new Pv("code1", Acquirer.CIELO);

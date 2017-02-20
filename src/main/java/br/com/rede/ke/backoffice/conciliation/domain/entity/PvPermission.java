@@ -128,11 +128,11 @@ public class PvPermission {
      * @return if given pv is permitted.
      */
     public boolean permitAccess(Pv pv) {
-        if(getPv() == null || pv == null) {
+        if (getPv() == null || pv == null) {
             return false;
         }
 
-        if(pv.equals(getPv())) {
+        if (pv.equals(getPv())) {
             return true;
         }
 

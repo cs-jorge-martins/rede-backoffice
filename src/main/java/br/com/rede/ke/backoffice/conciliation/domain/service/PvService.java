@@ -56,6 +56,10 @@ public class PvService {
         return pvOpt.orElseGet(() -> repository.save(new Pv(code, acquirer)));
     }
 
+    /**
+     * Verifies if exists as headquarter.
+     * @return Validation.
+     */
     public Validation<Pv> existsAsHeadquarter() {
         return pv -> {
             Optional<Pv> pvOpt = repository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
@@ -66,6 +70,10 @@ public class PvService {
         };
     }
 
+    /**
+     * Verifies if exists.
+     * @return Validation.
+     */
     public Validation<Pv> exists() {
         return pv -> {
             Optional<Pv> pvOpt = repository.findByCodeAndAcquirerId(pv.getCode(), pv.getAcquirerId());
@@ -76,10 +84,20 @@ public class PvService {
         };
     }
 
+    /**
+     * Verifies if exits.
+     * @param pv pv.
+     * @return Result.
+     */
     public Result<Pv, String> exists(Pv pv) {
         return exists().validate(pv);
     }
 
+    /**
+     * Verifies if exists as headquarter.
+     * @param pv pv.
+     * @return Result.
+     */
     public Result<Pv, String> existsAsHeadquarter(Pv pv) {
         return existsAsHeadquarter().validate(pv);
     }

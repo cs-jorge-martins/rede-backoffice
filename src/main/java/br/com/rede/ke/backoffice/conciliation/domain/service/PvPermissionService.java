@@ -134,7 +134,8 @@ public class PvPermissionService {
 
         final Pv headquarter = pvService.getOrCreatePv(pv.getCode(), pv.getAcquirer());
 
-        Result<Pv, String> permissionValidationResult = canUserBePermittedForHeadquarter(primaryUser).validate(headquarter);
+        Result<Pv, String> permissionValidationResult = canUserBePermittedForHeadquarter(primaryUser)
+            .validate(headquarter);
         if (permissionValidationResult.isFailure()) {
             return getFailure(permissionValidationResult);
         }
@@ -142,6 +143,11 @@ public class PvPermissionService {
         return Result.success(getOrCreatePvPermission(primaryUser, headquarter));
     }
 
+    /**
+     * Verifies if user is permitted to headquarter.
+     * @param primaryUser primaryUser.
+     * @return Validation.
+     */
     protected Validation<Pv> canUserBePermittedForHeadquarter(User primaryUser) {
         return headquarter -> {
             Optional<User> userFromPermission = getPrimaryUserPermittedToHeadquarter(headquarter);
@@ -154,6 +160,11 @@ public class PvPermissionService {
         };
     }
 
+    /**
+     * Verifies if primary user is permitted to headquarter.
+     * @param headquarter headquarter.
+     * @return Optional.
+     */
     protected Optional<User> getPrimaryUserPermittedToHeadquarter(Pv headquarter) {
         List<User> usersPermittedToHeadquarter = pvPermissionRepository.findAllByPv(headquarter).stream()
             .map(PvPermission::getUser)
@@ -238,7 +249,7 @@ public class PvPermissionService {
     /**
      *  Delete pv permission.
      *
-     * @param pvPermission to be deleted
+     * @param pvPermission to be deleted.
      */
     public void delete(PvPermission pvPermission) {
         if (pvPermission.getUser().isPrimary()) {
@@ -250,7 +261,7 @@ public class PvPermissionService {
 
     }
 
-    private<T> Result<PvPermission, String> getFailure(Result<T, String> result) {
+    private <T> Result<PvPermission, String> getFailure(Result<T, String> result) {
         String message = result.failure().get();
         return Result.failure(message);
     }

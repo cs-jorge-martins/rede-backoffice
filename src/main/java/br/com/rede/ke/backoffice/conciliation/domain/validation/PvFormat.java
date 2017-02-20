@@ -17,6 +17,12 @@ public class PvFormat {
     private String formatRegex;
     private String leftPaddingRegex;
 
+    /**
+     * Constructor.
+     * @param size size.
+     * @param formatRegex format regex.
+     * @param leftPaddingRegex left padding regex.
+     */
     public PvFormat(int size, String formatRegex, String leftPaddingRegex) {
         this.size = size;
         this.formatRegex = formatRegex;

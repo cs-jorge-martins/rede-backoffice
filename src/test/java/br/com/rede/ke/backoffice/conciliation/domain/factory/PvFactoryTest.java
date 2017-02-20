@@ -60,6 +60,9 @@ public class PvFactoryTest {
         PvFactory.fromFileAndAcquirer(multipartFile, Acquirer.CIELO);
     }
 
+    /**
+     * Test is valid size when size is invalid.
+     */
     @Test
     public void testIsValidSizeWhenSizeIsInvalid() {
         Validation<String> validSize = PvFactory.isValidSize(10);
@@ -67,9 +70,13 @@ public class PvFactoryTest {
         Result<String, String> result = validSize.validate("12345678901");
 
         MatcherAssert.assertThat(result.isFailure(), is(true));
-        MatcherAssert.assertThat(result.failure().get(), is("O pv '12345678901' está no formato inválido (entre 1 e 10 caracteres)"));
+        MatcherAssert.assertThat(result.failure().get(),
+            is("O pv '12345678901' está no formato inválido (entre 1 e 10 caracteres)"));
     }
 
+    /**
+     * Test is valid size when size is valid.
+     */
     @Test
     public void testIsValidSizeWhenSizeIsValid() {
         Validation<String> validSize = PvFactory.isValidSize(10);
@@ -79,6 +86,9 @@ public class PvFactoryTest {
         MatcherAssert.assertThat(result.success().get(), is("1234567890"));
     }
 
+    /**
+     * Test is valid format when format does not match regex.
+     */
     @Test
     public void testIsValidFormatWhenFormatDoesNotMatchRegex() {
         Validation<String> validFormat = PvFactory.isValidFormat("[0-9]{1,10}");
@@ -86,9 +96,13 @@ public class PvFactoryTest {
         Result<String, String> result = validFormat.validate("a234567890");
 
         MatcherAssert.assertThat(result.isFailure(), is(true));
-        MatcherAssert.assertThat(result.failure().get(), is("O pv 'a234567890' está no formato inválido (somente números)"));
+        MatcherAssert.assertThat(result.failure().get(),
+            is("O pv 'a234567890' está no formato inválido (somente números)"));
     }
 
+    /**
+     * Test is valid format when format matches regex.
+     */
     @Test
     public void testIsValidFormatWhenFormatMatchesRegex() {
         Validation<String> validFormat = PvFactory.isValidFormat("[0-9]{1,10}");

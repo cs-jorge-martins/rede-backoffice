@@ -48,7 +48,8 @@ public final class PvFactory {
      * @throws InvalidFileException
      *             the invalid file exception
      */
-    public static List<Result<Pv, String>> fromFileAndAcquirer(MultipartFile file, Acquirer acquirer) throws InvalidFileException {
+    public static List<Result<Pv, String>> fromFileAndAcquirer(MultipartFile file, Acquirer acquirer)
+        throws InvalidFileException {
         try {
             return FileService.processFileLineByLine(file).stream()
                 .map(adjustToAcquirer(acquirer))
@@ -62,7 +63,7 @@ public final class PvFactory {
         return code -> {
             Result<String, String> result = hasValidSizeAndFormat(code);
             if (result.isFailure()) {
-               return Result.failure(result.failure().get());
+                return Result.failure(result.failure().get());
             }
             PvFormat pvFormat = new PvFormat(10, "[0-9]{1,10}", "%010d");
             String codeLeftPadding = String.format(pvFormat.getLeftPaddingRegex(), Integer.parseInt(code));
@@ -70,20 +71,37 @@ public final class PvFactory {
         };
     }
 
+    /**
+     * Verifies if the size of the code is valid.
+     * @param size size of the code.
+     * @return Validation.
+     */
     public static Validation<String> isValidSize(int size) {
         return code -> Optional.of(code)
             .filter(code1 -> code1.length() <= size)
             .map(Result::<String, String>success)
-            .orElseGet(()-> Result.failure(String.format("O pv '%s' está no formato inválido (entre 1 e %s caracteres)", code, size)));
+            .orElseGet(()-> Result.failure(
+                String.format("O pv '%s' está no formato inválido (entre 1 e %s caracteres)", code, size)));
     }
 
+    /**
+     * Verifies if the format o the code is valid.
+     * @param formatRegex regex to validate the format.
+     * @return validation.
+     */
     public static Validation<String> isValidFormat(String formatRegex) {
         return code -> Optional.of(code)
             .filter(code1 -> code1.matches(formatRegex))
             .map(Result::<String, String>success)
-            .orElseGet(()-> Result.failure(String.format("O pv '%s' está no formato inválido (somente números)", code)));
+            .orElseGet(()-> Result.failure(
+                String.format("O pv '%s' está no formato inválido (somente números)", code)));
     }
 
+    /**
+     * Combines size and format validation.
+     * @param pvCode pv code.
+     * @return Result of the validation.
+     */
     public static Result<String, String> hasValidSizeAndFormat(String pvCode) {
         PvFormat pvFormat = new PvFormat(10, "[0-9]{1,10}", "%010d");
         return  isValidSize(pvFormat.getSize())
