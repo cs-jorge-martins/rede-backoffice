@@ -15,6 +15,8 @@ import java.util.Optional;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
@@ -40,15 +42,41 @@ public class PvPermission {
     @MapsId("pvId")
     private Pv pv;
 
+    @ManyToOne
+    @JoinColumn(name = "PV_HEADQUARTER_REDE_ID", nullable = true, updatable = false,
+        foreignKey = @ForeignKey(name = "FK_PV_HEADQUARTER_REDE"))
+    private Pv pvHeadquarterRede;
+
     /**
      * The default constructor.
      */
-    public PvPermission() {}
+    public PvPermission() {
+    }
 
     /**
      * The pv permission constructor.
-     * @param user the user
-     * @param pv the pv
+     *
+     * @param user
+     *            the user
+     * @param pv
+     *            the pv
+     * @param pvHeadquarterRede
+     *            the pv headquarter rede
+     */
+    public PvPermission(User user, Pv pv, Pv pvHeadquarterRede) {
+        this.id = new PvPermissionId(user.getId(), pv.getId());
+        this.user = user;
+        this.pv = pv;
+        this.pvHeadquarterRede = pvHeadquarterRede;
+    }
+
+    /**
+     * The pv permission constructor.
+     *
+     * @param user
+     *            the user
+     * @param pv
+     *            the pv
      */
     public PvPermission(User user, Pv pv) {
         this.id = new PvPermissionId(user.getId(), pv.getId());
@@ -58,9 +86,32 @@ public class PvPermission {
 
     /**
      * The pv permission constructor.
-     * @param id the id
-     * @param user the user
-     * @param pv the pv
+     *
+     * @param id
+     *            the id
+     * @param user
+     *            the user
+     * @param pv
+     *            the pv
+     * @param pvHeadquarterRede
+     *            the pv headquarter rede
+     */
+    public PvPermission(PvPermissionId id, User user, Pv pv, Pv pvHeadquarterRede) {
+        this.id = id;
+        this.user = user;
+        this.pv = pv;
+        this.pvHeadquarterRede = pvHeadquarterRede;
+    }
+
+    /**
+     * The pv permission constructor.
+     * 
+     * @param id
+     *            the id
+     * @param user
+     *            the user
+     * @param pv
+     *            the pv
      */
     public PvPermission(PvPermissionId id, User user, Pv pv) {
         this.id = id;
@@ -80,7 +131,8 @@ public class PvPermission {
     /**
      * Sets the id.
      *
-     * @param id the new id
+     * @param id
+     *            the new id
      */
     public void setId(PvPermissionId id) {
         this.id = id;
@@ -98,7 +150,8 @@ public class PvPermission {
     /**
      * Sets the user.
      *
-     * @param user the new user
+     * @param user
+     *            the new user
      */
     public void setUser(User user) {
         this.user = user;
@@ -116,15 +169,37 @@ public class PvPermission {
     /**
      * Sets the pv.
      *
-     * @param pv the new pv
+     * @param pv
+     *            the new pv
      */
     public void setPv(Pv pv) {
         this.pv = pv;
     }
 
     /**
+     * Gets the pv headquarter rede.
+     *
+     * @return the pv headquarter rede
+     */
+    public Optional<Pv> getPvHeadquarterRede() {
+        return Optional.ofNullable(pvHeadquarterRede);
+    }
+
+    /**
+     * Sets the pv headquarter rede.
+     *
+     * @param pvHeadquarterRede
+     *            the new pv headquarter rede
+     */
+    public void setPvHeadquarterRede(Pv pvHeadquarterRede) {
+        this.pvHeadquarterRede = pvHeadquarterRede;
+    }
+
+    /**
      * Permit access.
-     * @param pv Pv to check access.
+     * 
+     * @param pv
+     *            Pv to check access.
      * @return if given pv is permitted.
      */
     public boolean permitAccess(Pv pv) {
@@ -143,7 +218,9 @@ public class PvPermission {
             .orElse(false);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -158,14 +235,17 @@ public class PvPermission {
         PvPermission that = (PvPermission) o;
         return Objects.equals(id, that.id)
             && Objects.equals(user, that.user)
-            && Objects.equals(pv, that.pv);
+            && Objects.equals(pv, that.pv)
+            && Objects.equals(pvHeadquarterRede, that.pvHeadquarterRede);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, pv);
+        return Objects.hash(id, user, pv, pvHeadquarterRede);
     }
 }
