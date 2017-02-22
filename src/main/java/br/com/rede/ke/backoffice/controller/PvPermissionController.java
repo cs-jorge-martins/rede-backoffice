@@ -12,8 +12,6 @@ package br.com.rede.ke.backoffice.controller;
 import java.util.List;
 import java.util.Objects;
 
-import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
-import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
@@ -21,6 +19,9 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.DomainException;
 import br.com.rede.ke.backoffice.conciliation.domain.factory.PvFactory;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.request.PrimaryUserPvPermissionRequest;
+import br.com.rede.ke.backoffice.conciliation.domain.request.PvPermissionRequest;
+import br.com.rede.ke.backoffice.conciliation.domain.request.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.service.PvPermissionService;
 import br.com.rede.ke.backoffice.conciliation.exception.InvalidFileException;
 import br.com.rede.ke.backoffice.util.Result;
@@ -138,7 +139,7 @@ public class PvPermissionController {
             List<Result<Pv, String>> formatResults = pvFactory.fromFileAndAcquirer(file, acquirer);
             List<Pv> pvs = Result.getSuccessValues(formatResults);
 
-            PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(email, pvs);
+            PvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(email, pvs);
 
             List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(pvPermissionRequest);
 

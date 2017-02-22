@@ -15,8 +15,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
-import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
@@ -25,6 +23,8 @@ import br.com.rede.ke.backoffice.conciliation.domain.exception.HeadquarterPermit
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.request.PvPermissionRequest;
+import br.com.rede.ke.backoffice.conciliation.domain.request.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.validation.Validation;
 import br.com.rede.ke.backoffice.util.Result;
 import org.springframework.data.domain.Page;
@@ -112,7 +112,7 @@ public class PvPermissionService {
      */
     @Transactional(rollbackFor = Exception.class)
     public List<Result<PvPermission, String>> createForPrimaryUser(
-        final PrimaryUserPvPermissionRequest pvPermissionRequest) {
+        final PvPermissionRequest pvPermissionRequest) {
         final User primaryUser = userService.getOrCreatePrimaryUser(pvPermissionRequest.getRequesterUserEmail());
         return pvPermissionRequest.getPvs().stream()
             .map(pv -> createForPrimaryUser(primaryUser, pv))

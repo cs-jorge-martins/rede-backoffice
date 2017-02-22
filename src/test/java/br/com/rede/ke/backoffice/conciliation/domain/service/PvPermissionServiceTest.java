@@ -14,8 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
-import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
@@ -23,6 +21,9 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.request.PrimaryUserPvPermissionRequest;
+import br.com.rede.ke.backoffice.conciliation.domain.request.PvPermissionRequest;
+import br.com.rede.ke.backoffice.conciliation.domain.request.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.util.Result;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,7 +88,7 @@ public class PvPermissionServiceTest {
     private Pv pv;
 
     /** The primary user pv permission request */
-    private PrimaryUserPvPermissionRequest primaryUserPvPermissionRequest;
+    private PvPermissionRequest primaryUserPvPermissionRequest;
 
     /** The primary user pv permission */
     private PvPermission primaryUserPvPermission;
@@ -156,7 +157,7 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForPrimaryUserWhenPvIsInvalid() {
-        PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(
+        PvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(
             PRIMARY_USER_EMAIL, Collections.singletonList(new Pv()));
 
         when(pvService.existsAsHeadquarter(any())).thenReturn(Result.failure(""));
@@ -192,7 +193,7 @@ public class PvPermissionServiceTest {
         when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
 
         List<Pv> pvs = Collections.singletonList(new Pv(PV_CODE, CIELO));
-        PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest =
+        PvPermissionRequest anotherPrimaryUserPvPermissionRequest =
             new PrimaryUserPvPermissionRequest("another_primary@email.com", pvs);
 
         List<Result<PvPermission, String>> results = pvPermissionService

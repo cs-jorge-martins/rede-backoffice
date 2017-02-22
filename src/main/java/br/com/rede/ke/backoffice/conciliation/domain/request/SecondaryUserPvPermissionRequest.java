@@ -8,7 +8,7 @@
  * Empresa  : ThoughtWorks
  */
 
-package br.com.rede.ke.backoffice.conciliation.domain;
+package br.com.rede.ke.backoffice.conciliation.domain.request;
 
 import java.util.List;
 
@@ -17,16 +17,20 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 /**
  * Secondary user pv permission request.
  */
-public class SecondaryUserPvPermissionRequest extends PrimaryUserPvPermissionRequest{
+public class SecondaryUserPvPermissionRequest extends PvPermissionRequest {
 
     /** To be permitted user email */
     private String toBePermittedUserEmail;
 
     /**
      * Contructor.
-     * @param requesterUserEmail requester user email.
-     * @param toBePermittedUserEmail child user email param.
-     * @param pvs pvs.
+     * 
+     * @param requesterUserEmail
+     *            requester user email.
+     * @param toBePermittedUserEmail
+     *            child user email param.
+     * @param pvs
+     *            pvs.
      */
     public SecondaryUserPvPermissionRequest(String requesterUserEmail, String toBePermittedUserEmail, List<Pv> pvs) {
         super(requesterUserEmail, pvs);
