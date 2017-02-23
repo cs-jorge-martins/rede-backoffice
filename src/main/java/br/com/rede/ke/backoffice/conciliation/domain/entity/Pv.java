@@ -241,15 +241,15 @@ public class Pv {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof Pv)) {
             return false;
         }
 
         Pv pv = (Pv) o;
-        return Objects.equals(id, pv.id)
-            && Objects.equals(code, pv.code)
-            && Objects.equals(headquarter, pv.headquarter)
-            && Objects.equals(acquirerId, pv.acquirerId);
+        return Objects.equals(id, pv.getId())
+            && Objects.equals(code, pv.getCode())
+            && Objects.equals(headquarter, pv.getHeadquarter())
+            && Objects.equals(acquirerId, pv.getAcquirerId());
     }
 
     /*

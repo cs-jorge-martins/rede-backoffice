@@ -12,7 +12,6 @@ package br.com.rede.ke.backoffice.conciliation.domain.entity;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -105,7 +104,7 @@ public class PvPermission {
 
     /**
      * The pv permission constructor.
-     * 
+     *
      * @param id
      *            the id
      * @param user
@@ -197,7 +196,7 @@ public class PvPermission {
 
     /**
      * Permit access.
-     * 
+     *
      * @param pv
      *            Pv to check access.
      * @return if given pv is permitted.
@@ -220,7 +219,7 @@ public class PvPermission {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -241,7 +240,7 @@ public class PvPermission {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#hashCode()
      */
     @Override
