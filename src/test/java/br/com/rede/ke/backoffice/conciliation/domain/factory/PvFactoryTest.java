@@ -105,12 +105,34 @@ public class PvFactoryTest {
     }
 
     /**
+     * Test has valid size and format when pv code has validation error.
+     */
+    @Test
+    public void testHasValidSizeAndFormatWhenPvCodeHasValidationErrorForRede() {
+        String pvCodeWithWrongSize = "1234567890";
+        Result<String, String> result = pvFactory.hasValidSizeAndFormat(pvCodeWithWrongSize, Acquirer.REDE);
+
+        assertThat(result.isFailure(), equalTo(true));
+    }
+
+    /**
      * Test has valid size and format when pv code is ok.
      */
     @Test
     public void testHasValidSizeAndFormatWhenPvCodeIsOkForCielo() {
-        String pvCodeWithWrongSize = "1234567890";
-        Result<String, String> result = pvFactory.hasValidSizeAndFormat(pvCodeWithWrongSize, Acquirer.CIELO);
+        String pvCodeWithRightSize = "1234567890";
+        Result<String, String> result = pvFactory.hasValidSizeAndFormat(pvCodeWithRightSize, Acquirer.CIELO);
+
+        assertThat(result.isSuccess(), equalTo(true));
+    }
+
+    /**
+     * Test has valid size and format when pv code is ok.
+     */
+    @Test
+    public void testHasValidSizeAndFormatWhenPvCodeIsOkForRede() {
+        String pvCodeWithRightSize = "123456789";
+        Result<String, String> result = pvFactory.hasValidSizeAndFormat(pvCodeWithRightSize, Acquirer.REDE);
 
         assertThat(result.isSuccess(), equalTo(true));
     }
@@ -126,6 +148,16 @@ public class PvFactoryTest {
     }
 
     /**
+     * Test apply left padding when code less than size ten.
+     */
+    @Test
+    public void testApplyLeftPaddingWhenCodeLessThanSizeNineForRede() {
+        String leftPaddingCode = pvFactory.applyLeftPadding("12345678", Acquirer.REDE);
+
+        assertThat(leftPaddingCode, equalTo("012345678"));
+    }
+
+    /**
      * Test apply left padding when code has size ten.
      */
     @Test
@@ -133,6 +165,16 @@ public class PvFactoryTest {
         String leftPaddingCode = pvFactory.applyLeftPadding("1234567890", Acquirer.CIELO);
 
         assertThat(leftPaddingCode, equalTo("1234567890"));
+    }
+
+    /**
+     * Test apply left padding when code has size ten.
+     */
+    @Test
+    public void testApplyLeftPaddingWhenCodeHasSizeNineForCielo() {
+        String leftPaddingCode = pvFactory.applyLeftPadding("123456789", Acquirer.REDE);
+
+        assertThat(leftPaddingCode, equalTo("123456789"));
     }
 
     /**
