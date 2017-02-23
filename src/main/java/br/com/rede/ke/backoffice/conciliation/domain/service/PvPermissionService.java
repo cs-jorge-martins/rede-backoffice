@@ -9,11 +9,24 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
+import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvAcquirerEqualTo;
+import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvCodeContains;
+import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.userEmailContains;
+import static org.springframework.data.jpa.domain.Specifications.not;
+import static org.springframework.data.jpa.domain.Specifications.where;
+import static org.springframework.util.StringUtils.isEmpty;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specifications;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
@@ -23,22 +36,10 @@ import br.com.rede.ke.backoffice.conciliation.domain.exception.HeadquarterPermit
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
-import br.com.rede.ke.backoffice.conciliation.domain.request.PvPermissionRequest;
+import br.com.rede.ke.backoffice.conciliation.domain.request.PrimaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.request.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.validation.Validation;
 import br.com.rede.ke.backoffice.util.Result;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specifications;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvAcquirerEqualTo;
-import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvCodeContains;
-import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.userEmailContains;
-import static org.springframework.data.jpa.domain.Specifications.not;
-import static org.springframework.data.jpa.domain.Specifications.where;
-import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * The Class PvPermissionService.
@@ -112,27 +113,37 @@ public class PvPermissionService {
      */
     @Transactional(rollbackFor = Exception.class)
     public List<Result<PvPermission, String>> createForPrimaryUser(
-        final PvPermissionRequest pvPermissionRequest) {
+        final PrimaryUserPvPermissionRequest pvPermissionRequest) {
         final User primaryUser = userService.getOrCreatePrimaryUser(pvPermissionRequest.getRequesterUserEmail());
         return pvPermissionRequest.getPvs().stream()
-            .map(pv -> createForPrimaryUser(primaryUser, pv))
+            .map(pv -> createForPrimaryUser(primaryUser, pv, pvPermissionRequest.getPvHeadquarterRede()))
             .collect(Collectors.toList());
     }
 
     /**
      * Create permission for primary user.
      *
-     * @param primaryUser requester user.
-     * @param pv pv.
+     * @param primaryUser
+     *            requester user.
+     * @param pv
+     *            pv.
      * @return A processing result.
      */
-    private Result<PvPermission, String> createForPrimaryUser(User primaryUser, Pv pv) {
+    private Result<PvPermission, String> createForPrimaryUser(User primaryUser, Pv pv, Pv pvHeadquarterRede) {
+        Result<Pv, String> pvHeadquarterRedeResult = pvService.existsAsHeadquarter(pvHeadquarterRede);
+        if (pvHeadquarterRedeResult.isFailure()) {
+            return getFailure(pvHeadquarterRedeResult);
+        }
+
         Result<Pv, String> pvValidationResult = pvService.existsAsHeadquarter(pv);
         if (pvValidationResult.isFailure()) {
             return getFailure(pvValidationResult);
         }
 
         final Pv headquarter = pvService.getOrCreatePv(pv.getCode(), pv.getAcquirer());
+        final Optional<Pv> pvRedeOpt = pvRepository.findByCodeAndAcquirerId(pvHeadquarterRede.getCode(),
+            pvHeadquarterRede.getAcquirerId());
+        final Pv headquarterRede = pvRedeOpt.get();
 
         Result<Pv, String> permissionValidationResult = canUserBePermittedForHeadquarter(primaryUser)
             .validate(headquarter);
@@ -140,12 +151,14 @@ public class PvPermissionService {
             return getFailure(permissionValidationResult);
         }
 
-        return Result.success(getOrCreatePvPermission(primaryUser, headquarter));
+        return Result.success(getOrCreatePvPermission(primaryUser, headquarter, headquarterRede));
     }
 
     /**
      * Verifies if user is permitted to headquarter.
-     * @param primaryUser primaryUser.
+     * 
+     * @param primaryUser
+     *            primaryUser.
      * @return Validation.
      */
     protected Validation<Pv> canUserBePermittedForHeadquarter(User primaryUser) {
@@ -162,7 +175,9 @@ public class PvPermissionService {
 
     /**
      * Verifies if primary user is permitted to headquarter.
-     * @param headquarter headquarter.
+     * 
+     * @param headquarter
+     *            headquarter.
      * @return Optional.
      */
     protected Optional<User> getPrimaryUserPermittedToHeadquarter(Pv headquarter) {
@@ -178,11 +193,12 @@ public class PvPermissionService {
         return usersPermittedToHeadquarter.stream().findFirst();
     }
 
-    private PvPermission getOrCreatePvPermission(User primaryUser, Pv headquarter) {
-        return pvPermissionRepository.findByUserAndPv(primaryUser, headquarter).orElseGet(() -> {
-            PvPermission pvPermission = new PvPermission(primaryUser, headquarter);
-            return pvPermissionRepository.save(pvPermission);
-        });
+    private PvPermission getOrCreatePvPermission(User primaryUser, Pv headquarter, Pv pvHeadquarterRede) {
+        return pvPermissionRepository.findByUserAndPvAndPvHeadquarterRede(primaryUser, headquarter, pvHeadquarterRede)
+            .orElseGet(() -> {
+                PvPermission pvPermission = new PvPermission(primaryUser, headquarter, pvHeadquarterRede);
+                return pvPermissionRepository.save(pvPermission);
+            });
     }
 
     /**
@@ -210,9 +226,12 @@ public class PvPermissionService {
     /**
      * Creates the for secondary user.
      *
-     * @param primaryUser requester user.
-     * @param secondaryUser permitted user.
-     * @param pv pv.
+     * @param primaryUser
+     *            requester user.
+     * @param secondaryUser
+     *            permitted user.
+     * @param pv
+     *            pv.
      * @return the result.
      */
     private Result<PvPermission, String> createForSecondaryUser(User primaryUser, User secondaryUser, Pv pv) {
@@ -247,9 +266,10 @@ public class PvPermissionService {
     }
 
     /**
-     *  Delete pv permission.
+     * Delete pv permission.
      *
-     * @param pvPermission to be deleted.
+     * @param pvPermission
+     *            to be deleted.
      */
     public void delete(PvPermission pvPermission) {
         if (pvPermission.getUser().isPrimary()) {
@@ -269,7 +289,8 @@ public class PvPermissionService {
     /**
      * Gets all related pv permissions.
      *
-     * @param headquarterPv the headquarter pv
+     * @param headquarterPv
+     *            the headquarter pv
      * @return the pv permission list
      */
     private List<PvPermission> getAllRelatedPvPermissions(Pv headquarterPv) {
