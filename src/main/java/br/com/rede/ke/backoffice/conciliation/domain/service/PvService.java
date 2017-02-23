@@ -38,6 +38,15 @@ public class PvService {
         this.repository = pvRepository;
     }
 
+    /**
+     * Gets or create pv.
+     *
+     * @param code
+     *            the code
+     * @param acquirer
+     *            the acquirer
+     * @return the or create pv
+     */
     public Pv getOrCreatePv(String code, Acquirer acquirer) {
         Optional<Pv> pvOpt = repository.findByCodeAndAcquirerId(code, acquirer.ordinal());
         return pvOpt.orElseGet(() -> repository.save(new Pv(code, acquirer)));
