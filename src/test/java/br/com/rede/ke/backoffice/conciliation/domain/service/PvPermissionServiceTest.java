@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -218,6 +219,17 @@ public class PvPermissionServiceTest {
         assertThat(firstResult.failure().isPresent(), equalTo(true));
         assertThat(firstResult.failure().get(),
             equalTo("Já existe uma permissão para o pv: 'pvcode' para outro usuário primário."));
+    }
+
+    @Test
+    public void testCreateForPrimaryUserWhenPvHeadquarterRedeDoesNotExist() {
+        when(pvService.existsAsHeadquarter(Matchers.eq(pvRede))).thenReturn(Result.failure(""));
+
+        List<Result<PvPermission, String>> results = pvPermissionService
+            .createForPrimaryUser(primaryUserPvPermissionRequest);
+
+        Result<PvPermission, String> firstResult = getFirstResult(results);
+        assertThat(firstResult.failure().isPresent(), equalTo(true));
     }
 
     /**
