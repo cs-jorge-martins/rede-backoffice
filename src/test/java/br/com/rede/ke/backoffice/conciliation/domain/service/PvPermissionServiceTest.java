@@ -145,6 +145,7 @@ public class PvPermissionServiceTest {
         when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.emptyList());
         when(pvPermissionRepository.findByUserAndPvAndPvHeadquarterRede(primaryUser, pv, pvRede))
             .thenReturn(Optional.empty());
+        when(pvPermissionRepository.findAllByPvHeadquarterRede(pvRede)).thenReturn(Collections.emptyList());
     }
 
     /**
@@ -188,7 +189,7 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForPrimaryUserWhenPvPermissionDoesNotExist() {
-        PvPermission pvPermission = new PvPermission(primaryUser, pv);
+        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
         when(pvPermissionRepository.save(Mockito.any(PvPermission.class))).thenReturn(pvPermission);
 
         List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(
@@ -205,7 +206,7 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForPrimaryUserWhenHeadquarterAlreadyPermittedToAnotherPrimaryUser() {
-        PvPermission pvPermission = new PvPermission(primaryUser, pv);
+        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
         when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
 
         List<Pv> pvs = Collections.singletonList(new Pv(PV_CODE, CIELO));
@@ -219,6 +220,35 @@ public class PvPermissionServiceTest {
         assertThat(firstResult.failure().isPresent(), equalTo(true));
         assertThat(firstResult.failure().get(),
             equalTo("Já existe uma permissão para o pv: 'pvcode' para outro usuário primário."));
+    }
+
+    /**
+     * Test create for primary user when headquarter already permitted to
+     * another primary user.
+     */
+    @Test
+    public void testCreateForPrimaryUserWhenPvHeadquarterRedeAlreadyAssociatedToAnotherPrimaryUser() {
+        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
+        Pv anotherPvCielo = new Pv("9595959595", CIELO);
+        List<Pv> pvs = Collections.singletonList(anotherPvCielo);
+
+        when(pvService.existsAsHeadquarter(anotherPvCielo)).thenReturn(Result.success(anotherPvCielo));
+        when(pvService.exists(anotherPvCielo)).thenReturn(Result.success(anotherPvCielo));
+
+        when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
+        when(pvPermissionRepository.findAllByPvHeadquarterRede(pvRede))
+            .thenReturn(Collections.singletonList(pvPermission));
+
+        PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest = new PrimaryUserPvPermissionRequest(
+            "another_primary@email.com", pvs, pvRede);
+
+        List<Result<PvPermission, String>> results = pvPermissionService
+            .createForPrimaryUser(anotherPrimaryUserPvPermissionRequest);
+
+        Result<PvPermission, String> firstResult = getFirstResult(results);
+        assertThat(firstResult.failure().isPresent(), equalTo(true));
+        assertThat(firstResult.failure().get(),
+            equalTo("O pv matriz rede 'pvrede' já está associado à outro usuário primário."));
     }
 
     @Test

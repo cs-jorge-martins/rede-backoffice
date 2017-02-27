@@ -147,14 +147,19 @@ public class PvPermissionService {
         }
 
         final Pv headquarter = pvService.getOrCreatePv(pv.getCode(), pv.getAcquirer());
-        final Optional<Pv> pvRedeOpt = pvRepository.findByCodeAndAcquirerId(pvHeadquarterRede.getCode(),
-            pvHeadquarterRede.getAcquirerId());
-        final Pv headquarterRede = pvRedeOpt.get();
+        final Pv headquarterRede = pvRepository.findByCodeAndAcquirerId(pvHeadquarterRede.getCode(),
+            pvHeadquarterRede.getAcquirerId()).get();
 
         Result<Pv, String> permissionValidationResult = canUserBePermittedForHeadquarter(primaryUser)
             .validate(headquarter);
         if (permissionValidationResult.isFailure()) {
             return getFailure(permissionValidationResult);
+        }
+
+        Result<Pv, String> permissionWithPvRedeResult = canUserBeAssociatedToAnHeadquarterRede()
+            .validate(headquarterRede);
+        if (permissionWithPvRedeResult.isFailure()) {
+            return getFailure(permissionWithPvRedeResult);
         }
 
         return Result.success(getOrCreatePvPermission(primaryUser, headquarter, headquarterRede));
@@ -179,6 +184,17 @@ public class PvPermissionService {
         };
     }
 
+    protected Validation<Pv> canUserBeAssociatedToAnHeadquarterRede() {
+        return headquarterRede -> {
+            if (isHeadquarterRedeAssociatedToAnyPrimaryUser(headquarterRede)) {
+                return Result.failure(
+                    String.format("O pv matriz rede '%s' já está associado à outro usuário primário.",
+                        headquarterRede.getCode()));
+            }
+            return Result.success(headquarterRede);
+        };
+    }
+
     /**
      * Verifies if primary user is permitted to headquarter.
      * 
@@ -197,6 +213,16 @@ public class PvPermissionService {
         }
 
         return usersPermittedToHeadquarter.stream().findFirst();
+    }
+
+    protected boolean isHeadquarterRedeAssociatedToAnyPrimaryUser(Pv headquarterRede) {
+        List<User> usersForHeadquarterRede = pvPermissionRepository.findAllByPvHeadquarterRede(headquarterRede)
+            .stream()
+            .map(PvPermission::getUser)
+            .filter(User::isPrimary)
+            .collect(Collectors.toList());
+
+        return !usersForHeadquarterRede.isEmpty();
     }
 
     private PvPermission getOrCreatePvPermission(User primaryUser, Pv headquarter, Pv pvHeadquarterRede) {

@@ -70,6 +70,15 @@ public interface PvPermissionRepository extends JpaRepository<PvPermission, PvPe
     List<PvPermission> findAllByPv(Pv pv);
 
     /**
+     * Find all by pv.
+     *
+     * @param pv
+     *            the pv
+     * @return the list
+     */
+    List<PvPermission> findAllByPvHeadquarterRede(Pv pvHeadquarterRede);
+
+    /**
      * Find all by pv in.
      *
      * @param pvs
