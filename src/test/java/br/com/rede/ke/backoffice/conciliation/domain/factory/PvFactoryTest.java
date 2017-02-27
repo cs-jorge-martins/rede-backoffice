@@ -42,7 +42,7 @@ public class PvFactoryTest {
 
     /**
      * Test from file and acquirer when reads from file.
-     * 
+     *
      * @throws IOException
      *             when an error occurs.
      */
@@ -59,7 +59,7 @@ public class PvFactoryTest {
 
     /**
      * Test from file and acquirer when problem reading file.
-     * 
+     *
      * @throws IOException
      *             when an error occurs.
      */
@@ -197,7 +197,6 @@ public class PvFactoryTest {
     @Test
     public void testIsValidSizeWhenSizeIsValid() {
         Validation<String> validSize = pvFactory.isValidSize(10, Acquirer.CIELO);
-        ;
         Result<String, String> result = validSize.validate("1234567890");
 
         assertThat(result.isSuccess(), equalTo(true));
