@@ -92,14 +92,17 @@ public class PvPermissionController {
             direction = Sort.Direction.ASC) Pageable pageable,
         @RequestParam(required = false, defaultValue = "") String code,
         @RequestParam(required = false, defaultValue = "NULL") Acquirer acquirer,
-        @RequestParam(required = false) String email) {
+        @RequestParam(required = false) String email,
+        @RequestParam(required = false, defaultValue = "") String pvHeadquarterRedeCode) {
 
         model.addAttribute("code", code);
         model.addAttribute("acquirer", acquirer);
         model.addAttribute("email", email);
+        model.addAttribute("pvHeadquarterRedeCode", pvHeadquarterRedeCode);
         model.addAttribute("acquirers", Controllers.acquirersWithoutRede());
-        Page<PvPermission> pvPermissions = pvPermissionService.findAllByAcquirerAndCodeAndEmail(acquirer, code, email,
-            pageable);
+        Page<PvPermission> pvPermissions = pvPermissionService.findAllByAcquirerAndCodeAndEmailAndPvHeadquarterRede(
+            acquirer, code, email,
+            pvHeadquarterRedeCode, pageable);
         model.addAttribute("pvPermissions", pvPermissions);
         model.addAttribute("title", "Permissões de PVs");
         return "pv-permissions/index";

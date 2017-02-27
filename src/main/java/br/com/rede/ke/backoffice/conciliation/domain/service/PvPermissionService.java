@@ -11,6 +11,7 @@ package br.com.rede.ke.backoffice.conciliation.domain.service;
 
 import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvAcquirerEqualTo;
 import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvCodeContains;
+import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.pvHeadquarterRedeContains;
 import static br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionSpecifications.userEmailContains;
 import static org.springframework.data.jpa.domain.Specifications.not;
 import static org.springframework.data.jpa.domain.Specifications.where;
@@ -85,8 +86,9 @@ public class PvPermissionService {
      *            the pageable
      * @return the page
      */
-    public Page<PvPermission> findAllByAcquirerAndCodeAndEmail(Acquirer acquirer, String code, String email,
-        Pageable pageable) {
+    public Page<PvPermission> findAllByAcquirerAndCodeAndEmailAndPvHeadquarterRede(Acquirer acquirer, String code,
+        String email,
+        String pvHeadquarterRedeCode, Pageable pageable) {
         Specifications<PvPermission> spec = where(not(pvAcquirerEqualTo(Acquirer.REDE)));
 
         if (!isEmpty(code)) {
@@ -99,6 +101,10 @@ public class PvPermissionService {
 
         if (!isEmpty(email)) {
             spec = spec.and(userEmailContains(email));
+        }
+
+        if (!isEmpty(pvHeadquarterRedeCode)) {
+            spec = spec.and(pvHeadquarterRedeContains(pvHeadquarterRedeCode));
         }
 
         return pvPermissionRepository.findAll(spec, pageable);
