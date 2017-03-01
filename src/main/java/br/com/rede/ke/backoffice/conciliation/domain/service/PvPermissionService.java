@@ -156,7 +156,7 @@ public class PvPermissionService {
             return getFailure(permissionValidationResult);
         }
 
-        Result<Pv, String> permissionWithPvRedeResult = canUserBeAssociatedToAnHeadquarterRede()
+        Result<Pv, String> permissionWithPvRedeResult = canUserBeAssociatedToAnHeadquarterRede(primaryUser)
             .validate(headquarterRede);
         if (permissionWithPvRedeResult.isFailure()) {
             return getFailure(permissionWithPvRedeResult);
@@ -184,9 +184,9 @@ public class PvPermissionService {
         };
     }
 
-    protected Validation<Pv> canUserBeAssociatedToAnHeadquarterRede() {
+    protected Validation<Pv> canUserBeAssociatedToAnHeadquarterRede(User user) {
         return headquarterRede -> {
-            if (isHeadquarterRedeAssociatedToAnyPrimaryUser(headquarterRede)) {
+            if (!canHeadquarterRedeBeAssociatedToAnPrimaryUser(headquarterRede, user)) {
                 return Result.failure(
                     String.format("O pv matriz rede '%s' já está associado à outro usuário primário.",
                         headquarterRede.getCode()));
@@ -215,14 +215,18 @@ public class PvPermissionService {
         return usersPermittedToHeadquarter.stream().findFirst();
     }
 
-    protected boolean isHeadquarterRedeAssociatedToAnyPrimaryUser(Pv headquarterRede) {
+    protected boolean canHeadquarterRedeBeAssociatedToAnPrimaryUser(Pv headquarterRede, User user) {
         List<User> usersForHeadquarterRede = pvPermissionRepository.findAllByPvHeadquarterRede(headquarterRede)
             .stream()
             .map(PvPermission::getUser)
             .filter(User::isPrimary)
             .collect(Collectors.toList());
 
-        return !usersForHeadquarterRede.isEmpty();
+        if (usersForHeadquarterRede.size() == 1) {
+            return user.equals(usersForHeadquarterRede.stream().findFirst().get());
+        }
+
+        return usersForHeadquarterRede.isEmpty();
     }
 
     private PvPermission getOrCreatePvPermission(User primaryUser, Pv headquarter, Pv pvHeadquarterRede) {

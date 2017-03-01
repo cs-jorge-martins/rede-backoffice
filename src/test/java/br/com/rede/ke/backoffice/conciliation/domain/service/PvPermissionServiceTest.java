@@ -229,8 +229,15 @@ public class PvPermissionServiceTest {
     @Test
     public void testCreateForPrimaryUserWhenPvHeadquarterRedeAlreadyAssociatedToAnotherPrimaryUser() {
         PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
-        Pv anotherPvCielo = new Pv("9595959595", CIELO);
+        String anotherPvCieloCode = "9595959595";
+        Pv anotherPvCielo = new Pv(anotherPvCieloCode, CIELO);
+        String anotherEmail = "another_primary@email.com";
         List<Pv> pvs = Collections.singletonList(anotherPvCielo);
+        User anotherUser = new User();
+        anotherUser.setEmail(anotherEmail);
+
+        when(pvService.getOrCreatePv(anotherPvCieloCode, CIELO))
+            .thenReturn(anotherPvCielo);
 
         when(pvService.existsAsHeadquarter(anotherPvCielo)).thenReturn(Result.success(anotherPvCielo));
         when(pvService.exists(anotherPvCielo)).thenReturn(Result.success(anotherPvCielo));
@@ -239,8 +246,11 @@ public class PvPermissionServiceTest {
         when(pvPermissionRepository.findAllByPvHeadquarterRede(pvRede))
             .thenReturn(Collections.singletonList(pvPermission));
 
+        when(userService.getPrimaryUser(anotherEmail)).thenReturn(Optional.of(anotherUser));
+        when(userService.getOrCreatePrimaryUser(anotherEmail)).thenReturn(anotherUser);
+
         PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest = new PrimaryUserPvPermissionRequest(
-            "another_primary@email.com", pvs, pvRede);
+            anotherEmail, pvs, pvRede);
 
         List<Result<PvPermission, String>> results = pvPermissionService
             .createForPrimaryUser(anotherPrimaryUserPvPermissionRequest);
@@ -249,6 +259,41 @@ public class PvPermissionServiceTest {
         assertThat(firstResult.failure().isPresent(), equalTo(true));
         assertThat(firstResult.failure().get(),
             equalTo("O pv matriz rede 'pvrede' já está associado à outro usuário primário."));
+    }
+
+    /**
+     * Test create for primary user when headquarter already permitted to the
+     * same primary user.
+     */
+    @Test
+    public void testCreateForPrimaryUserWhenPvHeadquarterRedeAlreadyAssociatedToTheSamePrimaryUser() {
+        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
+        Pv anotherPvCielo = new Pv("9595959595", CIELO);
+        List<Pv> pvs = Collections.singletonList(anotherPvCielo);
+        String anotherPvCieloCode = "9595959595";
+        PvPermission anotherPvPermisson = new PvPermission(primaryUser, anotherPvCielo, pvRede);
+
+        when(pvService.existsAsHeadquarter(anotherPvCielo)).thenReturn(Result.success(anotherPvCielo));
+        when(pvService.exists(anotherPvCielo)).thenReturn(Result.success(anotherPvCielo));
+
+        when(pvService.getOrCreatePv(anotherPvCieloCode, CIELO))
+            .thenReturn(anotherPvCielo);
+
+        when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
+        when(pvPermissionRepository.findAllByPvHeadquarterRede(pvRede))
+            .thenReturn(Collections.singletonList(pvPermission));
+        when(pvPermissionRepository.findByUserAndPvAndPvHeadquarterRede(primaryUser, anotherPvCielo, pvRede))
+            .thenReturn(Optional.of(anotherPvPermisson));
+
+        PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest = new PrimaryUserPvPermissionRequest(
+            PRIMARY_USER_EMAIL, pvs, pvRede);
+
+        List<Result<PvPermission, String>> results = pvPermissionService
+            .createForPrimaryUser(anotherPrimaryUserPvPermissionRequest);
+
+        Result<PvPermission, String> firstResult = getFirstResult(results);
+        assertThat(firstResult.success().isPresent(), equalTo(true));
+        assertThat(firstResult.success().get(), equalTo(anotherPvPermisson));
     }
 
     @Test
