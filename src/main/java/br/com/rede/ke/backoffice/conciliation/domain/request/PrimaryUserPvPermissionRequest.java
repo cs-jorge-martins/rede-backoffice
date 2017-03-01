@@ -19,7 +19,7 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 public class PrimaryUserPvPermissionRequest extends PvPermissionRequest {
 
     /** The pv headquarter rede. */
-    protected Pv pvHeadquarterRede;
+    private Pv pvHeadquarterRede;
 
     /**
      * Constructor.

@@ -19,10 +19,10 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 public abstract class PvPermissionRequest {
 
     /** Requester user email. */
-    protected String requesterUserEmail;
+    private String requesterUserEmail;
 
     /** List of Pvs. */
-    protected List<Pv> pvs;
+    private List<Pv> pvs;
 
     /**
      * Instantiates a new pv permission request.
