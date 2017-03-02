@@ -19,6 +19,7 @@ import static org.springframework.util.StringUtils.isEmpty;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,15 +43,23 @@ import br.com.rede.ke.backoffice.conciliation.domain.request.SecondaryUserPvPerm
 import br.com.rede.ke.backoffice.conciliation.domain.validation.Validation;
 import br.com.rede.ke.backoffice.util.Result;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class PvPermissionService.
  */
 @Service
 public class PvPermissionService {
 
+    /** The pv repository. */
     private PvRepository pvRepository;
+
+    /** The pv service. */
     private PvService pvService;
+
+    /** The pv permission repository. */
     private PvPermissionRepository pvPermissionRepository;
+
+    /** The user service. */
     private UserService userService;
 
     /**
@@ -82,6 +91,8 @@ public class PvPermissionService {
      *            the code
      * @param email
      *            the email
+     * @param pvHeadquarterRedeCode
+     *            the pv headquarter rede code
      * @param pageable
      *            the pageable
      * @return the page
@@ -133,6 +144,8 @@ public class PvPermissionService {
      *            requester user.
      * @param pv
      *            pv.
+     * @param pvHeadquarterRede
+     *            the pv headquarter rede
      * @return A processing result.
      */
     private Result<PvPermission, String> createForPrimaryUser(User primaryUser, Pv pv, Pv pvHeadquarterRede) {
@@ -184,6 +197,13 @@ public class PvPermissionService {
         };
     }
 
+    /**
+     * Can user be associated to an headquarter rede.
+     *
+     * @param user
+     *            the user
+     * @return the validation
+     */
     protected Validation<Pv> canUserBeAssociatedToAnHeadquarterRede(User user) {
         return headquarterRede -> {
             if (!canHeadquarterRedeBeAssociatedToAnPrimaryUser(headquarterRede, user)) {
@@ -215,6 +235,15 @@ public class PvPermissionService {
         return usersPermittedToHeadquarter.stream().findFirst();
     }
 
+    /**
+     * Can headquarter rede be associated to an primary user.
+     *
+     * @param headquarterRede
+     *            the headquarter rede
+     * @param user
+     *            the user
+     * @return true, if successful
+     */
     protected boolean canHeadquarterRedeBeAssociatedToAnPrimaryUser(Pv headquarterRede, User user) {
         List<User> usersForHeadquarterRede = pvPermissionRepository.findAllByPvHeadquarterRede(headquarterRede)
             .stream()
@@ -229,6 +258,17 @@ public class PvPermissionService {
         return usersForHeadquarterRede.isEmpty();
     }
 
+    /**
+     * Gets the or create pv permission.
+     *
+     * @param primaryUser
+     *            the primary user
+     * @param headquarter
+     *            the headquarter
+     * @param pvHeadquarterRede
+     *            the pv headquarter rede
+     * @return the or create pv permission
+     */
     private PvPermission getOrCreatePvPermission(User primaryUser, Pv headquarter, Pv pvHeadquarterRede) {
         return pvPermissionRepository.findByUserAndPvAndPvHeadquarterRede(primaryUser, headquarter, pvHeadquarterRede)
             .orElseGet(() -> {
@@ -317,6 +357,15 @@ public class PvPermissionService {
 
     }
 
+    /**
+     * Gets the failure.
+     *
+     * @param <T>
+     *            the generic type
+     * @param result
+     *            the result
+     * @return the failure
+     */
     private <T> Result<PvPermission, String> getFailure(Result<T, String> result) {
         String message = result.failure().get();
         return Result.failure(message);
