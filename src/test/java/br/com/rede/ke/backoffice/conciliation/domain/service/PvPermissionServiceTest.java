@@ -297,6 +297,37 @@ public class PvPermissionServiceTest {
     }
 
     @Test
+    public void testCreateForPrimaryUserWhenPvHeadquarterRedeAlreadyHasMoreThanOnePermissionForSameUser() {
+        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
+        String secondPvCieloCode = "9595959595";
+        Pv secondPvCielo = new Pv(secondPvCieloCode, CIELO);
+        List<Pv> pvs = Collections.singletonList(secondPvCielo);
+        PvPermission secondPvPermission = new PvPermission(primaryUser, secondPvCielo, pvRede);
+
+        when(pvService.existsAsHeadquarter(secondPvCielo)).thenReturn(Result.success(secondPvCielo));
+        when(pvService.exists(secondPvCielo)).thenReturn(Result.success(secondPvCielo));
+
+        when(pvService.getOrCreatePv(secondPvCieloCode, CIELO))
+            .thenReturn(secondPvCielo);
+
+        when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
+        when(pvPermissionRepository.findAllByPvHeadquarterRede(pvRede))
+            .thenReturn(Arrays.asList(pvPermission, secondPvPermission));
+        when(pvPermissionRepository.findByUserAndPvAndPvHeadquarterRede(primaryUser, secondPvCielo, pvRede))
+            .thenReturn(Optional.of(secondPvPermission));
+
+        PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest = new PrimaryUserPvPermissionRequest(
+            PRIMARY_USER_EMAIL, pvs, pvRede);
+
+        List<Result<PvPermission, String>> results = pvPermissionService
+            .createForPrimaryUser(anotherPrimaryUserPvPermissionRequest);
+
+        Result<PvPermission, String> firstResult = getFirstResult(results);
+        assertThat(firstResult.success().isPresent(), equalTo(true));
+        assertThat(firstResult.success().get(), equalTo(secondPvPermission));
+    }
+
+    @Test
     public void testCreateForPrimaryUserWhenPvHeadquarterRedeDoesNotExist() {
         when(pvService.existsAsHeadquarter(Matchers.eq(pvRede))).thenReturn(Result.failure(""));
 

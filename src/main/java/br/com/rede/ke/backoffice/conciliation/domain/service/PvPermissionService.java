@@ -245,17 +245,26 @@ public class PvPermissionService {
      * @return true, if successful
      */
     protected boolean canHeadquarterRedeBeAssociatedToAnPrimaryUser(Pv headquarterRede, User user) {
-        List<User> usersForHeadquarterRede = pvPermissionRepository.findAllByPvHeadquarterRede(headquarterRede)
+        Set<User> usersForHeadquarter = pvPermissionRepository.findAllByPvHeadquarterRede(headquarterRede)
             .stream()
             .map(PvPermission::getUser)
             .filter(User::isPrimary)
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet());
 
-        if (usersForHeadquarterRede.size() == 1) {
-            return user.equals(usersForHeadquarterRede.stream().findFirst().get());
-        }
+        return usersForHeadquarter.isEmpty() || anyPermissionFor(usersForHeadquarter, user);
+    }
 
-        return usersForHeadquarterRede.isEmpty();
+    /**
+     * Any permission for.
+     *
+     * @param usersForHeadquarter
+     *            the users for headquarter
+     * @param user
+     *            the user
+     * @return true, if successful
+     */
+    private boolean anyPermissionFor(Set<User> usersForHeadquarter, User user) {
+        return usersForHeadquarter.stream().filter(user::equals).count() > 0;
     }
 
     /**
