@@ -127,9 +127,9 @@ public class User {
             return false;
         }
         User user = (User) o;
-        return Objects.equals(id, user.id)
-            && Objects.equals(primaryUser, user.primaryUser)
-            && Objects.equals(email, user.email);
+        return Objects.equals(id, user.getId())
+            && Objects.equals(primaryUser, user.getPrimaryUser())
+            && Objects.equals(email, user.getEmail());
     }
 
     /**

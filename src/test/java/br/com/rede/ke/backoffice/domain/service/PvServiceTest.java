@@ -9,14 +9,15 @@
  */
 package br.com.rede.ke.backoffice.domain.service;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.Optional;
 
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
-import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
-import br.com.rede.ke.backoffice.conciliation.domain.service.PvService;
-import br.com.rede.ke.backoffice.conciliation.domain.validation.Validation;
-import br.com.rede.ke.backoffice.util.Result;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,12 +26,12 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
+import br.com.rede.ke.backoffice.conciliation.domain.service.PvService;
+import br.com.rede.ke.backoffice.conciliation.domain.validation.Validation;
+import br.com.rede.ke.backoffice.util.Result;
 
 /**
  * The Class PvServiceTest.
@@ -45,39 +46,6 @@ public class PvServiceTest {
     /** The pv repository. */
     @Mock
     private PvRepository pvRepository;
-
-    /**
-     * Test is valid pv format when code is numbers with size less or equal 20.
-     */
-    @Test
-    public void testIsValidPvFormatWhenCodeIsNumbersWithSizeLessOrEqual20() {
-        Pv pv = new Pv();
-        pv.setCode("1000201314");
-
-        assertThat(pvService.isValidPvFormat(pv), equalTo(true));
-    }
-
-    /**
-     * Test is valid pv format when code has invalid length.
-     */
-    @Test
-    public void testIsValidPvFormatWhenCodeHasInvalidLength() {
-        Pv pv = new Pv();
-        pv.setCode("100020131419817181781781718");
-
-        assertThat(pvService.isValidPvFormat(pv), equalTo(false));
-    }
-
-    /**
-     * Test is valid pv format when code has invalid characters.
-     */
-    @Test
-    public void testIsValidPvFormatWhenCodeHasInvalidCharacters() {
-        Pv pv = new Pv();
-        pv.setCode("ABC5367");
-
-        assertThat(pvService.isValidPvFormat(pv), equalTo(false));
-    }
 
     /**
      * Test get or create pv when pv does not exists.
@@ -152,6 +120,7 @@ public class PvServiceTest {
         Result<Pv, String> result = existsAsHeadquarter.validate(branch);
 
         MatcherAssert.assertThat(result.isFailure(), is(true));
-        MatcherAssert.assertThat(result.failure().get(), is("O pv 'code2' já está cadastrado como um pv filial"));
+        MatcherAssert.assertThat(result.failure().get(),
+            is("O pv 'code2' já está cadastrado como um pv filial para o adquirente 'CIELO'"));
     }
 }
