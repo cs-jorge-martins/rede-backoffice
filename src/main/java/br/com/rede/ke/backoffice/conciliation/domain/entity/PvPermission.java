@@ -180,8 +180,8 @@ public class PvPermission {
      *
      * @return the pv headquarter rede
      */
-    public Pv getPvHeadquarterRede() {
-        return pvHeadquarterRede;
+    public Optional<Pv> getPvHeadquarterRede() {
+        return Optional.ofNullable(pvHeadquarterRede);
     }
 
     /**

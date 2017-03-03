@@ -11,15 +11,11 @@
         <div class="row">
             <form th:action="@{/pv-permissions/primary}" method="post" enctype="multipart/form-data" class="col s12">
                 <div class="row">
-                    <div class="input-field col s4">
+                    <div class="input-field col s6">
                         <input id="email" type="email" class="validate" name="email" th:required="required"/>
                         <label for="email">email</label>
                     </div>
-                    <div class="input-field col s4">
-                        <input id="pvHeadquarterRedeCode" type="text" class="validate" name="pvHeadquarterRedeCode" th:required="required"/>
-                        <label for="pvHeadquarterRedeCode">pv matriz rede</label>
-                    </div>
-                    <div class="input-field col s4">
+                    <div class="input-field col s6">
                         <select id="acquirer" name="acquirer" th:required="required">
                             <option th:selected="${acquirer == acquirerItem}"
                                     th:each="acquirerItem: ${acquirers}"

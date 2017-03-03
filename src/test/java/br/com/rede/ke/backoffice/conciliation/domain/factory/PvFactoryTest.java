@@ -9,24 +9,23 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.factory;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.web.multipart.MultipartFile;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.validation.Validation;
 import br.com.rede.ke.backoffice.conciliation.exception.InvalidFileException;
 import br.com.rede.ke.backoffice.util.Result;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.web.multipart.MultipartFile;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * The PvFactoryTest Class.
@@ -42,9 +41,7 @@ public class PvFactoryTest {
 
     /**
      * Test from file and acquirer when reads from file.
-     *
-     * @throws IOException
-     *             when an error occurs.
+     * @throws IOException when an error occurs.
      */
     @Test
     public void testFromFileAndAcquirerWhenReadsFromFile() throws IOException {
@@ -59,9 +56,7 @@ public class PvFactoryTest {
 
     /**
      * Test from file and acquirer when problem reading file.
-     *
-     * @throws IOException
-     *             when an error occurs.
+     * @throws IOException when an error occurs.
      */
     @Test(expected = InvalidFileException.class)
     public void testFromFileAndAcquirerWhenProblemReadingFile() throws IOException {
@@ -97,42 +92,20 @@ public class PvFactoryTest {
      * Test has valid size and format when pv code has validation error.
      */
     @Test
-    public void testHasValidSizeAndFormatWhenPvCodeHasValidationErrorForCielo() {
+    public void testHasValidSizeAndFormatWhenPvCodeHasValidationError() {
         String pvCodeWithWrongSize = "12345678901";
-        Result<String, String> result = pvFactory.hasValidSizeAndFormat(pvCodeWithWrongSize, Acquirer.CIELO);
+        Result<String, String> result = pvFactory.hasValidSizeAndFormat(pvCodeWithWrongSize);
 
         assertThat(result.isFailure(), equalTo(true));
     }
 
     /**
-     * Test has valid size and format when pv code has validation error.
+     * Test has valid size and format when pv code is ok.
      */
     @Test
-    public void testHasValidSizeAndFormatWhenPvCodeHasValidationErrorForRede() {
+    public void testHasValidSizeAndFormatWhenPvCodeIsOk() {
         String pvCodeWithWrongSize = "1234567890";
-        Result<String, String> result = pvFactory.hasValidSizeAndFormat(pvCodeWithWrongSize, Acquirer.REDE);
-
-        assertThat(result.isFailure(), equalTo(true));
-    }
-
-    /**
-     * Test has valid size and format when pv code is ok.
-     */
-    @Test
-    public void testHasValidSizeAndFormatWhenPvCodeIsOkForCielo() {
-        String pvCodeWithRightSize = "1234567890";
-        Result<String, String> result = pvFactory.hasValidSizeAndFormat(pvCodeWithRightSize, Acquirer.CIELO);
-
-        assertThat(result.isSuccess(), equalTo(true));
-    }
-
-    /**
-     * Test has valid size and format when pv code is ok.
-     */
-    @Test
-    public void testHasValidSizeAndFormatWhenPvCodeIsOkForRede() {
-        String pvCodeWithRightSize = "123456789";
-        Result<String, String> result = pvFactory.hasValidSizeAndFormat(pvCodeWithRightSize, Acquirer.REDE);
+        Result<String, String> result = pvFactory.hasValidSizeAndFormat(pvCodeWithWrongSize);
 
         assertThat(result.isSuccess(), equalTo(true));
     }
@@ -141,40 +114,20 @@ public class PvFactoryTest {
      * Test apply left padding when code less than size ten.
      */
     @Test
-    public void testApplyLeftPaddingWhenCodeLessThanSizeTenForCielo() {
-        String leftPaddingCode = pvFactory.applyLeftPadding("12345678", Acquirer.CIELO);
+    public void testApplyLeftPaddingWhenCodeLessThanSizeTen() {
+        String leftPaddingCode = pvFactory.applyLeftPadding("12345678");
 
         assertThat(leftPaddingCode, equalTo("0012345678"));
     }
 
     /**
-     * Test apply left padding when code less than size ten.
-     */
-    @Test
-    public void testApplyLeftPaddingWhenCodeLessThanSizeNineForRede() {
-        String leftPaddingCode = pvFactory.applyLeftPadding("12345678", Acquirer.REDE);
-
-        assertThat(leftPaddingCode, equalTo("012345678"));
-    }
-
-    /**
      * Test apply left padding when code has size ten.
      */
     @Test
-    public void testApplyLeftPaddingWhenCodeHasSizeTenForCielo() {
-        String leftPaddingCode = pvFactory.applyLeftPadding("1234567890", Acquirer.CIELO);
+    public void testApplyLeftPaddingWhenCodeHasSizeTen() {
+        String leftPaddingCode = pvFactory.applyLeftPadding("1234567890");
 
         assertThat(leftPaddingCode, equalTo("1234567890"));
-    }
-
-    /**
-     * Test apply left padding when code has size ten.
-     */
-    @Test
-    public void testApplyLeftPaddingWhenCodeHasSizeNineForCielo() {
-        String leftPaddingCode = pvFactory.applyLeftPadding("123456789", Acquirer.REDE);
-
-        assertThat(leftPaddingCode, equalTo("123456789"));
     }
 
     /**
@@ -182,13 +135,13 @@ public class PvFactoryTest {
      */
     @Test
     public void testIsValidSizeWhenSizeIsInvalid() {
-        Validation<String> validSize = pvFactory.isValidSize(10, Acquirer.CIELO);
+        Validation<String> validSize = pvFactory.isValidSize(10);
 
         Result<String, String> result = validSize.validate("12345678901");
 
         assertThat(result.isFailure(), equalTo(true));
         assertThat(result.failure().get(),
-            equalTo("O pv '12345678901' está no formato inválido para o adquirente 'CIELO' (entre 1 e 10 caracteres)"));
+            equalTo("O pv '12345678901' está no formato inválido (entre 1 e 10 caracteres)"));
     }
 
     /**
@@ -196,7 +149,7 @@ public class PvFactoryTest {
      */
     @Test
     public void testIsValidSizeWhenSizeIsValid() {
-        Validation<String> validSize = pvFactory.isValidSize(10, Acquirer.CIELO);
+        Validation<String> validSize = pvFactory.isValidSize(10);
         Result<String, String> result = validSize.validate("1234567890");
 
         assertThat(result.isSuccess(), equalTo(true));
@@ -208,13 +161,13 @@ public class PvFactoryTest {
      */
     @Test
     public void testIsValidFormatWhenFormatDoesNotMatchRegex() {
-        Validation<String> validFormat = pvFactory.isValidFormat("[0-9]{1,10}", Acquirer.CIELO);
+        Validation<String> validFormat = pvFactory.isValidFormat("[0-9]{1,10}");
 
         Result<String, String> result = validFormat.validate("a234567890");
 
         assertThat(result.isFailure(), equalTo(true));
         assertThat(result.failure().get(),
-            equalTo("O pv 'a234567890' está no formato inválido para o adquirente 'CIELO' (somente números)"));
+            equalTo("O pv 'a234567890' está no formato inválido (somente números)"));
     }
 
     /**
@@ -222,7 +175,7 @@ public class PvFactoryTest {
      */
     @Test
     public void testIsValidFormatWhenFormatMatchesRegex() {
-        Validation<String> validFormat = pvFactory.isValidFormat("[0-9]{1,10}", Acquirer.CIELO);
+        Validation<String> validFormat = pvFactory.isValidFormat("[0-9]{1,10}");
         Result<String, String> result = validFormat.validate("12345678");
 
         assertThat(result.isSuccess(), equalTo(true));

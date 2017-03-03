@@ -82,14 +82,11 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         setup: "o pv matriz existe no banco"
         def pv = createPv("0011111111", Acquirer.CIELO)
 
-        and: "o pv matriz rede existe no banco"
-        def pvRede = createPv("111111111", Acquirer.REDE)
-
         and: "o usuario requisitante é primario"
         def primaryUser = createPrimaryUser("usuario_primario_1@email.com")
 
         and: "o usuario requisitante tem permissão no pv matriz"
-        pvPermissionRepository.save(new PvPermission(primaryUser, pv, pvRede))
+        pvPermissionRepository.save(new PvPermission(primaryUser, pv))
 
         and: "o usuario para dar permissão é secundario do requisitante"
         def secondaryUser = createSecondaryUserFor(primaryUser, "usuario_secundario_1@email.com")
@@ -118,14 +115,11 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         def secondaryUserEmail = "usuario_secundario_2@email.com"
         def pv = createPv("0022222222", Acquirer.CIELO)
 
-        and: "o pv matriz rede existe no banco"
-        def pvRede = createPv("222222222", Acquirer.REDE)
-
         and: "o usuario requisitante é primario"
         def primaryUser = createPrimaryUser("usuario_primario_2@email.com")
 
         and: "o usuario requisitante tem permissão no pv matriz"
-        pvPermissionRepository.save(new PvPermission(primaryUser, pv, pvRede))
+        pvPermissionRepository.save(new PvPermission(primaryUser, pv))
 
         and: "na pagina de permissão de pvs para usuario secundario"
         to PvPermissionSecondaryPage
@@ -152,15 +146,11 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         def headquarterPv = createPv("0033333333", Acquirer.CIELO)
         createBranchPvFor(headquarterPv, "0033333334")
 
-        and: "o pv matriz rede existe no banco"
-        def pvRede = createPv("333333333", Acquirer.REDE)
-
-
         and: "o usuario requisitante é primario"
         def primaryUser = createPrimaryUser("usuario_primario_3@email.com")
 
         and: "o usuario requisitante tem permissão no pv matriz"
-        pvPermissionRepository.save(new PvPermission(primaryUser, headquarterPv, pvRede))
+        pvPermissionRepository.save(new PvPermission(primaryUser, headquarterPv))
 
         and: "o usuario para dar permissão é secundario do requisitante"
         createSecondaryUserFor(primaryUser, secondaryUserEmail)
@@ -301,9 +291,9 @@ class PvPermissionForSecondaryUserSpecIT extends GebSpec {
         then:
         submitButton.click()
 
-        expect: "mensagem 'O pv 'invalidpv' está no formato inválido para o adquirente 'CIELO' (somente números)' deve aparecer"
+        expect: "mensagem 'O pv 'invalidpv' está no formato inválido (somente números)' deve aparecer"
         at PvPermissionSecondaryPage
-        assert(messages.text().contains("O pv 'invalidpv' está no formato inválido para o adquirente 'CIELO' (somente números)"))
+        assert(messages.text().contains("O pv 'invalidpv' está no formato inválido (somente números)"))
     }
 
     def "Dar permissão de PV quando o usuario primario não tem permissão"() {

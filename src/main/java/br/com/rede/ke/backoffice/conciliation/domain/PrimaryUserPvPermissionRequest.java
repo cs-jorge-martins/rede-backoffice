@@ -1,38 +1,35 @@
 /*
  * Copyright 2017 Rede S.A.
  *************************************************************
- * Nome     : PvPermissionRequest.java
- * Descrição: PvPermissionRequest.java.
- * Autor    : Maitê Balhester <mbalhest@thoughtworks.com>
- * Data     : 22/02/2017
+ * Nome     : PrimaryUserPvPermissionRequest.java
+ * Descrição: PrimaryUserPvPermissionRequest.java.
+ * Autor    : Geisly Conca <gconca@thoughtworks.com>
+ * Data     : 19/01/2017
  * Empresa  : Thoughtworks
  */
-package br.com.rede.ke.backoffice.conciliation.domain.request;
+package br.com.rede.ke.backoffice.conciliation.domain;
 
 import java.util.List;
 
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 
 /**
- * The Class PvPermissionRequest.
+ * Class PrimaryUserPvPermissionRequest.
  */
-public abstract class PvPermissionRequest {
-
-    /** Requester user email. */
+public class PrimaryUserPvPermissionRequest {
+    /** Requester user email */
     private String requesterUserEmail;
 
-    /** List of Pvs. */
+    /** List of Pvs */
     private List<Pv> pvs;
 
     /**
-     * Instantiates a new pv permission request.
+     * Constructor.
      *
-     * @param requesterUserEmail
-     *            the requester user email
-     * @param pvs
-     *            the pvs
+     * @param requesterUserEmail user email param
+     * @param pvs list of pvs
      */
-    public PvPermissionRequest(String requesterUserEmail, List<Pv> pvs) {
+    public PrimaryUserPvPermissionRequest(String requesterUserEmail, List<Pv> pvs) {
         this.requesterUserEmail = requesterUserEmail;
         this.pvs = pvs;
     }
@@ -54,5 +51,4 @@ public abstract class PvPermissionRequest {
     public List<Pv> getPvs() {
         return pvs;
     }
-
 }
