@@ -9,10 +9,9 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.repository;
 
-import org.springframework.data.jpa.domain.Specification;
-
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
+import org.springframework.data.jpa.domain.Specification;
 
 /**
  * The Class PvPermissionSpecifications.
@@ -34,17 +33,6 @@ public final class PvPermissionSpecifications {
      */
     public static Specification<PvPermission> pvCodeContains(String code) {
         return (root, query, cb) -> cb.like(root.get("pv").get("code"), code + "%");
-    }
-
-    /**
-     * Pv Headquarter Rede Code contains.
-     *
-     * @param pvHeadquarterRedeCode
-     *            the code
-     * @return the specification
-     */
-    public static Specification<PvPermission> pvHeadquarterRedeContains(String pvHeadquarterRedeCode) {
-        return (root, query, cb) -> cb.like(root.get("pvHeadquarterRede").get("code"), pvHeadquarterRedeCode + "%");
     }
 
     /**

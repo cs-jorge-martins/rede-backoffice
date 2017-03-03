@@ -22,10 +22,6 @@
                         </select>
                         <label for="acquirer">adquirente</label>
                     </div>
-                     <div class="input-field row">
-                        <input id="pvHeadquarterRedeCode" name="pvHeadquarterRedeCode" th:value="${pvHeadquarterRedeCode}" type="text" />
-                        <label for="pvHeadquarterRedeCode">PV matriz rede</label>
-                    </div>
                     <div class="input-field row">
                         <button class="btn waves-effect waves-light" type="submit">buscar</button>
                     </div>
@@ -45,7 +41,6 @@
                                 <th>adquirente</th>
                                 <th>código do PV</th>
                                 <th>tipo PV</th>
-                                <th>PV matriz rede</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -62,7 +57,6 @@
                                 <td th:text="#{'option.acquirer.' + ${permission.pv.acquirer}}"></td>
                                 <td th:text="${permission.pv.code}"></td>
                                 <td th:text="${permission.pv.isHeadquarter()} ? 'matriz' : 'filial'" th:class="${permission.pv.isHeadquarter()} ? 'turquoise-text' : 'grey-text'"></td>
-                                <td th:text="${permission.user.isPrimary()} ? ${permission.pvHeadquarterRede.code} : '-'"></td>
                             </tr>
                         </tbody>
                     </table>

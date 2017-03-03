@@ -12,16 +12,15 @@ package br.com.rede.ke.backoffice.conciliation.domain.repository;
 import java.util.List;
 import java.util.Optional;
 
+import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
+import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermissionId;
-import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 
 /**
  * The Interface PvPermissionRepository.
@@ -64,19 +63,10 @@ public interface PvPermissionRepository extends JpaRepository<PvPermission, PvPe
      * Find all by pv.
      *
      * @param pv
-     *            the pv
+     *           the pv
      * @return the list
      */
     List<PvPermission> findAllByPv(Pv pv);
-
-    /**
-     * Find all by pv.
-     *
-     * @param pv
-     *            the pv
-     * @return the list
-     */
-    List<PvPermission> findAllByPvHeadquarterRede(Pv pvHeadquarterRede);
 
     /**
      * Find all by pv in.
@@ -86,17 +76,4 @@ public interface PvPermissionRepository extends JpaRepository<PvPermission, PvPe
      * @return the list
      */
     List<PvPermission> findAllByPvIn(Iterable<Pv> pvs);
-
-    /**
-     * Find by user and pv and pv headquarter Rede.
-     *
-     * @param primaryUser
-     *            the primary user
-     * @param headquarter
-     *            the headquarter
-     * @param pvHeadquarterRede
-     *            the pv headquarter rede
-     * @return the optional of a pv permission
-     */
-    Optional<PvPermission> findByUserAndPvAndPvHeadquarterRede(User primaryUser, Pv headquarter, Pv pvHeadquarterRede);
 }

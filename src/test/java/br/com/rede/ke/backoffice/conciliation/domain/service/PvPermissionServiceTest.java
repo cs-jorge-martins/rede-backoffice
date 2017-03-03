@@ -9,28 +9,13 @@
  */
 package br.com.rede.ke.backoffice.conciliation.domain.service;
 
-import static br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer.REDE;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-
+import br.com.rede.ke.backoffice.conciliation.domain.PrimaryUserPvPermissionRequest;
+import br.com.rede.ke.backoffice.conciliation.domain.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Acquirer;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.Pv;
 import br.com.rede.ke.backoffice.conciliation.domain.entity.PvPermission;
@@ -38,9 +23,21 @@ import br.com.rede.ke.backoffice.conciliation.domain.entity.User;
 import br.com.rede.ke.backoffice.conciliation.domain.exception.UserNotFoundException;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvPermissionRepository;
 import br.com.rede.ke.backoffice.conciliation.domain.repository.PvRepository;
-import br.com.rede.ke.backoffice.conciliation.domain.request.PrimaryUserPvPermissionRequest;
-import br.com.rede.ke.backoffice.conciliation.domain.request.SecondaryUserPvPermissionRequest;
 import br.com.rede.ke.backoffice.util.Result;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * The Class PvPermissionServiceTest.
@@ -56,9 +53,6 @@ public class PvPermissionServiceTest {
 
     /** The pv code constant */
     private static final String PV_CODE = "pvcode";
-
-    /** The pv code constant */
-    private static final String PV_REDE_CODE = "pvrede";
 
     /** The cielo constant */
     private static final Acquirer CIELO = Acquirer.CIELO;
@@ -92,9 +86,6 @@ public class PvPermissionServiceTest {
     /** The pv */
     private Pv pv;
 
-    /** The pvRede */
-    private Pv pvRede;
-
     /** The primary user pv permission request */
     private PrimaryUserPvPermissionRequest primaryUserPvPermissionRequest;
 
@@ -113,7 +104,7 @@ public class PvPermissionServiceTest {
     @Before
     public void setUp() {
         this.primaryUserPvPermissionRequest = new PrimaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, Collections.singletonList(new Pv(PV_CODE, CIELO)), new Pv(PV_REDE_CODE, REDE));
+            PRIMARY_USER_EMAIL, Collections.singletonList(new Pv(PV_CODE, CIELO)));
 
         this.secondaryUserPvPermissionRequest = new SecondaryUserPvPermissionRequest(
             PRIMARY_USER_EMAIL, SECONDARY_USER_EMAIL, Collections.singletonList(new Pv(PV_CODE, CIELO)));
@@ -130,22 +121,14 @@ public class PvPermissionServiceTest {
         when(pvService.existsAsHeadquarter(pv)).thenReturn(Result.success(pv));
         when(pvService.exists(pv)).thenReturn(Result.success(pv));
 
-        pvRede = new Pv(PV_REDE_CODE, REDE);
-        when(pvService.existsAsHeadquarter(pvRede)).thenReturn(Result.success(pvRede));
-        when(pvService.exists(pvRede)).thenReturn(Result.success(pvRede));
-        when(pvService.getOrCreatePv(PV_REDE_CODE, REDE)).thenReturn(pvRede);
-        when(pvRepository.findByCodeAndAcquirerId(PV_REDE_CODE, REDE.ordinal())).thenReturn(Optional.of(pvRede));
-
         when(pvService.getOrCreatePv(PV_CODE, Acquirer.CIELO)).thenReturn(pv);
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal())).thenReturn(Optional.of(pv));
 
-        primaryUserPvPermission = new PvPermission(primaryUser, pv, pvRede);
+        primaryUserPvPermission = new PvPermission(primaryUser, pv);
         secondaryUserPvPermission = new PvPermission(secondaryUser, pv);
 
         when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.emptyList());
-        when(pvPermissionRepository.findByUserAndPvAndPvHeadquarterRede(primaryUser, pv, pvRede))
-            .thenReturn(Optional.empty());
-        when(pvPermissionRepository.findAllByPvHeadquarterRede(pvRede)).thenReturn(Collections.emptyList());
+        when(pvPermissionRepository.findByUserAndPv(primaryUser, pv)).thenReturn(Optional.empty());
     }
 
     /**
@@ -153,7 +136,7 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForPrimaryUserWhenPvDoesNotExist() {
-        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
+        PvPermission pvPermission = new PvPermission(primaryUser, pv);
 
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal()))
             .thenReturn(Optional.empty());
@@ -174,7 +157,7 @@ public class PvPermissionServiceTest {
     @Test
     public void testCreateForPrimaryUserWhenPvIsInvalid() {
         PrimaryUserPvPermissionRequest pvPermissionRequest = new PrimaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, Collections.singletonList(new Pv()), pvRede);
+            PRIMARY_USER_EMAIL, Collections.singletonList(new Pv()));
 
         when(pvService.existsAsHeadquarter(any())).thenReturn(Result.failure(""));
 
@@ -189,7 +172,7 @@ public class PvPermissionServiceTest {
      */
     @Test
     public void testCreateForPrimaryUserWhenPvPermissionDoesNotExist() {
-        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
+        PvPermission pvPermission = new PvPermission(primaryUser, pv);
         when(pvPermissionRepository.save(Mockito.any(PvPermission.class))).thenReturn(pvPermission);
 
         List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(
@@ -201,17 +184,16 @@ public class PvPermissionServiceTest {
     }
 
     /**
-     * Test create for primary user when headquarter already permitted to
-     * another primary user.
+     * Test create for primary user when headquarter already permitted to another primary user.
      */
     @Test
     public void testCreateForPrimaryUserWhenHeadquarterAlreadyPermittedToAnotherPrimaryUser() {
-        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
+        PvPermission pvPermission = new PvPermission(primaryUser, pv);
         when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
 
         List<Pv> pvs = Collections.singletonList(new Pv(PV_CODE, CIELO));
-        PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest = new PrimaryUserPvPermissionRequest(
-            "another_primary@email.com", pvs, pvRede);
+        PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest =
+            new PrimaryUserPvPermissionRequest("another_primary@email.com", pvs);
 
         List<Result<PvPermission, String>> results = pvPermissionService
             .createForPrimaryUser(anotherPrimaryUserPvPermissionRequest);
@@ -223,130 +205,13 @@ public class PvPermissionServiceTest {
     }
 
     /**
-     * Test create for primary user when headquarter already permitted to
-     * another primary user.
-     */
-    @Test
-    public void testCreateForPrimaryUserWhenPvHeadquarterRedeAlreadyAssociatedToAnotherPrimaryUser() {
-        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
-        String anotherPvCieloCode = "9595959595";
-        Pv anotherPvCielo = new Pv(anotherPvCieloCode, CIELO);
-        String anotherEmail = "another_primary@email.com";
-        List<Pv> pvs = Collections.singletonList(anotherPvCielo);
-        User anotherUser = new User();
-        anotherUser.setEmail(anotherEmail);
-
-        when(pvService.getOrCreatePv(anotherPvCieloCode, CIELO))
-            .thenReturn(anotherPvCielo);
-
-        when(pvService.existsAsHeadquarter(anotherPvCielo)).thenReturn(Result.success(anotherPvCielo));
-        when(pvService.exists(anotherPvCielo)).thenReturn(Result.success(anotherPvCielo));
-
-        when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
-        when(pvPermissionRepository.findAllByPvHeadquarterRede(pvRede))
-            .thenReturn(Collections.singletonList(pvPermission));
-
-        when(userService.getPrimaryUser(anotherEmail)).thenReturn(Optional.of(anotherUser));
-        when(userService.getOrCreatePrimaryUser(anotherEmail)).thenReturn(anotherUser);
-
-        PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest = new PrimaryUserPvPermissionRequest(
-            anotherEmail, pvs, pvRede);
-
-        List<Result<PvPermission, String>> results = pvPermissionService
-            .createForPrimaryUser(anotherPrimaryUserPvPermissionRequest);
-
-        Result<PvPermission, String> firstResult = getFirstResult(results);
-        assertThat(firstResult.failure().isPresent(), equalTo(true));
-        assertThat(firstResult.failure().get(),
-            equalTo("O pv matriz rede 'pvrede' já está associado à outro usuário primário."));
-    }
-
-    /**
-     * Test create for primary user when headquarter already permitted to the
-     * same primary user.
-     */
-    @Test
-    public void testCreateForPrimaryUserWhenPvHeadquarterRedeAlreadyAssociatedToTheSamePrimaryUser() {
-        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
-        Pv anotherPvCielo = new Pv("9595959595", CIELO);
-        List<Pv> pvs = Collections.singletonList(anotherPvCielo);
-        String anotherPvCieloCode = "9595959595";
-        PvPermission anotherPvPermisson = new PvPermission(primaryUser, anotherPvCielo, pvRede);
-
-        when(pvService.existsAsHeadquarter(anotherPvCielo)).thenReturn(Result.success(anotherPvCielo));
-        when(pvService.exists(anotherPvCielo)).thenReturn(Result.success(anotherPvCielo));
-
-        when(pvService.getOrCreatePv(anotherPvCieloCode, CIELO))
-            .thenReturn(anotherPvCielo);
-
-        when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
-        when(pvPermissionRepository.findAllByPvHeadquarterRede(pvRede))
-            .thenReturn(Collections.singletonList(pvPermission));
-        when(pvPermissionRepository.findByUserAndPvAndPvHeadquarterRede(primaryUser, anotherPvCielo, pvRede))
-            .thenReturn(Optional.of(anotherPvPermisson));
-
-        PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest = new PrimaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, pvs, pvRede);
-
-        List<Result<PvPermission, String>> results = pvPermissionService
-            .createForPrimaryUser(anotherPrimaryUserPvPermissionRequest);
-
-        Result<PvPermission, String> firstResult = getFirstResult(results);
-        assertThat(firstResult.success().isPresent(), equalTo(true));
-        assertThat(firstResult.success().get(), equalTo(anotherPvPermisson));
-    }
-
-    @Test
-    public void testCreateForPrimaryUserWhenPvHeadquarterRedeAlreadyHasMoreThanOnePermissionForSameUser() {
-        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
-        String secondPvCieloCode = "9595959595";
-        Pv secondPvCielo = new Pv(secondPvCieloCode, CIELO);
-        List<Pv> pvs = Collections.singletonList(secondPvCielo);
-        PvPermission secondPvPermission = new PvPermission(primaryUser, secondPvCielo, pvRede);
-
-        when(pvService.existsAsHeadquarter(secondPvCielo)).thenReturn(Result.success(secondPvCielo));
-        when(pvService.exists(secondPvCielo)).thenReturn(Result.success(secondPvCielo));
-
-        when(pvService.getOrCreatePv(secondPvCieloCode, CIELO))
-            .thenReturn(secondPvCielo);
-
-        when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
-        when(pvPermissionRepository.findAllByPvHeadquarterRede(pvRede))
-            .thenReturn(Arrays.asList(pvPermission, secondPvPermission));
-        when(pvPermissionRepository.findByUserAndPvAndPvHeadquarterRede(primaryUser, secondPvCielo, pvRede))
-            .thenReturn(Optional.of(secondPvPermission));
-
-        PrimaryUserPvPermissionRequest anotherPrimaryUserPvPermissionRequest = new PrimaryUserPvPermissionRequest(
-            PRIMARY_USER_EMAIL, pvs, pvRede);
-
-        List<Result<PvPermission, String>> results = pvPermissionService
-            .createForPrimaryUser(anotherPrimaryUserPvPermissionRequest);
-
-        Result<PvPermission, String> firstResult = getFirstResult(results);
-        assertThat(firstResult.success().isPresent(), equalTo(true));
-        assertThat(firstResult.success().get(), equalTo(secondPvPermission));
-    }
-
-    @Test
-    public void testCreateForPrimaryUserWhenPvHeadquarterRedeDoesNotExist() {
-        when(pvService.existsAsHeadquarter(Matchers.eq(pvRede))).thenReturn(Result.failure(""));
-
-        List<Result<PvPermission, String>> results = pvPermissionService
-            .createForPrimaryUser(primaryUserPvPermissionRequest);
-
-        Result<PvPermission, String> firstResult = getFirstResult(results);
-        assertThat(firstResult.failure().isPresent(), equalTo(true));
-    }
-
-    /**
      * Test create for primary user.
      */
     @Test
     public void testCreateForPrimaryUser() {
-        PvPermission pvPermission = new PvPermission(primaryUser, pv, pvRede);
+        PvPermission pvPermission = new PvPermission(primaryUser, pv);
         when(pvPermissionRepository.findAllByPv(pv)).thenReturn(Collections.singletonList(pvPermission));
-        when(pvPermissionRepository.findByUserAndPvAndPvHeadquarterRede(primaryUser, pv, pvRede))
-            .thenReturn(Optional.of(pvPermission));
+        when(pvPermissionRepository.findByUserAndPv(primaryUser, pv)).thenReturn(Optional.of(pvPermission));
 
         List<Result<PvPermission, String>> results = pvPermissionService.createForPrimaryUser(
             primaryUserPvPermissionRequest);
@@ -404,7 +269,7 @@ public class PvPermissionServiceTest {
     @Test
     public void testCreateForSecondaryUserWhenPvIsInvalid() {
         when(pvRepository.findByCodeAndAcquirerId(PV_CODE, CIELO.ordinal()))
-            .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
         when(pvService.exists(pv)).thenReturn(Result.failure(""));
 
         List<Result<PvPermission, String>> results = pvPermissionService
@@ -428,7 +293,7 @@ public class PvPermissionServiceTest {
     }
 
     /**
-     * Test delete pv permission from secondary user.
+     *  Test delete pv permission from secondary user.
      */
     @Test
     public void testDeletePvPermissionFromSecondaryUser() {
@@ -441,8 +306,7 @@ public class PvPermissionServiceTest {
     }
 
     /**
-     * Test delete pv permission from primary user when secondary user has pv
-     * permission to branch pv.
+     * Test delete pv permission from primary user when secondary user has pv permission to branch pv.
      */
     @Test
     public void testDeletePvPermissionFromPrimaryUserWhenSecondaryUserHasPvPermissionToBranchPv() {
@@ -453,10 +317,10 @@ public class PvPermissionServiceTest {
         secondaryUserPvPermission = new PvPermission(secondaryUser, branchPv);
 
         when(pvPermissionRepository.findAllByPv(pv))
-            .thenReturn(Collections.singletonList(primaryUserPvPermission));
+                .thenReturn(Collections.singletonList(primaryUserPvPermission));
 
         when(pvPermissionRepository.findAllByPvIn(pv.getBranches()))
-            .thenReturn(Collections.singletonList(secondaryUserPvPermission));
+                .thenReturn(Collections.singletonList(secondaryUserPvPermission));
 
         pvPermissionService.delete(primaryUserPvPermission);
 

@@ -1,6 +1,6 @@
 /*© Copyright 2016 Rede S.A.
 =============================================
-Autor: Karlisson Bezerra <kbezerra@thoughtworks.com>
+Autor: Karlisson Bezerra <kbezerra@userede.com.br>
 Data: 27/12/2016
 Empresa: Thoughtworks
 Descrição: Este arquivo é executado durante os testes para inicializar os dados da base de teste.*/
@@ -54,8 +54,8 @@ INSERT INTO USER (EMAIL) VALUES ('foo@bar.com');
 INSERT INTO USER (EMAIL) VALUES ('bar@foo.com');
 
 -- USER_PV
-INSERT INTO USER_PV (USER_ID, PV_ID, PV_HEADQUARTER_REDE_ID) VALUES (1, 1, 1);
-INSERT INTO USER_PV (USER_ID, PV_ID, PV_HEADQUARTER_REDE_ID) VALUES (1, 3, 1);
-INSERT INTO USER_PV (USER_ID, PV_ID, PV_HEADQUARTER_REDE_ID) VALUES (1, 5, 1);
-INSERT INTO USER_PV (USER_ID, PV_ID, PV_HEADQUARTER_REDE_ID) VALUES (2, 5, 1);
-INSERT INTO USER_PV (USER_ID, PV_ID, PV_HEADQUARTER_REDE_ID) VALUES (2, 6, 1);
+INSERT INTO USER_PV (USER_ID, PV_ID) VALUES (1, 1);
+INSERT INTO USER_PV (USER_ID, PV_ID) VALUES (1, 3);
+INSERT INTO USER_PV (USER_ID, PV_ID) VALUES (1, 5);
+INSERT INTO USER_PV (USER_ID, PV_ID) VALUES (2, 5);
+INSERT INTO USER_PV (USER_ID, PV_ID) VALUES (2, 6);
